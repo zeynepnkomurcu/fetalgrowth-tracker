@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
@@ -15,7 +15,7 @@ const LANG = {
     biometry: "BIOMETRY", doppler: "DOPPLER",
     paramRef: "INTERGROWTH-21 reference · patient measurements overlay",
     notMeasured: "Not measured", interpretTitle: "INTERPRETATION GUIDE",
-    fgrRiskBanner: "⚠ FGR RISK DETECTED",
+    fgrRiskBanner: "⚠ FGR RISK",
     interpretLines: [
       "AC < 3rd percentile → High suspicion for FGR (most sensitive biometric marker)",
       "Z-score drop > 1 SD between visits → Growth velocity deceleration",
@@ -50,7 +50,7 @@ const LANG = {
     biometry: "BİYOMETRİ", doppler: "DOPPLER",
     paramRef: "INTERGROWTH-21 referans eğrisi · hasta ölçümleri",
     notMeasured: "Ölçülmedi", interpretTitle: "YORUM KILAVUZU",
-    fgrRiskBanner: "⚠ FGR RİSKİ TESPİT EDİLDİ",
+    fgrRiskBanner: "⚠ FGR RİSKİ",
     interpretLines: [
       "AC < 3. persantil → FGR için yüksek şüphe (en hassas biyometrik marker)",
       "Vizitler arası Z-skor düşüşü > 1 SD → Büyüme hızı yavaşlaması",
@@ -125,6 +125,22 @@ const C={bg:"#060d1a",card:"#0d1525",border:"#182236",accent:"#00e5b8",accentDim
   warn:"#f59e0b",danger:"#ef4444",ok:"#10b981",text:"#dde6f0",muted:"#4d6480",
   BPD:"#60a5fa",HC:"#c084fc",AC:"#34d399",FL:"#fb923c",UA:"#f87171",MCA:"#a78bfa"};
 
+// ─── Responsive hook ─────────────────────────────────────────────────────────
+function useViewport() {
+  const get = () => ({
+    w: typeof window !== "undefined" ? window.innerWidth : 1280,
+    h: typeof window !== "undefined" ? window.innerHeight : 800,
+  });
+  const [v, setV] = useState(get);
+  useEffect(() => {
+    const onR = () => setV(get());
+    window.addEventListener("resize", onR);
+    window.addEventListener("orientationchange", onR);
+    return () => { window.removeEventListener("resize", onR); window.removeEventListener("orientationchange", onR); };
+  }, []);
+  return { ...v, isMobile: v.w < 768, isTablet: v.w >= 768 && v.w < 1024, isDesktop: v.w >= 1024 };
+}
+
 // ─── UI atoms ────────────────────────────────────────────────────────────────
 function Badge({level,small}){
   const cfg={HIGH:{bg:"#ef444420",bd:"#ef4444",tx:"#fca5a5",lb:"⚠ HIGH"},WARN:{bg:"#f59e0b20",bd:"#f59e0b",tx:"#fcd34d",lb:"△ WARN"},OK:{bg:"#10b98120",bd:"#10b981",tx:"#6ee7b7",lb:"✓ OK"}}[level]||{};
@@ -167,6 +183,7 @@ function DGauge({value,label,ref95,ref5,isLow}){
 const BLANK={date:new Date().toISOString().slice(0,10),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:0,MCA_PI:"",MCA_RI:"",DV_PIV:""};
 
 export default function App(){
+  const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
   const [patients,setPatients]=useState([{id:1,name:"Patient 001",measurements:[]}]);
   const [pid,setPid]=useState(1);
@@ -174,6 +191,10 @@ export default function App(){
   const [tab,setTab]=useState("chart");
   const [param,setParam]=useState("AC");
   const [newName,setNewName]=useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close drawer when switching to desktop
+  useEffect(() => { if (vp.isDesktop) setDrawerOpen(false); }, [vp.isDesktop]);
 
   const patient=patients.find(p=>p.id===pid);
   const meas=patient?.measurements||[];
@@ -199,6 +220,7 @@ export default function App(){
   }
   function addPt(){if(!newName.trim())return;const id=Date.now();setPatients(ps=>[...ps,{id,name:newName.trim(),measurements:[]}]);setPid(id);setNewName("");}
   function delM(id){setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:p.measurements.filter(m=>m.id!==id)}:p));}
+  function pickPatient(id){setPid(id);setDrawerOpen(false);}
 
   // chart data
   const ref=getRefCurve(param);
@@ -208,66 +230,111 @@ export default function App(){
 
   const dpD=sorted.filter(m=>m.UA_PI||m.MCA_PI).map(m=>{const wk=Math.round(m.ga);return{week:m.ga,UA_PI:m.UA_PI,MCA_PI:m.MCA_PI,UA95:UA_PI_95[wk],MCAm:MCA_PI_REF[wk]?.m,MCA5:MCA_PI_REF[wk]?.p5,CPR:calcCPR(m)};});
 
+  // responsive sizing
+  const pad = vp.isMobile ? 12 : vp.isTablet ? 16 : 18;
+  const sidebarW = vp.isTablet ? 170 : 196;
+  const bioCols = vp.isMobile ? "repeat(2,1fr)" : vp.isTablet ? "repeat(3,1fr)" : "repeat(6,1fr)";
+  const dopCols = vp.isMobile ? "repeat(2,1fr)" : vp.isTablet ? "repeat(3,1fr)" : "repeat(6,1fr)";
+  const dgCols = vp.isMobile ? "repeat(2,1fr)" : "repeat(3,1fr)";
+  const chartH = vp.isMobile ? 240 : vp.isTablet ? 270 : 290;
+
   // style helpers
-  const inp={background:"#07101e",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"7px 9px",fontSize:12,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
-  const tb=(a,col)=>({background:a?`${col||C.accent}20`:"transparent",border:`1px solid ${a?col||C.accent:C.border}`,color:a?col||C.accent:C.muted,borderRadius:6,padding:"5px 13px",cursor:"pointer",fontSize:11,fontFamily:"inherit",fontWeight:a?700:400,letterSpacing:"0.04em"});
-  const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16};
+  const inp={background:"#07101e",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"9px 10px",fontSize:13,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
+  const tb=(a,col)=>({background:a?`${col||C.accent}20`:"transparent",border:`1px solid ${a?col||C.accent:C.border}`,color:a?col||C.accent:C.muted,borderRadius:6,padding:vp.isMobile?"7px 11px":"5px 13px",cursor:"pointer",fontSize:vp.isMobile?12:11,fontFamily:"inherit",fontWeight:a?700:400,letterSpacing:"0.04em",whiteSpace:"nowrap"});
+  const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:vp.isMobile?12:16};
   const lbl={fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3};
   const PLABELS={BPD:"Biparietal Diameter",HC:"Head Circumference",AC:"Abdominal Circumference",FL:"Femur Length"};
 
+  const sidebarContent = (
+    <>
+      <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",marginBottom:4}}>{T.patients}</div>
+      {patients.map(p=>{
+        const {stage:ps}=getFGRStage(p.measurements);
+        const dot=ps===0&&p.measurements.length>0?C.ok:ps===1?C.warn:ps>1?C.danger:null;
+        return(
+          <button key={p.id} onClick={()=>pickPatient(p.id)} style={{background:p.id===pid?C.accentDim:"transparent",border:`1px solid ${p.id===pid?C.accent:C.border}`,color:p.id===pid?C.accent:C.text,borderRadius:8,padding:"9px 10px",cursor:"pointer",fontSize:12,textAlign:"left",fontFamily:"inherit"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
+              {dot&&<span style={{color:dot,fontSize:9,marginLeft:4}}>●</span>}
+            </div>
+            <div style={{fontSize:9,color:C.muted,marginTop:2}}>{p.measurements.length} {T.visits}</div>
+          </button>
+        );
+      })}
+      <div style={{display:"flex",gap:5,marginTop:6}}>
+        <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder={T.newPatient}
+          style={{...inp,fontSize:11,flex:1,padding:"7px 9px"}} onKeyDown={e=>e.key==="Enter"&&addPt()}/>
+        <button onClick={addPt} style={{...tb(false),padding:"5px 10px",fontSize:14}}>+</button>
+      </div>
+    </>
+  );
+
   return(
-    <div style={{minHeight:"100vh",background:C.bg,color:C.text,fontFamily:"'DM Mono','Courier New',monospace",display:"flex",flexDirection:"column"}}>
+    <div style={{
+      flex:1,
+      background:C.bg,
+      color:C.text,
+      fontFamily:"'DM Mono','Courier New',monospace",
+      display:"flex",
+      flexDirection:"column",
+      paddingTop:"env(safe-area-inset-top)",
+      paddingBottom:"env(safe-area-inset-bottom)",
+      minHeight:0,
+    }}>
 
       {/* Header */}
-      <div style={{background:"#08111f",borderBottom:`1px solid ${C.border}`,padding:"12px 20px",display:"flex",alignItems:"center",gap:14,flexShrink:0}}>
-        <div style={{width:32,height:32,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%,${C.accent},#007755)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,boxShadow:`0 0 18px ${C.accent}55`,flexShrink:0}}>♡</div>
-        <div>
-          <div style={{fontSize:16,fontWeight:700,color:C.accent,letterSpacing:"0.03em"}}>{T.appTitle}</div>
-          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em"}}>{T.appSub}</div>
+      <div style={{background:"#08111f",borderBottom:`1px solid ${C.border}`,padding:vp.isMobile?"10px 12px":"12px 20px",display:"flex",alignItems:"center",gap:vp.isMobile?10:14,flexShrink:0}}>
+        {!vp.isDesktop && (
+          <button onClick={()=>setDrawerOpen(o=>!o)} aria-label="Menu"
+            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.accent,borderRadius:6,padding:"6px 9px",cursor:"pointer",fontSize:16,lineHeight:1,fontFamily:"inherit"}}>
+            ☰
+          </button>
+        )}
+        <div style={{width:vp.isMobile?28:32,height:vp.isMobile?28:32,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%,${C.accent},#007755)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:vp.isMobile?14:16,boxShadow:`0 0 18px ${C.accent}55`,flexShrink:0}}>♡</div>
+        <div style={{minWidth:0,flex:1}}>
+          <div style={{fontSize:vp.isMobile?14:16,fontWeight:700,color:C.accent,letterSpacing:"0.03em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{T.appTitle}</div>
+          {!vp.isMobile && <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em"}}>{T.appSub}</div>}
         </div>
-        <div style={{marginLeft:"auto",display:"flex",gap:8,alignItems:"center"}}>
-          {stage>0&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:7,padding:"5px 12px",color:sc,fontSize:11,fontWeight:700}}>{T.fgrRiskBanner}</div>}
+        <div style={{marginLeft:"auto",display:"flex",gap:vp.isMobile?5:8,alignItems:"center",flexShrink:0}}>
+          {stage>0&&!vp.isMobile&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:7,padding:"5px 12px",color:sc,fontSize:11,fontWeight:700}}>{T.fgrRiskBanner}</div>}
+          {stage>0&&vp.isMobile&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:6,padding:"4px 7px",color:sc,fontSize:10,fontWeight:700}}>⚠</div>}
           <button style={tb(lang==="EN")} onClick={()=>setLang("EN")}>EN</button>
           <button style={tb(lang==="TR")} onClick={()=>setLang("TR")}>TR</button>
         </div>
       </div>
 
-      <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-        {/* Sidebar */}
-        <div style={{width:196,background:"#08111f",borderRight:`1px solid ${C.border}`,padding:14,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flexShrink:0}}>
-          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",marginBottom:4}}>{T.patients}</div>
-          {patients.map(p=>{
-            const {stage:ps}=getFGRStage(p.measurements);
-            const dot=ps===0&&p.measurements.length>0?C.ok:ps===1?C.warn:ps>1?C.danger:null;
-            return(
-              <button key={p.id} onClick={()=>setPid(p.id)} style={{background:p.id===pid?C.accentDim:"transparent",border:`1px solid ${p.id===pid?C.accent:C.border}`,color:p.id===pid?C.accent:C.text,borderRadius:8,padding:"7px 10px",cursor:"pointer",fontSize:11,textAlign:"left",fontFamily:"inherit"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
-                  {dot&&<span style={{color:dot,fontSize:9,marginLeft:4}}>●</span>}
-                </div>
-                <div style={{fontSize:9,color:C.muted,marginTop:2}}>{p.measurements.length} {T.visits}</div>
-              </button>
-            );
-          })}
-          <div style={{display:"flex",gap:5,marginTop:6}}>
-            <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder={T.newPatient}
-              style={{...inp,fontSize:10,flex:1}} onKeyDown={e=>e.key==="Enter"&&addPt()}/>
-            <button onClick={addPt} style={{...tb(false),padding:"5px 8px",fontSize:14}}>+</button>
+      <div style={{display:"flex",flex:1,overflow:"hidden",position:"relative"}}>
+        {/* Desktop sidebar */}
+        {vp.isDesktop && (
+          <div style={{width:sidebarW,background:"#08111f",borderRight:`1px solid ${C.border}`,padding:14,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flexShrink:0}}>
+            {sidebarContent}
           </div>
-        </div>
+        )}
+
+        {/* Mobile/Tablet drawer */}
+        {!vp.isDesktop && drawerOpen && (
+          <>
+            <div onClick={()=>setDrawerOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:9}}/>
+            <div style={{position:"fixed",top:0,left:0,bottom:0,width:Math.min(280,vp.w-60),background:"#08111f",borderRight:`1px solid ${C.border}`,padding:14,paddingTop:`calc(14px + env(safe-area-inset-top))`,paddingBottom:`calc(14px + env(safe-area-inset-bottom))`,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",zIndex:10,boxShadow:"4px 0 24px rgba(0,0,0,0.5)"}}>
+              <button onClick={()=>setDrawerOpen(false)} aria-label="Close menu"
+                style={{alignSelf:"flex-end",background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:20,padding:"0 4px",fontFamily:"inherit"}}>×</button>
+              {sidebarContent}
+            </div>
+          </>
+        )}
 
         {/* Main */}
-        <div style={{flex:1,overflowY:"auto",padding:18,display:"flex",flexDirection:"column",gap:14}}>
+        <div style={{flex:1,overflowY:"auto",padding:pad,display:"flex",flexDirection:"column",gap:vp.isMobile?10:14,minWidth:0,WebkitOverflowScrolling:"touch"}}>
 
           {/* Patient header */}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",justifyContent:"space-between",flexDirection:vp.isMobile?"column":"row",gap:vp.isMobile?6:0}}>
             <div>
-              <div style={{fontSize:18,fontWeight:700,color:C.accent}}>{patient?.name}</div>
+              <div style={{fontSize:vp.isMobile?16:18,fontWeight:700,color:C.accent}}>{patient?.name}</div>
               <div style={{fontSize:10,color:C.muted}}>{meas.length} {T.visits}</div>
             </div>
-            <div style={{textAlign:"right"}}>
+            <div style={{textAlign:vp.isMobile?"left":"right",width:vp.isMobile?"100%":"auto"}}>
               <div style={{fontSize:12,fontWeight:700,color:sc}}>{si.label}</div>
-              <div style={{fontSize:10,color:C.muted,maxWidth:280}}>{si.desc}</div>
+              <div style={{fontSize:10,color:C.muted,maxWidth:vp.isMobile?"none":280}}>{si.desc}</div>
             </div>
           </div>
 
@@ -275,41 +342,43 @@ export default function App(){
           <div style={card}>
             <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:10,letterSpacing:"0.06em"}}>{T.newMeasurement}</div>
             <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.biometry}</div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:12}}>
+            <div style={{display:"grid",gridTemplateColumns:bioCols,gap:8,marginBottom:12}}>
               {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:"28.5"},
                 {k:"BPD",lb:"BPD mm",tp:"number",ph:"70"},{k:"HC",lb:"HC mm",tp:"number",ph:"260"},
                 {k:"AC",lb:"AC mm",tp:"number",ph:"240"},{k:"FL",lb:"FL mm",tp:"number",ph:"52"}
               ].map(({k,lb,tp,ph})=>(
                 <div key={k}><div style={lbl}>{lb}</div>
-                  <input type={tp} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
+                  <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
                 </div>
               ))}
             </div>
             <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.doppler}</div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:10}}>
+            <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:"0.90"},{k:"UA_RI",lb:"UA RI",ph:"0.60"},
                 {k:"UA_SD",lb:"UA S/D",ph:"2.5"},{k:"MCA_PI",lb:"MCA PI",ph:"1.80"},
                 {k:"MCA_RI",lb:"MCA RI",ph:"0.75"},{k:"DV_PIV",lb:"DV PIV",ph:"0.80"}
               ].map(({k,lb,ph})=>(
                 <div key={k}><div style={lbl}>{lb}</div>
-                  <input type="number" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
+                  <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
                 </div>
               ))}
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
+            <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
               <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
-              {T.edfOptions.map((opt,i)=>(
-                <button key={i} onClick={()=>f("UA_EDF",i)}
-                  style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}>{opt}</button>
-              ))}
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {T.edfOptions.map((opt,i)=>(
+                  <button key={i} onClick={()=>f("UA_EDF",i)}
+                    style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}>{opt}</button>
+                ))}
+              </div>
             </div>
-            <div style={{display:"flex",justifyContent:"flex-end"}}>
-              <button style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"8px 20px",fontSize:12,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit"}} onClick={addMeas}>{T.addBtn}</button>
+            <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
+              <button style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto"}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
 
           {/* Tabs */}
-          <div style={{display:"flex",gap:7}}>
+          <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:2,marginLeft:-pad,marginRight:-pad,paddingLeft:pad,paddingRight:pad,scrollbarWidth:"none"}}>
             {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
@@ -318,12 +387,12 @@ export default function App(){
           {/* ── CHART ── */}
           {tab==="chart"&&(
             <div style={card}>
-              <div style={{display:"flex",gap:7,marginBottom:10}}>
+              <div style={{display:"flex",gap:7,marginBottom:10,flexWrap:"wrap"}}>
                 {["BPD","HC","AC","FL"].map(p=><button key={p} style={tb(param===p,C[p])} onClick={()=>setParam(p)}>{p}</button>)}
               </div>
               <div style={{fontSize:10,color:C.muted,marginBottom:8}}>{PLABELS[param]} · {T.paramRef}</div>
-              <ResponsiveContainer width="100%" height={290}>
-                <LineChart data={cd} margin={{top:6,right:14,bottom:18,left:8}}>
+              <ResponsiveContainer width="100%" height={chartH}>
+                <LineChart data={cd} margin={{top:6,right:vp.isMobile?6:14,bottom:18,left:vp.isMobile?-10:8}}>
                   <CartesianGrid stroke={C.border} strokeDasharray="4 4"/>
                   <XAxis dataKey="week" stroke={C.muted} tick={{fontSize:10}} label={{value:"GA (weeks)",position:"insideBottom",offset:-8,fill:C.muted,fontSize:10}}/>
                   <YAxis stroke={C.muted} tick={{fontSize:10}}/>
@@ -348,15 +417,15 @@ export default function App(){
                 const efw=calcEFW(m);
                 return(
                   <div key={m.id} style={card}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                      <div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
+                      <div style={{minWidth:0,flex:1}}>
                         <span style={{fontWeight:700,color:C.accent}}>{T.visit} {i+1}</span>
                         <span style={{color:C.muted,fontSize:11,marginLeft:8}}>{m.date} · GA {m.ga}w</span>
-                        {efw&&<span style={{color:C.warn,fontSize:11,marginLeft:12}}>{T.efwLabel}: ~{efw}g</span>}
+                        {efw&&<span style={{color:C.warn,fontSize:11,marginLeft:vp.isMobile?6:12,display:vp.isMobile?"block":"inline"}}>{T.efwLabel}: ~{efw}g</span>}
                       </div>
-                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1}}>×</button>
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                    <div style={{display:"grid",gridTemplateColumns:vp.isMobile?"1fr":"1fr 1fr",gap:10}}>
                       {["BPD","HC","AC","FL"].map(p=>{
                         const z=getZ(p,m.ga,m[p]);
                         return(
@@ -389,9 +458,9 @@ export default function App(){
                         <span style={{fontWeight:700,color:C.accent}}>{T.visit} {i+1}</span>
                         <span style={{color:C.muted,fontSize:11,marginLeft:8}}>{m.date} · GA {m.ga}w</span>
                       </div>
-                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1}}>×</button>
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                    <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
                       <DGauge value={m.UA_PI} label={T.dopplerLabels.UA_PI} ref95={uaRef}/>
                       <DGauge value={m.UA_RI} label={T.dopplerLabels.UA_RI} ref95={0.70}/>
                       <DGauge value={m.UA_SD} label={T.dopplerLabels.UA_SD} ref95={3.0}/>
@@ -407,7 +476,7 @@ export default function App(){
                           <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
                         </div>
                       )}
-                      <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px"}}>
+                      <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px",gridColumn:vp.isMobile?"span 2":"auto"}}>
                         <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{T.dopplerLabels.UA_EDF}</div>
                         <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{T.edfOptions[m.UA_EDF]}</span>
                       </div>
@@ -415,8 +484,8 @@ export default function App(){
                     {dpD.length>1&&i===sorted.length-1&&(
                       <div style={{marginTop:12}}>
                         <div style={{fontSize:9,color:C.muted,marginBottom:6}}>UA PI / MCA PI TREND</div>
-                        <ResponsiveContainer width="100%" height={160}>
-                          <LineChart data={dpD} margin={{top:4,right:10,bottom:14,left:4}}>
+                        <ResponsiveContainer width="100%" height={vp.isMobile?140:160}>
+                          <LineChart data={dpD} margin={{top:4,right:vp.isMobile?4:10,bottom:14,left:vp.isMobile?-12:4}}>
                             <CartesianGrid stroke={C.border} strokeDasharray="3 3"/>
                             <XAxis dataKey="week" stroke={C.muted} tick={{fontSize:9}} label={{value:"GA (w)",position:"insideBottom",offset:-6,fill:C.muted,fontSize:9}}/>
                             <YAxis stroke={C.muted} tick={{fontSize:9}} domain={[0,"auto"]}/>
@@ -450,7 +519,7 @@ export default function App(){
                   </div>
                   {findings.map((fd,i)=>(
                     <div key={i} style={{...card,borderColor:fd.level==="HIGH"?C.danger:fd.level==="WARN"?C.warn:C.ok,background:fd.level==="HIGH"?"#ef444412":fd.level==="WARN"?"#f59e0b12":"#10b98112"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                         <Badge level={fd.level} small/>
                         <span style={{fontSize:12,color:C.text}}>{fd.text}</span>
                       </div>
