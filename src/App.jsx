@@ -511,6 +511,21 @@ export default function App(){
   const lbl={fontSize:11,color:C.muted,fontWeight:500,marginBottom:5,letterSpacing:"0.01em"};
   const PLABELS={BPD:"Biparietal Diameter",HC:"Head Circumference",AC:"Abdominal Circumference",FL:"Femur Length"};
 
+  // Live calculation preview while user types
+  const liveGa = form.ga ? parseFloat(form.ga) : null;
+  const liveBio = ["BPD","HC","AC","FL"].map(p => {
+    const v = form[p] !== "" && form[p] != null ? parseFloat(form[p]) : null;
+    if (v == null || liveGa == null || isNaN(v)) return null;
+    const z = getZ(p, liveGa, v);
+    if (z == null) return null;
+    return { p, z, pct: getPct(z), value: v };
+  }).filter(Boolean);
+  const liveEFW = calcEFW({
+    HC: form.HC !== "" ? parseFloat(form.HC) : null,
+    AC: form.AC !== "" ? parseFloat(form.AC) : null,
+    FL: form.FL !== "" ? parseFloat(form.FL) : null,
+  });
+
   const sidebarContent = (
     <>
       <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",marginBottom:8,textTransform:"uppercase"}}>{T.patients}</div>
@@ -660,6 +675,29 @@ export default function App(){
                 );
               })}
             </div>
+
+            {(liveBio.length>0||liveEFW)&&(
+              <div style={{display:"flex",flexWrap:"wrap",gap:vp.isMobile?6:10,alignItems:"center",padding:"10px 14px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
+                {liveEFW!=null&&(
+                  <div style={{display:"flex",alignItems:"center",gap:8,paddingRight:liveBio.length?12:0,borderRight:liveBio.length?`1px solid ${C.border}`:"none"}}>
+                    <span style={{fontSize:10,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase"}}>EFW</span>
+                    <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:15}}>{liveEFW} g</span>
+                  </div>
+                )}
+                {liveBio.map(b=>{
+                  const sigColor = b.z<-1.88||b.z>1.88?C.danger : b.z<-1.28||b.z>1.28?C.warn : C.ok;
+                  return(
+                    <div key={b.p} style={{display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{fontSize:11,fontWeight:700,color:C[b.p]}}>{b.p}</span>
+                      <span className="mono" style={{fontSize:11,fontWeight:600,color:sigColor,padding:"2px 7px",background:`${sigColor}18`,border:`1px solid ${sigColor}40`,borderRadius:5}}>
+                        P{b.pct} · Z{b.z>0?"+":""}{b.z}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
