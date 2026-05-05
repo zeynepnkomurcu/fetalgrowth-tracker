@@ -679,16 +679,9 @@ export default function App(){
                   );
                 }
                 if(k==="date"){
-                  const display = formatDateDDMMYYYY(form.date);
                   return(
-                    <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
-                      <div style={{...inp,position:"relative",display:"flex",alignItems:"center",cursor:"pointer"}}>
-                        <span className={display?"mono":undefined} style={{color:display?C.text:C.mutedSoft,fontWeight:display?500:400,pointerEvents:"none"}}>
-                          {display||"dd-mm-yyyy"}
-                        </span>
-                        <input type="date" value={form.date} onChange={e=>f(k,e.target.value)}
-                          style={{position:"absolute",inset:0,opacity:0,width:"100%",height:"100%",border:"none",padding:0,margin:0,cursor:"pointer",fontSize:16,fontFamily:"inherit",background:"transparent"}}/>
-                      </div>
+                    <div key={k} style={{minWidth:0,overflow:"hidden",gridColumn:vp.isMobile?"span 2":"auto"}}><div style={lbl}>{lb}</div>
+                      <input type="date" value={form.date} onChange={e=>f("date",e.target.value)} style={inp}/>
                     </div>
                   );
                 }
