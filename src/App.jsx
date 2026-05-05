@@ -128,7 +128,14 @@ function formatDateDDMMYYYY(iso) {
 const getZ = (p, wk, v) => { const r=IG21[p]?.[Math.round(wk)]; if(!r||v==null) return null; return parseFloat(((v-r.m)/r.sd).toFixed(2)); };
 function normCDF(z) { const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>=0?1-p:p; }
 const getPct = z => Math.round(normCDF(z)*100);
-const calcEFW = m => { if(!m.HC||!m.AC||!m.FL) return null; return Math.round(Math.exp(1.3596+0.0064*m.HC+0.0424*m.AC+0.174*m.FL-0.00386*m.AC*m.FL)*10); };
+// Hadlock-3 EFW formula. Inputs in mm → converted to cm. Returns weight in grams.
+// log10(EFW) = 1.3596 - 0.00386*AC*FL + 0.0064*HC + 0.00061*BPD*AC + 0.0424*AC + 0.174*FL
+const calcEFW = m => {
+  if (m.BPD == null || m.HC == null || m.AC == null || m.FL == null) return null;
+  const bpd = m.BPD / 10, hc = m.HC / 10, ac = m.AC / 10, fl = m.FL / 10;
+  const log10efw = 1.3596 - 0.00386 * ac * fl + 0.0064 * hc + 0.00061 * bpd * ac + 0.0424 * ac + 0.174 * fl;
+  return Math.round(Math.pow(10, log10efw));
+};
 const calcCPR = m => { if(!m.MCA_PI||!m.UA_PI) return null; return parseFloat((m.MCA_PI/m.UA_PI).toFixed(2)); };
 
 function getFGRStage(meas) {
@@ -545,6 +552,7 @@ export default function App(){
     return { p, z, pct: getPct(z), value: v };
   }).filter(Boolean);
   const liveEFW = calcEFW({
+    BPD: form.BPD !== "" ? parseFloat(form.BPD) : null,
     HC: form.HC !== "" ? parseFloat(form.HC) : null,
     AC: form.AC !== "" ? parseFloat(form.AC) : null,
     FL: form.FL !== "" ? parseFloat(form.FL) : null,
