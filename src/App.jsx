@@ -129,7 +129,7 @@ function formatDateDDMMYYYY(iso) {
 }
 const getZ = (p, wk, v) => { const r=IG21[p]?.[Math.round(wk)]; if(!r||v==null) return null; return parseFloat(((v-r.m)/r.sd).toFixed(2)); };
 function normCDF(z) { const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>=0?1-p:p; }
-const getPct = z => Math.round(normCDF(z)*100);
+const getPct = z => Math.max(1, Math.min(99, Math.round(normCDF(z)*100)));
 // Hadlock-3 EFW formula. Inputs in mm → converted to cm. Returns weight in grams.
 // log10(EFW) = 1.3596 - 0.00386*AC*FL + 0.0064*HC + 0.00061*BPD*AC + 0.0424*AC + 0.174*FL
 const calcEFW = m => {
