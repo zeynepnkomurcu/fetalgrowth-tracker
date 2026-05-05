@@ -7,7 +7,7 @@ const LANG = {
     appTitle: "FetalGrowth Tracker",
     appSub: "INTERGROWTH-21 · BIOMETRY · DOPPLER · FGR DETECTION",
     patients: "PATIENTS", newPatient: "New patient",
-    newPatientTitle: "New Patient", patientName: "Name Surname",
+    newPatientTitle: "New Patient", firstName: "Name", lastName: "Surname",
     birthDate: "Date of Birth", tcKimlik: "TC Kimlik No", lmpDate: "Last Menstrual Period (LMP)",
     save: "Save", cancel: "Cancel", required: "All fields are required",
     tcInvalid: "TC Kimlik must be 11 digits",
@@ -46,7 +46,7 @@ const LANG = {
     appTitle: "FetalGrowth Tracker",
     appSub: "INTERGROWTH-21 · BİYOMETRİ · DOPPLER · FGR TESPİTİ",
     patients: "HASTALAR", newPatient: "Yeni hasta",
-    newPatientTitle: "Yeni Hasta", patientName: "İsim Soyisim",
+    newPatientTitle: "Yeni Hasta", firstName: "İsim", lastName: "Soyisim",
     birthDate: "Doğum Tarihi", tcKimlik: "TC Kimlik No", lmpDate: "Son Adet Tarihi",
     save: "Kaydet", cancel: "İptal", required: "Tüm alanlar zorunludur",
     tcInvalid: "TC Kimlik 11 hane olmalıdır",
@@ -205,7 +205,7 @@ function DGauge({value,label,ref95,ref5,isLow}){
 // ─── Main ────────────────────────────────────────────────────────────────────
 const BLANK={date:new Date().toISOString().slice(0,10),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:0,MCA_PI:"",MCA_RI:"",DV_PIV:""};
 
-const NEW_PT_BLANK = { name: "", birthDate: "", tcKimlik: "", lmpDate: "" };
+const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
 export default function App(){
   const vp = useViewport();
@@ -254,11 +254,12 @@ export default function App(){
   }
   function openNewPt(){ setNewPt(NEW_PT_BLANK); setNewPtErr(""); setShowNewPt(true); setDrawerOpen(false); }
   function savePt(){
-    const np = { ...newPt, name: newPt.name.trim(), tcKimlik: newPt.tcKimlik.trim() };
-    if (!np.name || !np.birthDate || !np.tcKimlik || !np.lmpDate) { setNewPtErr(T.required); return; }
+    const np = { ...newPt, firstName: newPt.firstName.trim(), lastName: newPt.lastName.trim(), tcKimlik: newPt.tcKimlik.trim() };
+    if (!np.firstName || !np.lastName || !np.birthDate || !np.tcKimlik || !np.lmpDate) { setNewPtErr(T.required); return; }
     if (!/^\d{11}$/.test(np.tcKimlik)) { setNewPtErr(T.tcInvalid); return; }
     const id = Date.now();
-    setPatients(ps => [...ps, { id, ...np, measurements: [] }]);
+    const name = `${np.firstName} ${np.lastName}`;
+    setPatients(ps => [...ps, { id, name, ...np, measurements: [] }]);
     setPid(id);
     setShowNewPt(false);
     setNewPt(NEW_PT_BLANK);
@@ -613,9 +614,15 @@ export default function App(){
             </div>
 
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              <div>
-                <div style={lbl}>{T.patientName} *</div>
-                <input type="text" value={newPt.name} onChange={e=>setNewPt(x=>({...x,name:e.target.value}))} style={inp} autoFocus/>
+              <div style={{display:"grid",gridTemplateColumns:vp.isMobile?"1fr":"1fr 1fr",gap:10}}>
+                <div>
+                  <div style={lbl}>{T.firstName} *</div>
+                  <input type="text" autoCapitalize="words" value={newPt.firstName} onChange={e=>setNewPt(x=>({...x,firstName:e.target.value}))} style={inp} autoFocus/>
+                </div>
+                <div>
+                  <div style={lbl}>{T.lastName} *</div>
+                  <input type="text" autoCapitalize="words" value={newPt.lastName} onChange={e=>setNewPt(x=>({...x,lastName:e.target.value}))} style={inp}/>
+                </div>
               </div>
               <div>
                 <div style={lbl}>{T.birthDate} *</div>
