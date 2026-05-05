@@ -613,9 +613,9 @@ export default function App(){
             <div style={{fontSize:14,fontWeight:600,color:C.textStrong,marginBottom:14}}>{T.newMeasurement}</div>
             <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8}}>{T.biometry}</div>
             <div style={{display:"grid",gridTemplateColumns:bioCols,gap:8,marginBottom:12}}>
-              {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:"28+0"},
-                {k:"BPD",lb:"BPD mm",tp:"number",ph:"70"},{k:"HC",lb:"HC mm",tp:"number",ph:"260"},
-                {k:"AC",lb:"AC mm",tp:"number",ph:"240"},{k:"FL",lb:"FL mm",tp:"number",ph:"52"}
+              {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:""},
+                {k:"BPD",lb:"BPD mm",tp:"number",ph:""},{k:"HC",lb:"HC mm",tp:"number",ph:""},
+                {k:"AC",lb:"AC mm",tp:"number",ph:""},{k:"FL",lb:"FL mm",tp:"number",ph:""}
               ].map(({k,lb,tp,ph})=>{
                 if(k==="ga"){
                   const gaLocked=!!patient?.lmpDate;
@@ -637,9 +637,9 @@ export default function App(){
             </div>
             <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
-              {[{k:"UA_PI",lb:"UA PI",ph:"0.90"},{k:"UA_RI",lb:"UA RI",ph:"0.60"},
-                {k:"UA_SD",lb:"UA S/D",ph:"2.5"},{k:"MCA_PI",lb:"MCA PI",ph:"1.80"},
-                {k:"MCA_RI",lb:"MCA RI",ph:"0.75"},{k:"DV_PIV",lb:"DV PIV",ph:"0.80"}
+              {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
+                {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
+                {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
               ].map(({k,lb,ph})=>(
                 <div key={k}><div style={lbl}>{lb}</div>
                   <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
