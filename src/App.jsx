@@ -11,6 +11,10 @@ const LANG = {
     birthDate: "Date of Birth", tcKimlik: "TC Kimlik No", lmpDate: "Last Menstrual Period (LMP)",
     save: "Save", cancel: "Cancel", required: "All fields are required",
     tcInvalid: "TC Kimlik must be 11 digits",
+    loginTitle: "Sign in", loginSub: "Authorized clinicians only",
+    username: "Username", password: "Password", loginBtn: "Sign in",
+    loginErr: "Invalid username or password", logout: "Sign out",
+    welcomeBack: "Welcome back",
     newMeasurement: "+ NEW MEASUREMENT", addBtn: "Add Measurement",
     visits: "visits", visit: "Visit", date: "Date", gaWeeks: "GA (w+d)",
     noMeas: "No measurements yet. Add your first measurement above.",
@@ -50,6 +54,10 @@ const LANG = {
     birthDate: "Doğum Tarihi", tcKimlik: "TC Kimlik No", lmpDate: "Son Adet Tarihi",
     save: "Kaydet", cancel: "İptal", required: "Tüm alanlar zorunludur",
     tcInvalid: "TC Kimlik 11 hane olmalıdır",
+    loginTitle: "Giriş yap", loginSub: "Sadece yetkili klinisyenler",
+    username: "Kullanıcı adı", password: "Şifre", loginBtn: "Giriş yap",
+    loginErr: "Geçersiz kullanıcı adı veya şifre", logout: "Çıkış",
+    welcomeBack: "Hoş geldiniz",
     newMeasurement: "+ YENİ ÖLÇÜM", addBtn: "Ölçüm Ekle",
     visits: "vizit", visit: "Vizit", date: "Tarih", gaWeeks: "GA (h+g)",
     noMeas: "Henüz ölçüm yok. Yukarıdan ilk ölçümü girin.",
@@ -148,6 +156,12 @@ const C={bg:"#060d1a",card:"#0d1525",border:"#182236",accent:"#00e5b8",accentDim
   warn:"#f59e0b",danger:"#ef4444",ok:"#10b981",text:"#dde6f0",muted:"#4d6480",
   BPD:"#60a5fa",HC:"#c084fc",AC:"#34d399",FL:"#fb923c",UA:"#f87171",MCA:"#a78bfa"};
 
+// ─── Auth ────────────────────────────────────────────────────────────────────
+const USERS = {
+  zeynepnur: { password: "Summer2027", display: "Dr. Zeynep" },
+};
+const AUTH_KEY = "fgt_auth_user";
+
 // ─── Responsive hook ─────────────────────────────────────────────────────────
 function useViewport() {
   const get = () => ({
@@ -202,6 +216,118 @@ function DGauge({value,label,ref95,ref5,isLow}){
   );
 }
 
+// ─── Login Screen ────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin, T, lang, setLang, vp }) {
+  const [u, setU] = useState("");
+  const [p, setP] = useState("");
+  const [err, setErr] = useState("");
+  const [showP, setShowP] = useState(false);
+
+  function submit(e) {
+    if (e) e.preventDefault();
+    const user = USERS[u.trim().toLowerCase()];
+    if (!user || user.password !== p) { setErr(T.loginErr); return; }
+    onLogin(u.trim().toLowerCase());
+  }
+
+  const inp = {
+    background:"#07101e", border:`1px solid ${C.border}`, color:C.text,
+    borderRadius:8, padding:"12px 14px", fontSize:14, width:"100%",
+    outline:"none", fontFamily:"inherit", boxSizing:"border-box",
+  };
+  const tb = (a) => ({
+    background: a ? `${C.accent}20` : "transparent",
+    border: `1px solid ${a ? C.accent : C.border}`,
+    color: a ? C.accent : C.muted, borderRadius:6, padding:"5px 12px",
+    cursor:"pointer", fontSize:11, fontFamily:"inherit", fontWeight:a?700:400,
+  });
+
+  return (
+    <div style={{
+      minHeight:"100vh",minHeight:"100dvh",background:C.bg,color:C.text,
+      fontFamily:"'DM Mono','Courier New',monospace",display:"flex",
+      flexDirection:"column",alignItems:"center",justifyContent:"center",
+      padding:vp.isMobile?16:24,position:"relative",overflow:"hidden",
+    }}>
+      {/* Ambient glow */}
+      <div aria-hidden style={{position:"absolute",inset:0,
+        background:`radial-gradient(ellipse at 30% 20%, ${C.accent}15, transparent 50%), radial-gradient(ellipse at 70% 80%, #5cffd910, transparent 50%)`,
+        pointerEvents:"none"}}/>
+
+      {/* Lang switcher */}
+      <div style={{position:"absolute",top:`calc(20px + env(safe-area-inset-top))`,right:20,display:"flex",gap:6,zIndex:2}}>
+        <button style={tb(lang==="EN")} onClick={()=>setLang("EN")}>EN</button>
+        <button style={tb(lang==="TR")} onClick={()=>setLang("TR")}>TR</button>
+      </div>
+
+      <form onSubmit={submit} style={{
+        position:"relative",zIndex:1,width:"100%",maxWidth:380,
+        background:"rgba(13, 21, 37, 0.85)",
+        backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
+        border:`1px solid ${C.border}`,borderRadius:18,
+        padding:vp.isMobile?22:32,
+        boxShadow:`0 20px 60px rgba(0,0,0,0.5), 0 0 80px ${C.accent}10`,
+      }}>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:24}}>
+          <div style={{
+            width:64,height:64,borderRadius:18,
+            background:`radial-gradient(circle at 35% 35%,${C.accent},#007755)`,
+            display:"flex",alignItems:"center",justifyContent:"center",
+            fontSize:32,boxShadow:`0 10px 30px ${C.accent}40, 0 0 40px ${C.accent}30`,
+            marginBottom:14,
+          }}>♡</div>
+          <div style={{fontSize:18,fontWeight:700,color:C.accent,letterSpacing:"0.04em"}}>
+            FetalGrowth Tracker
+          </div>
+          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.14em",marginTop:4,textAlign:"center"}}>
+            INTERGROWTH-21 · BIOMETRY · DOPPLER · FGR
+          </div>
+        </div>
+
+        <div style={{fontSize:13,fontWeight:700,color:C.text,marginBottom:4}}>{T.loginTitle}</div>
+        <div style={{fontSize:10,color:C.muted,marginBottom:18,letterSpacing:"0.05em"}}>{T.loginSub}</div>
+
+        <div style={{marginBottom:12}}>
+          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:5}}>{T.username}</div>
+          <input type="text" autoCapitalize="none" autoComplete="username" autoFocus
+            value={u} onChange={e=>{setU(e.target.value);setErr("");}}
+            style={inp}/>
+        </div>
+
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:5}}>{T.password}</div>
+          <div style={{position:"relative"}}>
+            <input type={showP?"text":"password"} autoComplete="current-password"
+              value={p} onChange={e=>{setP(e.target.value);setErr("");}}
+              style={{...inp,paddingRight:44}}/>
+            <button type="button" onClick={()=>setShowP(s=>!s)} aria-label="Toggle password"
+              style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",
+                background:"transparent",border:"none",color:C.muted,cursor:"pointer",
+                fontSize:14,padding:6,fontFamily:"inherit"}}>{showP?"○":"●"}</button>
+          </div>
+        </div>
+
+        {err && (
+          <div style={{fontSize:11,color:C.danger,padding:"9px 12px",
+            background:`${C.danger}15`,border:`1px solid ${C.danger}40`,
+            borderRadius:8,marginBottom:14}}>{err}</div>
+        )}
+
+        <button type="submit" style={{
+          width:"100%",background:C.accent,color:"#060d1a",border:"none",
+          borderRadius:8,padding:"13px 22px",fontSize:14,fontWeight:700,
+          cursor:"pointer",letterSpacing:"0.06em",fontFamily:"inherit",
+          boxShadow:`0 6px 20px ${C.accent}40`,
+        }}>{T.loginBtn}</button>
+      </form>
+
+      <div style={{position:"relative",zIndex:1,marginTop:18,fontSize:9,color:"#2d4060",letterSpacing:"0.1em"}}>
+        © FetalGrowth Tracker
+      </div>
+    </div>
+  );
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 const BLANK={date:"",ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:null,MCA_PI:"",MCA_RI:"",DV_PIV:""};
 
@@ -210,6 +336,12 @@ const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "",
 export default function App(){
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
+  const [authUser, setAuthUser] = useState(() => {
+    try { return localStorage.getItem(AUTH_KEY) || null; } catch { return null; }
+  });
+  function login(u){ try{localStorage.setItem(AUTH_KEY,u);}catch{} setAuthUser(u); }
+  function logout(){ try{localStorage.removeItem(AUTH_KEY);}catch{} setAuthUser(null); }
+
   const [patients,setPatients]=useState([]);
   const [pid,setPid]=useState(null);
   const [form,setForm]=useState(BLANK);
@@ -266,6 +398,11 @@ export default function App(){
   }
   function delM(id){setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:p.measurements.filter(m=>m.id!==id)}:p));}
   function pickPatient(id){setPid(id);setDrawerOpen(false);}
+
+  if (!authUser) {
+    return <LoginScreen onLogin={login} T={T} lang={lang} setLang={setLang} vp={vp}/>;
+  }
+  const userInfo = USERS[authUser];
 
   // chart data
   const ref=getRefCurve(param);
@@ -341,6 +478,9 @@ export default function App(){
           {stage>0&&vp.isMobile&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:6,padding:"4px 7px",color:sc,fontSize:10,fontWeight:700}}>⚠</div>}
           <button style={tb(lang==="EN")} onClick={()=>setLang("EN")}>EN</button>
           <button style={tb(lang==="TR")} onClick={()=>setLang("TR")}>TR</button>
+          {!vp.isMobile && userInfo && <div style={{fontSize:10,color:C.muted,marginLeft:6,whiteSpace:"nowrap"}}>{userInfo.display}</div>}
+          <button onClick={logout} title={T.logout} aria-label={T.logout}
+            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.muted,borderRadius:6,padding:"5px 9px",cursor:"pointer",fontSize:13,fontFamily:"inherit",lineHeight:1}}>⏻</button>
         </div>
       </div>
 
