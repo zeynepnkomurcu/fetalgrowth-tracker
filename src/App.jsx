@@ -620,7 +620,7 @@ export default function App(){
                 if(k==="ga"){
                   const gaLocked=!!patient?.lmpDate;
                   return(
-                    <div key={k}><div style={lbl}>{lb}</div>
+                    <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
                       <input type="text" readOnly={gaLocked} value={gaLocked?gaDecimalToDisplay(form.ga):form.ga} placeholder={ph}
                         onChange={e=>f(k,e.target.value)}
                         className={gaLocked?"mono":undefined}
@@ -629,7 +629,7 @@ export default function App(){
                   );
                 }
                 return(
-                  <div key={k}><div style={lbl}>{lb}</div>
+                  <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
                   </div>
                 );
@@ -641,7 +641,7 @@ export default function App(){
                 {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
                 {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
               ].map(({k,lb,ph})=>(
-                <div key={k}><div style={lbl}>{lb}</div>
+                <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
                   <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
                 </div>
               ))}
