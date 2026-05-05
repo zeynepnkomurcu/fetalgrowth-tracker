@@ -497,7 +497,7 @@ export default function App(){
   const chartH = vp.isMobile ? 240 : vp.isTablet ? 270 : 290;
 
   // style helpers
-  const inp={background:C.inputBg,border:`1px solid ${C.border}`,color:C.text,borderRadius:8,padding:"10px 12px",fontSize:13,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
+  const inp={background:C.inputBg,border:`1px solid ${C.border}`,color:C.text,borderRadius:8,padding:vp.isMobile?"10px 9px":"10px 12px",fontSize:13,width:"100%",minWidth:0,outline:"none",fontFamily:"inherit",boxSizing:"border-box",overflow:"hidden"};
   const tb=(a,col)=>({background:a?(col?`${col}18`:C.accentDim):C.tabBg,border:`1px solid ${a?(col||C.accent):C.borderStrong}`,color:a?(col||C.accent):C.text,borderRadius:8,padding:vp.isMobile?"8px 12px":"7px 14px",cursor:"pointer",fontSize:vp.isMobile?12:12,fontFamily:"inherit",fontWeight:a?600:500,letterSpacing:"0.01em",whiteSpace:"nowrap",minHeight:36});
   const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:vp.isMobile?14:18,boxShadow:C.shadow};
   const lbl={fontSize:11,color:C.muted,fontWeight:500,marginBottom:5,letterSpacing:"0.01em"};
@@ -620,7 +620,7 @@ export default function App(){
                 if(k==="ga"){
                   const gaLocked=!!patient?.lmpDate;
                   return(
-                    <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
+                    <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
                       <input type="text" readOnly={gaLocked} value={gaLocked?gaDecimalToDisplay(form.ga):form.ga} placeholder={ph}
                         onChange={e=>f(k,e.target.value)}
                         className={gaLocked?"mono":undefined}
@@ -628,9 +628,13 @@ export default function App(){
                     </div>
                   );
                 }
+                const dateOnMobile = k==="date"&&vp.isMobile;
                 return(
-                  <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
-                    <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
+                  <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
+                    <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph}
+                      onChange={e=>f(k,e.target.value)}
+                      style={dateOnMobile?{...inp,fontSize:11,padding:"10px 6px"}:inp}
+                      step={tp==="number"?"0.01":undefined}/>
                   </div>
                 );
               })}
@@ -641,7 +645,7 @@ export default function App(){
                 {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
                 {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
               ].map(({k,lb,ph})=>(
-                <div key={k} style={{minWidth:0}}><div style={lbl}>{lb}</div>
+                <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
                   <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
                 </div>
               ))}
