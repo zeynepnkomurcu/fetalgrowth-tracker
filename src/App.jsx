@@ -6,9 +6,13 @@ const LANG = {
   EN: {
     appTitle: "FetalGrowth Tracker",
     appSub: "INTERGROWTH-21 · BIOMETRY · DOPPLER · FGR DETECTION",
-    patients: "PATIENTS", newPatient: "New patient...",
+    patients: "PATIENTS", newPatient: "New patient",
+    newPatientTitle: "New Patient", patientName: "Name Surname",
+    birthDate: "Date of Birth", tcKimlik: "TC Kimlik No", lmpDate: "Last Menstrual Period (LMP)",
+    save: "Save", cancel: "Cancel", required: "All fields are required",
+    tcInvalid: "TC Kimlik must be 11 digits",
     newMeasurement: "+ NEW MEASUREMENT", addBtn: "Add Measurement",
-    visits: "visits", visit: "Visit", date: "Date", gaWeeks: "GA (weeks)",
+    visits: "visits", visit: "Visit", date: "Date", gaWeeks: "GA (w+d)",
     noMeas: "No measurements yet. Add your first measurement above.",
     noMeasFGR: "Add at least 1 measurement to enable analysis.",
     tabChart: "📈 Growth Curve", tabZ: "Z-Scores", tabDoppler: "🔴 Doppler", tabFGR: "⚠ FGR Stage",
@@ -41,9 +45,13 @@ const LANG = {
   TR: {
     appTitle: "FetalGrowth Tracker",
     appSub: "INTERGROWTH-21 · BİYOMETRİ · DOPPLER · FGR TESPİTİ",
-    patients: "HASTALAR", newPatient: "Yeni hasta...",
+    patients: "HASTALAR", newPatient: "Yeni hasta",
+    newPatientTitle: "Yeni Hasta", patientName: "İsim Soyisim",
+    birthDate: "Doğum Tarihi", tcKimlik: "TC Kimlik No", lmpDate: "Son Adet Tarihi",
+    save: "Kaydet", cancel: "İptal", required: "Tüm alanlar zorunludur",
+    tcInvalid: "TC Kimlik 11 hane olmalıdır",
     newMeasurement: "+ YENİ ÖLÇÜM", addBtn: "Ölçüm Ekle",
-    visits: "vizit", visit: "Vizit", date: "Tarih", gaWeeks: "GA (hafta)",
+    visits: "vizit", visit: "Vizit", date: "Tarih", gaWeeks: "GA (h+g)",
     noMeas: "Henüz ölçüm yok. Yukarıdan ilk ölçümü girin.",
     noMeasFGR: "Analiz için en az 1 ölçüm ekleyin.",
     tabChart: "📈 Büyüme Eğrisi", tabZ: "Z-Skorlar", tabDoppler: "🔴 Doppler", tabFGR: "⚠ FGR Evresi",
@@ -88,6 +96,21 @@ const UA_PI_95 = {20:1.80,21:1.75,22:1.70,23:1.65,24:1.60,25:1.55,26:1.50,27:1.4
 const MCA_PI_REF = {20:{m:2.10,p5:1.55},21:{m:2.15,p5:1.58},22:{m:2.20,p5:1.62},23:{m:2.25,p5:1.66},24:{m:2.28,p5:1.68},25:{m:2.30,p5:1.70},26:{m:2.32,p5:1.72},27:{m:2.35,p5:1.73},28:{m:2.38,p5:1.74},29:{m:2.40,p5:1.75},30:{m:2.42,p5:1.76},31:{m:2.44,p5:1.77},32:{m:2.45,p5:1.76},33:{m:2.43,p5:1.73},34:{m:2.38,p5:1.69},35:{m:2.30,p5:1.62},36:{m:2.18,p5:1.52},37:{m:2.05,p5:1.40},38:{m:1.90,p5:1.28},39:{m:1.75,p5:1.15},40:{m:1.60,p5:1.02}};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+function calcGaFromLmp(lmpDate, measDate) {
+  if (!lmpDate || !measDate) return null;
+  const ms = new Date(measDate).getTime() - new Date(lmpDate).getTime();
+  if (isNaN(ms) || ms < 0) return null;
+  const totalDays = Math.floor(ms / 86400000);
+  const w = Math.floor(totalDays / 7);
+  const d = totalDays % 7;
+  return { weeks: w, days: d, decimal: w + d / 7, display: `${w}+${d}` };
+}
+function gaDecimalToDisplay(dec) {
+  if (dec == null || isNaN(dec)) return "";
+  const w = Math.floor(dec);
+  const d = Math.round((dec - w) * 7);
+  return d === 7 ? `${w + 1}+0` : `${w}+${d}`;
+}
 const getZ = (p, wk, v) => { const r=IG21[p]?.[Math.round(wk)]; if(!r||v==null) return null; return parseFloat(((v-r.m)/r.sd).toFixed(2)); };
 function normCDF(z) { const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>=0?1-p:p; }
 const getPct = z => Math.round(normCDF(z)*100);
@@ -182,16 +205,20 @@ function DGauge({value,label,ref95,ref5,isLow}){
 // ─── Main ────────────────────────────────────────────────────────────────────
 const BLANK={date:new Date().toISOString().slice(0,10),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:0,MCA_PI:"",MCA_RI:"",DV_PIV:""};
 
+const NEW_PT_BLANK = { name: "", birthDate: "", tcKimlik: "", lmpDate: "" };
+
 export default function App(){
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
-  const [patients,setPatients]=useState([{id:1,name:"Patient 001",measurements:[]}]);
-  const [pid,setPid]=useState(1);
+  const [patients,setPatients]=useState([]);
+  const [pid,setPid]=useState(null);
   const [form,setForm]=useState(BLANK);
   const [tab,setTab]=useState("chart");
   const [param,setParam]=useState("AC");
-  const [newName,setNewName]=useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showNewPt, setShowNewPt] = useState(false);
+  const [newPt, setNewPt] = useState(NEW_PT_BLANK);
+  const [newPtErr, setNewPtErr] = useState("");
 
   // Close drawer when switching to desktop
   useEffect(() => { if (vp.isDesktop) setDrawerOpen(false); }, [vp.isDesktop]);
@@ -199,6 +226,13 @@ export default function App(){
   const patient=patients.find(p=>p.id===pid);
   const meas=patient?.measurements||[];
   const sorted=[...meas].sort((a,b)=>a.ga-b.ga);
+
+  // Auto-calc GA from LMP when measurement date changes
+  useEffect(() => {
+    if (!patient?.lmpDate || !form.date) return;
+    const ga = calcGaFromLmp(patient.lmpDate, form.date);
+    if (ga && ga.decimal !== form.ga) setForm(x => ({ ...x, ga: ga.decimal }));
+  }, [form.date, patient?.lmpDate]);
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
   const si=T.fgrStages[stage];
@@ -218,7 +252,17 @@ export default function App(){
     setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:[...p.measurements,m]}:p));
     setForm(BLANK);
   }
-  function addPt(){if(!newName.trim())return;const id=Date.now();setPatients(ps=>[...ps,{id,name:newName.trim(),measurements:[]}]);setPid(id);setNewName("");}
+  function openNewPt(){ setNewPt(NEW_PT_BLANK); setNewPtErr(""); setShowNewPt(true); setDrawerOpen(false); }
+  function savePt(){
+    const np = { ...newPt, name: newPt.name.trim(), tcKimlik: newPt.tcKimlik.trim() };
+    if (!np.name || !np.birthDate || !np.tcKimlik || !np.lmpDate) { setNewPtErr(T.required); return; }
+    if (!/^\d{11}$/.test(np.tcKimlik)) { setNewPtErr(T.tcInvalid); return; }
+    const id = Date.now();
+    setPatients(ps => [...ps, { id, ...np, measurements: [] }]);
+    setPid(id);
+    setShowNewPt(false);
+    setNewPt(NEW_PT_BLANK);
+  }
   function delM(id){setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:p.measurements.filter(m=>m.id!==id)}:p));}
   function pickPatient(id){setPid(id);setDrawerOpen(false);}
 
@@ -261,11 +305,7 @@ export default function App(){
           </button>
         );
       })}
-      <div style={{display:"flex",gap:5,marginTop:6}}>
-        <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder={T.newPatient}
-          style={{...inp,fontSize:11,flex:1,padding:"7px 9px"}} onKeyDown={e=>e.key==="Enter"&&addPt()}/>
-        <button onClick={addPt} style={{...tb(false),padding:"5px 10px",fontSize:14}}>+</button>
-      </div>
+      <button onClick={openNewPt} style={{background:`${C.accent}15`,border:`1px dashed ${C.accent}`,color:C.accent,borderRadius:8,padding:"10px",cursor:"pointer",fontSize:12,fontFamily:"inherit",fontWeight:700,marginTop:6,letterSpacing:"0.04em"}}>+ {T.newPatient}</button>
     </>
   );
 
@@ -326,11 +366,22 @@ export default function App(){
         {/* Main */}
         <div style={{flex:1,overflowY:"auto",padding:pad,display:"flex",flexDirection:"column",gap:vp.isMobile?10:14,minWidth:0,WebkitOverflowScrolling:"touch"}}>
 
+          {!patient && (
+            <div style={{...card,textAlign:"center",padding:vp.isMobile?28:48,color:C.muted,marginTop:vp.isMobile?20:60}}>
+              <div style={{fontSize:36,marginBottom:12}}>♡</div>
+              <div style={{fontSize:14,marginBottom:14,color:C.text}}>{T.patients} · 0</div>
+              <button onClick={openNewPt} style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit"}}>+ {T.newPatient}</button>
+            </div>
+          )}
+
+          {patient && (<>
           {/* Patient header */}
           <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",justifyContent:"space-between",flexDirection:vp.isMobile?"column":"row",gap:vp.isMobile?6:0}}>
-            <div>
-              <div style={{fontSize:vp.isMobile?16:18,fontWeight:700,color:C.accent}}>{patient?.name}</div>
-              <div style={{fontSize:10,color:C.muted}}>{meas.length} {T.visits}</div>
+            <div style={{minWidth:0}}>
+              <div style={{fontSize:vp.isMobile?16:18,fontWeight:700,color:C.accent}}>{patient.name}</div>
+              <div style={{fontSize:10,color:C.muted}}>
+                TC {patient.tcKimlik} · {T.lmpDate}: {patient.lmpDate} · {meas.length} {T.visits}
+              </div>
             </div>
             <div style={{textAlign:vp.isMobile?"left":"right",width:vp.isMobile?"100%":"auto"}}>
               <div style={{fontSize:12,fontWeight:700,color:sc}}>{si.label}</div>
@@ -343,14 +394,26 @@ export default function App(){
             <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:10,letterSpacing:"0.06em"}}>{T.newMeasurement}</div>
             <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.biometry}</div>
             <div style={{display:"grid",gridTemplateColumns:bioCols,gap:8,marginBottom:12}}>
-              {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:"28.5"},
+              {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:"28+0"},
                 {k:"BPD",lb:"BPD mm",tp:"number",ph:"70"},{k:"HC",lb:"HC mm",tp:"number",ph:"260"},
                 {k:"AC",lb:"AC mm",tp:"number",ph:"240"},{k:"FL",lb:"FL mm",tp:"number",ph:"52"}
-              ].map(({k,lb,tp,ph})=>(
-                <div key={k} style={k==="date"&&vp.isMobile?{gridColumn:"span 2"}:undefined}><div style={lbl}>{lb}</div>
-                  <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
-                </div>
-              ))}
+              ].map(({k,lb,tp,ph})=>{
+                if(k==="ga"){
+                  const gaLocked=!!patient?.lmpDate;
+                  return(
+                    <div key={k}><div style={lbl}>{lb}</div>
+                      <input type="text" readOnly={gaLocked} value={gaLocked?gaDecimalToDisplay(form.ga):form.ga} placeholder={ph}
+                        onChange={e=>f(k,e.target.value)}
+                        style={{...inp,background:gaLocked?"#0a1424":inp.background,color:gaLocked?C.accent:inp.color,fontWeight:gaLocked?700:400}}/>
+                    </div>
+                  );
+                }
+                return(
+                  <div key={k} style={k==="date"&&vp.isMobile?{gridColumn:"span 2"}:undefined}><div style={lbl}>{lb}</div>
+                    <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
+                  </div>
+                );
+              })}
             </div>
             <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
@@ -534,9 +597,50 @@ export default function App(){
               )}
             </div>
           )}
+          </>)}
 
         </div>
       </div>
+
+      {/* New patient modal */}
+      {showNewPt && (
+        <div onClick={()=>setShowNewPt(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:vp.isMobile?18:24,width:"100%",maxWidth:480,maxHeight:`calc(100dvh - 32px)`,overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.6)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+              <div style={{fontSize:16,fontWeight:700,color:C.accent,letterSpacing:"0.04em"}}>{T.newPatientTitle}</div>
+              <button onClick={()=>setShowNewPt(false)} aria-label="Close"
+                style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:22,padding:"0 4px",lineHeight:1,fontFamily:"inherit"}}>×</button>
+            </div>
+
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div>
+                <div style={lbl}>{T.patientName} *</div>
+                <input type="text" value={newPt.name} onChange={e=>setNewPt(x=>({...x,name:e.target.value}))} style={inp} autoFocus/>
+              </div>
+              <div>
+                <div style={lbl}>{T.birthDate} *</div>
+                <input type="date" value={newPt.birthDate} onChange={e=>setNewPt(x=>({...x,birthDate:e.target.value}))} style={inp}/>
+              </div>
+              <div>
+                <div style={lbl}>{T.tcKimlik} *</div>
+                <input type="text" inputMode="numeric" maxLength={11} pattern="\d{11}" value={newPt.tcKimlik}
+                  onChange={e=>setNewPt(x=>({...x,tcKimlik:e.target.value.replace(/\D/g,"").slice(0,11)}))} style={inp}/>
+              </div>
+              <div>
+                <div style={lbl}>{T.lmpDate} *</div>
+                <input type="date" value={newPt.lmpDate} onChange={e=>setNewPt(x=>({...x,lmpDate:e.target.value}))} style={inp}/>
+              </div>
+
+              {newPtErr && <div style={{fontSize:11,color:C.danger,padding:"8px 10px",background:`${C.danger}15`,border:`1px solid ${C.danger}40`,borderRadius:6}}>{newPtErr}</div>}
+
+              <div style={{display:"flex",gap:8,marginTop:8,flexDirection:vp.isMobile?"column-reverse":"row",justifyContent:"flex-end"}}>
+                <button onClick={()=>setShowNewPt(false)} style={{...tb(false),padding:"10px 18px",fontSize:13}}>{T.cancel}</button>
+                <button onClick={savePt} style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit"}}>{T.save}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
