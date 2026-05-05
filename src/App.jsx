@@ -203,7 +203,7 @@ function DGauge({value,label,ref95,ref5,isLow}){
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-const BLANK={date:new Date().toISOString().slice(0,10),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:0,MCA_PI:"",MCA_RI:"",DV_PIV:""};
+const BLANK={date:"",ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:null,MCA_PI:"",MCA_RI:"",DV_PIV:""};
 
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
@@ -241,7 +241,7 @@ export default function App(){
   const f=(k,v)=>setForm(x=>({...x,[k]:v}));
 
   function addMeas(){
-    if(!form.ga)return;
+    if(!form.date||!form.ga)return;
     const m={id:Date.now(),date:form.date,ga:parseFloat(form.ga),
       BPD:form.BPD?parseFloat(form.BPD):null,HC:form.HC?parseFloat(form.HC):null,
       AC:form.AC?parseFloat(form.AC):null,FL:form.FL?parseFloat(form.FL):null,
@@ -542,7 +542,7 @@ export default function App(){
                       )}
                       <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px",gridColumn:vp.isMobile?"span 2":"auto"}}>
                         <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{T.dopplerLabels.UA_EDF}</div>
-                        <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{T.edfOptions[m.UA_EDF]}</span>
+                        <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF==null?C.muted:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{m.UA_EDF==null?"—":T.edfOptions[m.UA_EDF]}</span>
                       </div>
                     </div>
                     {dpD.length>1&&i===sorted.length-1&&(
