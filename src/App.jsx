@@ -151,10 +151,44 @@ function getRefCurve(param) {
     p50:parseFloat(v.m.toFixed(1)), p90:parseFloat((v.m+1.28*v.sd).toFixed(1)), p97:parseFloat((v.m+1.88*v.sd).toFixed(1)) }));
 }
 
-// ─── Colors ──────────────────────────────────────────────────────────────────
-const C={bg:"#060d1a",card:"#0d1525",border:"#182236",accent:"#00e5b8",accentDim:"#00e5b818",
-  warn:"#f59e0b",danger:"#ef4444",ok:"#10b981",text:"#dde6f0",muted:"#4d6480",
-  BPD:"#60a5fa",HC:"#c084fc",AC:"#34d399",FL:"#fb923c",UA:"#f87171",MCA:"#a78bfa"};
+// ─── Themes ──────────────────────────────────────────────────────────────────
+const THEMES = {
+  dark: {
+    name: "dark",
+    bg: "#0b1323", appBg: "#0b1323",
+    card: "#121c30", cardElev: "#16213a",
+    border: "#1f2c44", borderStrong: "#2a3854",
+    inputBg: "#0d1626", innerBg: "#0e1729", tabBg: "#0e1729",
+    accent: "#10b981", accentDim: "rgba(16,185,129,0.12)", accentText: "#34d399",
+    warn: "#f59e0b", warnDim: "rgba(245,158,11,0.12)",
+    danger: "#ef4444", dangerDim: "rgba(239,68,68,0.12)",
+    ok: "#10b981", okDim: "rgba(16,185,129,0.12)",
+    text: "#e6edf7", textStrong: "#ffffff",
+    muted: "#7a8db0", mutedSoft: "#56678a",
+    shadow: "0 4px 14px rgba(0,0,0,0.4)",
+    shadowLg: "0 12px 40px rgba(0,0,0,0.5)",
+    BPD: "#60a5fa", HC: "#c084fc", AC: "#34d399", FL: "#fb923c", UA: "#f87171", MCA: "#a78bfa",
+    btnFg: "#0b1323",
+  },
+  light: {
+    name: "light",
+    bg: "#f8fafc", appBg: "#f1f5f9",
+    card: "#ffffff", cardElev: "#ffffff",
+    border: "#e2e8f0", borderStrong: "#cbd5e1",
+    inputBg: "#ffffff", innerBg: "#f8fafc", tabBg: "#ffffff",
+    accent: "#0d9488", accentDim: "rgba(13,148,136,0.10)", accentText: "#0d9488",
+    warn: "#d97706", warnDim: "rgba(217,119,6,0.10)",
+    danger: "#dc2626", dangerDim: "rgba(220,38,38,0.10)",
+    ok: "#059669", okDim: "rgba(5,150,105,0.10)",
+    text: "#0f172a", textStrong: "#020617",
+    muted: "#64748b", mutedSoft: "#94a3b8",
+    shadow: "0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
+    shadowLg: "0 10px 30px rgba(15,23,42,0.08), 0 4px 12px rgba(15,23,42,0.06)",
+    BPD: "#2563eb", HC: "#9333ea", AC: "#059669", FL: "#ea580c", UA: "#dc2626", MCA: "#7c3aed",
+    btnFg: "#ffffff",
+  },
+};
+const THEME_KEY = "fgt_theme";
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 const USERS = {
@@ -180,45 +214,47 @@ function useViewport() {
 }
 
 // ─── UI atoms ────────────────────────────────────────────────────────────────
-function Badge({level,small}){
-  const cfg={HIGH:{bg:"#ef444420",bd:"#ef4444",tx:"#fca5a5",lb:"⚠ HIGH"},WARN:{bg:"#f59e0b20",bd:"#f59e0b",tx:"#fcd34d",lb:"△ WARN"},OK:{bg:"#10b98120",bd:"#10b981",tx:"#6ee7b7",lb:"✓ OK"}}[level]||{};
-  return <span style={{background:cfg.bg,border:`1px solid ${cfg.bd}`,color:cfg.tx,borderRadius:5,padding:small?"1px 7px":"2px 10px",fontSize:small?10:11,fontWeight:700,letterSpacing:"0.05em",fontFamily:"monospace"}}>{cfg.lb}</span>;
+function Badge({level,small,C}){
+  const cfg={HIGH:{bg:C.dangerDim,bd:C.danger,tx:C.danger,lb:"⚠ HIGH"},
+             WARN:{bg:C.warnDim,bd:C.warn,tx:C.warn,lb:"△ WARN"},
+             OK:{bg:C.okDim,bd:C.ok,tx:C.ok,lb:"✓ OK"}}[level]||{};
+  return <span style={{background:cfg.bg,border:`1px solid ${cfg.bd}`,color:cfg.tx,borderRadius:5,padding:small?"2px 8px":"3px 11px",fontSize:small?10:11,fontWeight:700,letterSpacing:"0.04em"}}>{cfg.lb}</span>;
 }
 
-function PctBar({z}){
+function PctBar({z,C}){
   if(z==null)return null;
   const pct=getPct(z),color=z<-1.88?C.danger:z<-1.28?C.warn:C.ok,pos=Math.max(2,Math.min(97,pct));
   return(
-    <div style={{marginTop:5}}>
-      <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:C.muted,marginBottom:2}}>
-        {["3","10","50","90","97"].map(v=><span key={v}>P{v}</span>)}
+    <div style={{marginTop:6}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:C.mutedSoft,marginBottom:3}}>
+        {["3","10","50","90","97"].map(v=><span key={v} className="mono">P{v}</span>)}
       </div>
-      <div style={{position:"relative",height:7,background:"#182236",borderRadius:4}}>
+      <div style={{position:"relative",height:6,background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:4}}>
         {[3,10,50,90,97].map(v=><div key={v} style={{position:"absolute",left:`${v}%`,width:1,height:"100%",background:v===3||v===97?C.danger:v===50?C.muted:C.warn,opacity:0.5}}/>)}
-        <div style={{position:"absolute",left:`calc(${pos}% - 5px)`,top:-1,width:9,height:9,background:color,borderRadius:"50%",border:`2px solid ${C.bg}`,boxShadow:`0 0 6px ${color}`}}/>
+        <div style={{position:"absolute",left:`calc(${pos}% - 5px)`,top:-2,width:10,height:10,background:color,borderRadius:"50%",border:`2px solid ${C.card}`,boxShadow:`0 0 8px ${color}90`}}/>
       </div>
-      <div style={{textAlign:"right",fontSize:10,color,marginTop:2}}>Z {z>0?"+":""}{z} · P{pct}</div>
+      <div className="mono" style={{textAlign:"right",fontSize:10,color,marginTop:3,fontWeight:600}}>Z {z>0?"+":""}{z} · P{pct}</div>
     </div>
   );
 }
 
-function DGauge({value,label,ref95,ref5,isLow}){
+function DGauge({value,label,ref95,ref5,isLow,C}){
   if(value==null)return null;
   const bad=isLow?value<ref5:value>ref95;
   const color=bad?C.danger:C.ok;
   return(
-    <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-        <span style={{fontSize:10,color:C.muted,letterSpacing:"0.07em"}}>{label}</span>
-        <span style={{fontSize:13,fontWeight:700,color}}>{value}</span>
+    <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+        <span style={{fontSize:10,color:C.muted,letterSpacing:"0.06em",fontWeight:500}}>{label}</span>
+        <span className="mono" style={{fontSize:14,fontWeight:700,color}}>{value}</span>
       </div>
-      {ref95&&<div style={{fontSize:9,color:C.muted}}>{isLow?`> ${ref5} (5th %ile)`:`< ${ref95} (95th %ile)`}</div>}
+      {ref95&&<div style={{fontSize:9,color:C.mutedSoft}}>{isLow?`> ${ref5} (5th %ile)`:`< ${ref95} (95th %ile)`}</div>}
     </div>
   );
 }
 
 // ─── Login Screen ────────────────────────────────────────────────────────────
-function LoginScreen({ onLogin, T, lang, setLang, vp }) {
+function LoginScreen({ onLogin, T, lang, setLang, vp, C, theme, setTheme }) {
   const [u, setU] = useState("");
   const [p, setP] = useState("");
   const [err, setErr] = useState("");
@@ -232,97 +268,103 @@ function LoginScreen({ onLogin, T, lang, setLang, vp }) {
   }
 
   const inp = {
-    background:"#07101e", border:`1px solid ${C.border}`, color:C.text,
-    borderRadius:8, padding:"12px 14px", fontSize:14, width:"100%",
+    background: C.inputBg, border:`1px solid ${C.border}`, color:C.text,
+    borderRadius:10, padding:"13px 14px", fontSize:14, width:"100%",
     outline:"none", fontFamily:"inherit", boxSizing:"border-box",
   };
   const tb = (a) => ({
-    background: a ? `${C.accent}20` : "transparent",
+    background: a ? C.accentDim : "transparent",
     border: `1px solid ${a ? C.accent : C.border}`,
-    color: a ? C.accent : C.muted, borderRadius:6, padding:"5px 12px",
-    cursor:"pointer", fontSize:11, fontFamily:"inherit", fontWeight:a?700:400,
+    color: a ? C.accent : C.muted, borderRadius:6, padding:"6px 12px",
+    cursor:"pointer", fontSize:11, fontFamily:"inherit", fontWeight:a?700:500,
   });
+
+  const isDark = theme === "dark";
 
   return (
     <div style={{
-      minHeight:"100vh",minHeight:"100dvh",background:C.bg,color:C.text,
-      fontFamily:"'DM Mono','Courier New',monospace",display:"flex",
-      flexDirection:"column",alignItems:"center",justifyContent:"center",
+      minHeight:"100vh",minHeight:"100dvh",background:C.appBg,color:C.text,
+      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
       padding:vp.isMobile?16:24,position:"relative",overflow:"hidden",
     }}>
       {/* Ambient glow */}
       <div aria-hidden style={{position:"absolute",inset:0,
-        background:`radial-gradient(ellipse at 30% 20%, ${C.accent}15, transparent 50%), radial-gradient(ellipse at 70% 80%, #5cffd910, transparent 50%)`,
+        background: isDark
+          ? `radial-gradient(ellipse at 30% 15%, ${C.accent}15, transparent 55%), radial-gradient(ellipse at 80% 90%, ${C.MCA}15, transparent 55%)`
+          : `radial-gradient(ellipse at 30% 15%, ${C.accent}12, transparent 55%), radial-gradient(ellipse at 80% 90%, ${C.HC}10, transparent 55%)`,
         pointerEvents:"none"}}/>
 
-      {/* Lang switcher */}
+      {/* Top-right controls */}
       <div style={{position:"absolute",top:`calc(20px + env(safe-area-inset-top))`,right:20,display:"flex",gap:6,zIndex:2}}>
         <button style={tb(lang==="EN")} onClick={()=>setLang("EN")}>EN</button>
         <button style={tb(lang==="TR")} onClick={()=>setLang("TR")}>TR</button>
+        <button onClick={()=>setTheme(isDark?"light":"dark")} aria-label="Theme"
+          style={{...tb(false),padding:"6px 10px",fontSize:13}}>{isDark?"☀":"☾"}</button>
       </div>
 
       <form onSubmit={submit} style={{
-        position:"relative",zIndex:1,width:"100%",maxWidth:380,
-        background:"rgba(13, 21, 37, 0.85)",
-        backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",
+        position:"relative",zIndex:1,width:"100%",maxWidth:400,
+        background: isDark ? "rgba(18, 28, 48, 0.85)" : "rgba(255,255,255,0.92)",
+        backdropFilter:"blur(14px)",WebkitBackdropFilter:"blur(14px)",
         border:`1px solid ${C.border}`,borderRadius:18,
-        padding:vp.isMobile?22:32,
-        boxShadow:`0 20px 60px rgba(0,0,0,0.5), 0 0 80px ${C.accent}10`,
+        padding:vp.isMobile?24:36,
+        boxShadow: C.shadowLg,
       }}>
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:24}}>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:28}}>
           <div style={{
-            width:64,height:64,borderRadius:18,
-            background:`radial-gradient(circle at 35% 35%,${C.accent},#007755)`,
+            width:60,height:60,borderRadius:16,
+            background:`linear-gradient(135deg, ${C.accent}, ${C.MCA})`,
             display:"flex",alignItems:"center",justifyContent:"center",
-            fontSize:32,boxShadow:`0 10px 30px ${C.accent}40, 0 0 40px ${C.accent}30`,
-            marginBottom:14,
+            fontSize:28,color:"#fff",
+            boxShadow:`0 10px 30px ${C.accent}40, 0 0 0 1px ${C.accent}20`,
+            marginBottom:18,
           }}>♡</div>
-          <div style={{fontSize:18,fontWeight:700,color:C.accent,letterSpacing:"0.04em"}}>
+          <div style={{fontSize:20,fontWeight:700,color:C.textStrong,letterSpacing:"-0.01em"}}>
             FetalGrowth Tracker
           </div>
-          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.14em",marginTop:4,textAlign:"center"}}>
-            INTERGROWTH-21 · BIOMETRY · DOPPLER · FGR
+          <div style={{fontSize:11,color:C.muted,letterSpacing:"0.06em",marginTop:6,textAlign:"center"}}>
+            INTERGROWTH-21 · Biometry · Doppler · FGR
           </div>
         </div>
 
-        <div style={{fontSize:13,fontWeight:700,color:C.text,marginBottom:4}}>{T.loginTitle}</div>
-        <div style={{fontSize:10,color:C.muted,marginBottom:18,letterSpacing:"0.05em"}}>{T.loginSub}</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.textStrong,marginBottom:4}}>{T.loginTitle}</div>
+        <div style={{fontSize:12,color:C.muted,marginBottom:22}}>{T.loginSub}</div>
 
-        <div style={{marginBottom:12}}>
-          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:5}}>{T.username}</div>
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,color:C.muted,fontWeight:500,marginBottom:6}}>{T.username}</div>
           <input type="text" autoCapitalize="none" autoComplete="username" autoFocus
             value={u} onChange={e=>{setU(e.target.value);setErr("");}}
             style={inp}/>
         </div>
 
-        <div style={{marginBottom:14}}>
-          <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:5}}>{T.password}</div>
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:11,color:C.muted,fontWeight:500,marginBottom:6}}>{T.password}</div>
           <div style={{position:"relative"}}>
             <input type={showP?"text":"password"} autoComplete="current-password"
               value={p} onChange={e=>{setP(e.target.value);setErr("");}}
-              style={{...inp,paddingRight:44}}/>
+              style={{...inp,paddingRight:48}}/>
             <button type="button" onClick={()=>setShowP(s=>!s)} aria-label="Toggle password"
               style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",
                 background:"transparent",border:"none",color:C.muted,cursor:"pointer",
-                fontSize:14,padding:6,fontFamily:"inherit"}}>{showP?"○":"●"}</button>
+                fontSize:14,padding:8,fontFamily:"inherit"}}>{showP?"○":"●"}</button>
           </div>
         </div>
 
         {err && (
-          <div style={{fontSize:11,color:C.danger,padding:"9px 12px",
-            background:`${C.danger}15`,border:`1px solid ${C.danger}40`,
-            borderRadius:8,marginBottom:14}}>{err}</div>
+          <div style={{fontSize:12,color:C.danger,padding:"10px 12px",
+            background:C.dangerDim,border:`1px solid ${C.danger}40`,
+            borderRadius:8,marginBottom:16}}>{err}</div>
         )}
 
         <button type="submit" style={{
-          width:"100%",background:C.accent,color:"#060d1a",border:"none",
-          borderRadius:8,padding:"13px 22px",fontSize:14,fontWeight:700,
-          cursor:"pointer",letterSpacing:"0.06em",fontFamily:"inherit",
-          boxShadow:`0 6px 20px ${C.accent}40`,
+          width:"100%",background:C.accent,color:C.btnFg,border:"none",
+          borderRadius:10,padding:"14px 22px",fontSize:14,fontWeight:600,
+          cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",
+          boxShadow:`0 4px 14px ${C.accent}40`,
         }}>{T.loginBtn}</button>
       </form>
 
-      <div style={{position:"relative",zIndex:1,marginTop:18,fontSize:9,color:"#2d4060",letterSpacing:"0.1em"}}>
+      <div style={{position:"relative",zIndex:1,marginTop:22,fontSize:11,color:C.mutedSoft,letterSpacing:"0.04em"}}>
         © FetalGrowth Tracker
       </div>
     </div>
@@ -337,6 +379,20 @@ const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "",
 export default function App(){
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem(THEME_KEY) || "light"; } catch { return "light"; }
+  });
+  const C = THEMES[theme] || THEMES.light;
+  useEffect(() => {
+    try { localStorage.setItem(THEME_KEY, theme); } catch {}
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+      document.body.classList.toggle("dark", theme === "dark");
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", THEMES[theme].appBg);
+    }
+  }, [theme]);
+
   const [authUser, setAuthUser] = useState(() => {
     try { return localStorage.getItem(AUTH_KEY) || null; } catch { return null; }
   });
@@ -420,7 +476,7 @@ export default function App(){
   function pickPatient(id){setPid(id);setDrawerOpen(false);}
 
   if (!authUser) {
-    return <LoginScreen onLogin={login} T={T} lang={lang} setLang={setLang} vp={vp}/>;
+    return <LoginScreen onLogin={login} T={T} lang={lang} setLang={setLang} vp={vp} C={C} theme={theme} setTheme={setTheme}/>;
   }
   const userInfo = USERS[authUser];
 
@@ -441,38 +497,38 @@ export default function App(){
   const chartH = vp.isMobile ? 240 : vp.isTablet ? 270 : 290;
 
   // style helpers
-  const inp={background:"#07101e",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"9px 10px",fontSize:13,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
-  const tb=(a,col)=>({background:a?`${col||C.accent}20`:"#0a1424",border:`1px solid ${a?col||C.accent:"#2a3854"}`,color:a?col||C.accent:"#8ea0bc",borderRadius:6,padding:vp.isMobile?"8px 12px":"7px 14px",cursor:"pointer",fontSize:vp.isMobile?12:12,fontFamily:"inherit",fontWeight:a?700:500,letterSpacing:"0.04em",whiteSpace:"nowrap",minHeight:36});
-  const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:vp.isMobile?12:16};
-  const lbl={fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3};
+  const inp={background:C.inputBg,border:`1px solid ${C.border}`,color:C.text,borderRadius:8,padding:"10px 12px",fontSize:13,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
+  const tb=(a,col)=>({background:a?(col?`${col}18`:C.accentDim):C.tabBg,border:`1px solid ${a?(col||C.accent):C.borderStrong}`,color:a?(col||C.accent):C.text,borderRadius:8,padding:vp.isMobile?"8px 12px":"7px 14px",cursor:"pointer",fontSize:vp.isMobile?12:12,fontFamily:"inherit",fontWeight:a?600:500,letterSpacing:"0.01em",whiteSpace:"nowrap",minHeight:36});
+  const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:vp.isMobile?14:18,boxShadow:C.shadow};
+  const lbl={fontSize:11,color:C.muted,fontWeight:500,marginBottom:5,letterSpacing:"0.01em"};
   const PLABELS={BPD:"Biparietal Diameter",HC:"Head Circumference",AC:"Abdominal Circumference",FL:"Femur Length"};
 
   const sidebarContent = (
     <>
-      <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em",marginBottom:4}}>{T.patients}</div>
+      <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",marginBottom:8,textTransform:"uppercase"}}>{T.patients}</div>
       {patients.map(p=>{
         const {stage:ps}=getFGRStage(p.measurements);
         const dot=ps===0&&p.measurements.length>0?C.ok:ps===1?C.warn:ps>1?C.danger:null;
+        const isActive = p.id===pid;
         return(
-          <button key={p.id} onClick={()=>pickPatient(p.id)} style={{background:p.id===pid?C.accentDim:"transparent",border:`1px solid ${p.id===pid?C.accent:C.border}`,color:p.id===pid?C.accent:C.text,borderRadius:8,padding:"9px 10px",cursor:"pointer",fontSize:12,textAlign:"left",fontFamily:"inherit"}}>
+          <button key={p.id} onClick={()=>pickPatient(p.id)} style={{background:isActive?C.accentDim:"transparent",border:`1px solid ${isActive?C.accent:"transparent"}`,color:isActive?C.accent:C.text,borderRadius:10,padding:"10px 12px",cursor:"pointer",fontSize:13,textAlign:"left",fontFamily:"inherit",fontWeight:isActive?600:500}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
-              {dot&&<span style={{color:dot,fontSize:9,marginLeft:4}}>●</span>}
+              {dot&&<span style={{color:dot,fontSize:10,marginLeft:6}}>●</span>}
             </div>
-            <div style={{fontSize:9,color:C.muted,marginTop:2}}>{p.measurements.length} {T.visits}</div>
+            <div style={{fontSize:11,color:C.muted,marginTop:2,fontWeight:400}}>{p.measurements.length} {T.visits}</div>
           </button>
         );
       })}
-      <button onClick={openNewPt} style={{background:`${C.accent}15`,border:`1px dashed ${C.accent}`,color:C.accent,borderRadius:8,padding:"10px",cursor:"pointer",fontSize:12,fontFamily:"inherit",fontWeight:700,marginTop:6,letterSpacing:"0.04em"}}>+ {T.newPatient}</button>
+      <button onClick={openNewPt} style={{background:"transparent",border:`1px dashed ${C.borderStrong}`,color:C.muted,borderRadius:10,padding:"11px",cursor:"pointer",fontSize:13,fontFamily:"inherit",fontWeight:500,marginTop:8}}>+ {T.newPatient}</button>
     </>
   );
 
   return(
     <div style={{
       flex:1,
-      background:C.bg,
+      background:C.appBg,
       color:C.text,
-      fontFamily:"'DM Mono','Courier New',monospace",
       display:"flex",
       flexDirection:"column",
       paddingTop:"env(safe-area-inset-top)",
@@ -481,33 +537,35 @@ export default function App(){
     }}>
 
       {/* Header */}
-      <div style={{background:"#08111f",borderBottom:`1px solid ${C.border}`,padding:vp.isMobile?"10px 12px":"12px 20px",display:"flex",alignItems:"center",gap:vp.isMobile?10:14,flexShrink:0}}>
+      <div style={{background:C.card,borderBottom:`1px solid ${C.border}`,padding:vp.isMobile?"10px 12px":"12px 20px",display:"flex",alignItems:"center",gap:vp.isMobile?10:14,flexShrink:0,boxShadow:C.shadow}}>
         {!vp.isDesktop && (
           <button onClick={()=>setDrawerOpen(o=>!o)} aria-label="Menu"
-            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.accent,borderRadius:6,padding:"6px 9px",cursor:"pointer",fontSize:16,lineHeight:1,fontFamily:"inherit"}}>
+            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.text,borderRadius:8,padding:"7px 10px",cursor:"pointer",fontSize:16,lineHeight:1,fontFamily:"inherit"}}>
             ☰
           </button>
         )}
-        <div style={{width:vp.isMobile?28:32,height:vp.isMobile?28:32,borderRadius:"50%",background:`radial-gradient(circle at 35% 35%,${C.accent},#007755)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:vp.isMobile?14:16,boxShadow:`0 0 18px ${C.accent}55`,flexShrink:0}}>♡</div>
+        <div style={{width:vp.isMobile?32:36,height:vp.isMobile?32:36,borderRadius:10,background:`linear-gradient(135deg,${C.accent},${C.MCA})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:vp.isMobile?16:18,color:"#fff",boxShadow:`0 4px 12px ${C.accent}40`,flexShrink:0}}>♡</div>
         <div style={{minWidth:0,flex:1}}>
-          <div style={{fontSize:vp.isMobile?14:16,fontWeight:700,color:C.accent,letterSpacing:"0.03em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{T.appTitle}</div>
-          {!vp.isMobile && <div style={{fontSize:9,color:C.muted,letterSpacing:"0.12em"}}>{T.appSub}</div>}
+          <div style={{fontSize:vp.isMobile?15:17,fontWeight:700,color:C.textStrong,letterSpacing:"-0.01em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{T.appTitle}</div>
+          {!vp.isMobile && <div style={{fontSize:11,color:C.muted,letterSpacing:"0.04em"}}>INTERGROWTH-21 · Biometry · Doppler · FGR</div>}
         </div>
         <div style={{marginLeft:"auto",display:"flex",gap:vp.isMobile?5:8,alignItems:"center",flexShrink:0}}>
-          {stage>0&&!vp.isMobile&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:7,padding:"5px 12px",color:sc,fontSize:11,fontWeight:700}}>{T.fgrRiskBanner}</div>}
-          {stage>0&&vp.isMobile&&<div style={{background:`${sc}20`,border:`1px solid ${sc}`,borderRadius:6,padding:"4px 7px",color:sc,fontSize:10,fontWeight:700}}>⚠</div>}
+          {stage>0&&!vp.isMobile&&<div style={{background:`${sc}18`,border:`1px solid ${sc}`,borderRadius:8,padding:"5px 12px",color:sc,fontSize:11,fontWeight:600}}>{T.fgrRiskBanner}</div>}
+          {stage>0&&vp.isMobile&&<div style={{background:`${sc}18`,border:`1px solid ${sc}`,borderRadius:6,padding:"4px 7px",color:sc,fontSize:11,fontWeight:700}}>⚠</div>}
           <button style={tb(lang==="EN")} onClick={()=>setLang("EN")}>EN</button>
           <button style={tb(lang==="TR")} onClick={()=>setLang("TR")}>TR</button>
-          {!vp.isMobile && userInfo && <div style={{fontSize:10,color:C.muted,marginLeft:6,whiteSpace:"nowrap"}}>{userInfo.display}</div>}
+          <button onClick={()=>setTheme(theme==="dark"?"light":"dark")} aria-label="Theme"
+            style={{...tb(false),padding:vp.isMobile?"7px 10px":"6px 11px",fontSize:14,lineHeight:1}}>{theme==="dark"?"☀":"☾"}</button>
+          {!vp.isMobile && userInfo && <div style={{fontSize:11,color:C.muted,marginLeft:6,whiteSpace:"nowrap",fontWeight:500}}>{userInfo.display}</div>}
           <button onClick={logout} title={T.logout} aria-label={T.logout}
-            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.muted,borderRadius:6,padding:"5px 9px",cursor:"pointer",fontSize:13,fontFamily:"inherit",lineHeight:1}}>⏻</button>
+            style={{background:"transparent",border:`1px solid ${C.border}`,color:C.muted,borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:14,fontFamily:"inherit",lineHeight:1}}>⏻</button>
         </div>
       </div>
 
       <div style={{display:"flex",flex:1,overflow:"hidden",position:"relative"}}>
         {/* Desktop sidebar */}
         {vp.isDesktop && (
-          <div style={{width:sidebarW,background:"#08111f",borderRight:`1px solid ${C.border}`,padding:14,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flexShrink:0}}>
+          <div style={{width:sidebarW,background:C.card,borderRight:`1px solid ${C.border}`,padding:14,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flexShrink:0}}>
             {sidebarContent}
           </div>
         )}
@@ -515,8 +573,8 @@ export default function App(){
         {/* Mobile/Tablet drawer */}
         {!vp.isDesktop && drawerOpen && (
           <>
-            <div onClick={()=>setDrawerOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:9}}/>
-            <div style={{position:"fixed",top:0,left:0,bottom:0,width:Math.min(280,vp.w-60),background:"#08111f",borderRight:`1px solid ${C.border}`,padding:14,paddingTop:`calc(14px + env(safe-area-inset-top))`,paddingBottom:`calc(14px + env(safe-area-inset-bottom))`,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",zIndex:10,boxShadow:"4px 0 24px rgba(0,0,0,0.5)"}}>
+            <div onClick={()=>setDrawerOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:9}}/>
+            <div style={{position:"fixed",top:0,left:0,bottom:0,width:Math.min(280,vp.w-60),background:C.card,borderRight:`1px solid ${C.border}`,padding:14,paddingTop:`calc(14px + env(safe-area-inset-top))`,paddingBottom:`calc(14px + env(safe-area-inset-bottom))`,display:"flex",flexDirection:"column",gap:7,overflowY:"auto",zIndex:10,boxShadow:C.shadowLg}}>
               <button onClick={()=>setDrawerOpen(false)} aria-label="Close menu"
                 style={{alignSelf:"flex-end",background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:20,padding:"0 4px",fontFamily:"inherit"}}>×</button>
               {sidebarContent}
@@ -531,7 +589,7 @@ export default function App(){
             <div style={{...card,textAlign:"center",padding:vp.isMobile?28:48,color:C.muted,marginTop:vp.isMobile?20:60}}>
               <div style={{fontSize:36,marginBottom:12}}>♡</div>
               <div style={{fontSize:14,marginBottom:14,color:C.text}}>{T.patients} · 0</div>
-              <button onClick={openNewPt} style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit"}}>+ {T.newPatient}</button>
+              <button onClick={openNewPt} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>+ {T.newPatient}</button>
             </div>
           )}
 
@@ -552,8 +610,8 @@ export default function App(){
 
           {/* Entry form */}
           <div style={card}>
-            <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:10,letterSpacing:"0.06em"}}>{T.newMeasurement}</div>
-            <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.biometry}</div>
+            <div style={{fontSize:14,fontWeight:600,color:C.textStrong,marginBottom:14}}>{T.newMeasurement}</div>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8}}>{T.biometry}</div>
             <div style={{display:"grid",gridTemplateColumns:bioCols,gap:8,marginBottom:12}}>
               {[{k:"date",lb:T.date,tp:"date"},{k:"ga",lb:T.gaWeeks,tp:"number",ph:"28+0"},
                 {k:"BPD",lb:"BPD mm",tp:"number",ph:"70"},{k:"HC",lb:"HC mm",tp:"number",ph:"260"},
@@ -565,7 +623,8 @@ export default function App(){
                     <div key={k}><div style={lbl}>{lb}</div>
                       <input type="text" readOnly={gaLocked} value={gaLocked?gaDecimalToDisplay(form.ga):form.ga} placeholder={ph}
                         onChange={e=>f(k,e.target.value)}
-                        style={{...inp,background:gaLocked?"#0a1424":inp.background,color:gaLocked?C.accent:inp.color,fontWeight:gaLocked?700:400}}/>
+                        className={gaLocked?"mono":undefined}
+                        style={{...inp,background:gaLocked?C.accentDim:inp.background,color:gaLocked?C.accent:inp.color,fontWeight:gaLocked?700:400,borderColor:gaLocked?`${C.accent}60`:C.border}}/>
                     </div>
                   );
                 }
@@ -576,7 +635,7 @@ export default function App(){
                 );
               })}
             </div>
-            <div style={{fontSize:9,color:C.muted,letterSpacing:"0.1em",marginBottom:6}}>{T.doppler}</div>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:"0.90"},{k:"UA_RI",lb:"UA RI",ph:"0.60"},
                 {k:"UA_SD",lb:"UA S/D",ph:"2.5"},{k:"MCA_PI",lb:"MCA PI",ph:"1.80"},
@@ -597,7 +656,7 @@ export default function App(){
               </div>
             </div>
             <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
-              <button style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto"}} onClick={addMeas}>{T.addBtn}</button>
+              <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
 
@@ -653,12 +712,12 @@ export default function App(){
                       {["BPD","HC","AC","FL"].map(p=>{
                         const z=getZ(p,m.ga,m[p]);
                         return(
-                          <div key={p} style={{background:"#0a1220",borderRadius:8,padding:"10px 12px"}}>
+                          <div key={p} style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
                             <div style={{display:"flex",justifyContent:"space-between"}}>
                               <span style={{fontSize:10,fontWeight:700,color:C[p]}}>{p}</span>
                               <span style={{fontSize:12,color:C.text}}>{m[p]!=null?`${m[p]} mm`:"—"}</span>
                             </div>
-                            {m[p]!=null?<PctBar z={z}/>:<div style={{fontSize:10,color:C.muted,marginTop:4}}>{T.notMeasured}</div>}
+                            {m[p]!=null?<PctBar z={z} C={C}/>:<div style={{fontSize:10,color:C.muted,marginTop:4}}>{T.notMeasured}</div>}
                           </div>
                         );
                       })}
@@ -685,14 +744,14 @@ export default function App(){
                       <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1}}>×</button>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
-                      <DGauge value={m.UA_PI} label={T.dopplerLabels.UA_PI} ref95={uaRef}/>
-                      <DGauge value={m.UA_RI} label={T.dopplerLabels.UA_RI} ref95={0.70}/>
-                      <DGauge value={m.UA_SD} label={T.dopplerLabels.UA_SD} ref95={3.0}/>
-                      <DGauge value={m.MCA_PI} label={T.dopplerLabels.MCA_PI} ref5={mcaRef?.p5} isLow/>
-                      <DGauge value={m.MCA_RI} label={T.dopplerLabels.MCA_RI} ref5={0.60} isLow/>
-                      <DGauge value={m.DV_PIV} label={T.dopplerLabels.DV_PIV} ref95={1.0}/>
+                      <DGauge value={m.UA_PI} label={T.dopplerLabels.UA_PI} ref95={uaRef} C={C}/>
+                      <DGauge value={m.UA_RI} label={T.dopplerLabels.UA_RI} ref95={0.70} C={C}/>
+                      <DGauge value={m.UA_SD} label={T.dopplerLabels.UA_SD} ref95={3.0} C={C}/>
+                      <DGauge value={m.MCA_PI} label={T.dopplerLabels.MCA_PI} ref5={mcaRef?.p5} isLow C={C}/>
+                      <DGauge value={m.MCA_RI} label={T.dopplerLabels.MCA_RI} ref5={0.60} isLow C={C}/>
+                      <DGauge value={m.DV_PIV} label={T.dopplerLabels.DV_PIV} ref95={1.0} C={C}/>
                       {cpr!=null&&(
-                        <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px"}}>
+                        <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
                           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
                             <span style={{fontSize:10,color:C.muted}}>CPR</span>
                             <span style={{fontSize:13,fontWeight:700,color:cpr<1.0?C.danger:C.ok}}>{cpr}</span>
@@ -700,7 +759,7 @@ export default function App(){
                           <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
                         </div>
                       )}
-                      <div style={{background:"#0a1220",borderRadius:8,padding:"10px 12px",gridColumn:vp.isMobile?"span 2":"auto"}}>
+                      <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px",gridColumn:vp.isMobile?"span 2":"auto"}}>
                         <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{T.dopplerLabels.UA_EDF}</div>
                         <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF==null?C.muted:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{m.UA_EDF==null?"—":T.edfOptions[m.UA_EDF]}</span>
                       </div>
@@ -744,13 +803,13 @@ export default function App(){
                   {findings.map((fd,i)=>(
                     <div key={i} style={{...card,borderColor:fd.level==="HIGH"?C.danger:fd.level==="WARN"?C.warn:C.ok,background:fd.level==="HIGH"?"#ef444412":fd.level==="WARN"?"#f59e0b12":"#10b98112"}}>
                       <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-                        <Badge level={fd.level} small/>
+                        <Badge level={fd.level} small C={C}/>
                         <span style={{fontSize:12,color:C.text}}>{fd.text}</span>
                       </div>
                     </div>
                   ))}
                   <div style={card}>
-                    <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:8,letterSpacing:"0.05em"}}>{T.interpretTitle}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:C.textStrong,marginBottom:10,letterSpacing:"0.01em"}}>{T.interpretTitle}</div>
                     {T.interpretLines.map((line,i)=><div key={i} style={{fontSize:11,color:C.muted,lineHeight:1.8}}>• {line}</div>)}
                     <div style={{marginTop:10,fontSize:9,color:"#2d4060",lineHeight:1.6}}>{T.refNote}<br/>{T.disclaimer}</div>
                   </div>
@@ -802,7 +861,7 @@ export default function App(){
 
               <div style={{display:"flex",gap:8,marginTop:8,flexDirection:vp.isMobile?"column-reverse":"row",justifyContent:"flex-end"}}>
                 <button onClick={()=>setShowNewPt(false)} style={{...tb(false),padding:"10px 18px",fontSize:13}}>{T.cancel}</button>
-                <button onClick={savePt} style={{background:C.accent,color:"#060d1a",border:"none",borderRadius:6,padding:"10px 22px",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.05em",fontFamily:"inherit"}}>{T.save}</button>
+                <button onClick={savePt} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>{T.save}</button>
               </div>
             </div>
           </div>
