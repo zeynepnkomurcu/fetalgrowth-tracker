@@ -240,7 +240,7 @@ export default function App(){
 
   // style helpers
   const inp={background:"#07101e",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"9px 10px",fontSize:13,width:"100%",outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
-  const tb=(a,col)=>({background:a?`${col||C.accent}20`:"transparent",border:`1px solid ${a?col||C.accent:C.border}`,color:a?col||C.accent:C.muted,borderRadius:6,padding:vp.isMobile?"7px 11px":"5px 13px",cursor:"pointer",fontSize:vp.isMobile?12:11,fontFamily:"inherit",fontWeight:a?700:400,letterSpacing:"0.04em",whiteSpace:"nowrap"});
+  const tb=(a,col)=>({background:a?`${col||C.accent}20`:"#0a1424",border:`1px solid ${a?col||C.accent:"#2a3854"}`,color:a?col||C.accent:"#8ea0bc",borderRadius:6,padding:vp.isMobile?"8px 12px":"7px 14px",cursor:"pointer",fontSize:vp.isMobile?12:12,fontFamily:"inherit",fontWeight:a?700:500,letterSpacing:"0.04em",whiteSpace:"nowrap",minHeight:36});
   const card={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:vp.isMobile?12:16};
   const lbl={fontSize:9,color:C.muted,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:3};
   const PLABELS={BPD:"Biparietal Diameter",HC:"Head Circumference",AC:"Abdominal Circumference",FL:"Femur Length"};
@@ -378,7 +378,7 @@ export default function App(){
           </div>
 
           {/* Tabs */}
-          <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:2,marginLeft:-pad,marginRight:-pad,paddingLeft:pad,paddingRight:pad,scrollbarWidth:"none"}}>
+          <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
             {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
