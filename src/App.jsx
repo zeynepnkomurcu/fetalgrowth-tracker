@@ -629,7 +629,7 @@ export default function App(){
                   );
                 }
                 return(
-                  <div key={k} style={k==="date"&&vp.isMobile?{gridColumn:"span 2"}:undefined}><div style={lbl}>{lb}</div>
+                  <div key={k}><div style={lbl}>{lb}</div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step={tp==="number"?"0.01":undefined}/>
                   </div>
                 );
