@@ -114,9 +114,11 @@ function calcGaFromLmp(lmpDate, measDate) {
   return { weeks: w, days: d, decimal: w + d / 7, display: `${w}+${d}` };
 }
 function gaDecimalToDisplay(dec) {
-  if (dec == null || isNaN(dec)) return "";
-  const w = Math.floor(dec);
-  const d = Math.round((dec - w) * 7);
+  if (dec === "" || dec == null) return "";
+  const num = typeof dec === "number" ? dec : parseFloat(dec);
+  if (isNaN(num)) return "";
+  const w = Math.floor(num);
+  const d = Math.round((num - w) * 7);
   return d === 7 ? `${w + 1}+0` : `${w}+${d}`;
 }
 function formatDateDDMMYYYY(iso) {
