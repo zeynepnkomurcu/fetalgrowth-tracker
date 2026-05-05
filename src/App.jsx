@@ -119,6 +119,12 @@ function gaDecimalToDisplay(dec) {
   const d = Math.round((dec - w) * 7);
   return d === 7 ? `${w + 1}+0` : `${w}+${d}`;
 }
+function formatDateDDMMYYYY(iso) {
+  if (!iso || typeof iso !== "string") return "";
+  const parts = iso.split("-");
+  if (parts.length !== 3) return iso;
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
 const getZ = (p, wk, v) => { const r=IG21[p]?.[Math.round(wk)]; if(!r||v==null) return null; return parseFloat(((v-r.m)/r.sd).toFixed(2)); };
 function normCDF(z) { const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>=0?1-p:p; }
 const getPct = z => Math.round(normCDF(z)*100);
@@ -630,11 +636,22 @@ export default function App(){
                     </div>
                   );
                 }
-                const cellStyle = k==="date"&&vp.isMobile
-                  ? {minWidth:0,overflow:"hidden",gridColumn:"span 2"}
-                  : {minWidth:0,overflow:"hidden"};
+                if(k==="date"){
+                  const display = formatDateDDMMYYYY(form.date);
+                  return(
+                    <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
+                      <div style={{...inp,position:"relative",display:"flex",alignItems:"center",cursor:"pointer"}}>
+                        <span className={display?"mono":undefined} style={{color:display?C.text:C.mutedSoft,fontWeight:display?500:400,pointerEvents:"none"}}>
+                          {display||"dd-mm-yyyy"}
+                        </span>
+                        <input type="date" value={form.date} onChange={e=>f(k,e.target.value)}
+                          style={{position:"absolute",inset:0,opacity:0,width:"100%",height:"100%",border:"none",padding:0,margin:0,cursor:"pointer",fontSize:16,fontFamily:"inherit",background:"transparent"}}/>
+                      </div>
+                    </div>
+                  );
+                }
                 return(
-                  <div key={k} style={cellStyle}><div style={lbl}>{lb}</div>
+                  <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph}
                       onChange={e=>f(k,e.target.value)}
                       style={inp}
