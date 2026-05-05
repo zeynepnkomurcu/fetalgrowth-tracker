@@ -136,6 +136,15 @@ const calcEFW = m => {
   const log10efw = 1.3596 - 0.00386 * ac * fl + 0.0064 * hc + 0.00061 * bpd * ac + 0.0424 * ac + 0.174 * fl;
   return Math.round(Math.pow(10, log10efw));
 };
+
+// Hadlock 1991 EFW reference (P50 in grams, by GA week). SD ≈ 12.7% of mean (CV).
+const EFW_REF = {20:331,21:387,22:451,23:524,24:608,25:704,26:815,27:941,28:1085,29:1248,30:1431,31:1635,32:1860,33:2103,34:2362,35:2633,36:2914,37:3203,38:3496,39:3789,40:4078};
+const efwZ = (efw, ga) => {
+  const m = EFW_REF[Math.round(ga)];
+  if (!m || efw == null) return null;
+  const sd = m * 0.127;
+  return parseFloat(((efw - m) / sd).toFixed(2));
+};
 const calcCPR = m => { if(!m.MCA_PI||!m.UA_PI) return null; return parseFloat((m.MCA_PI/m.UA_PI).toFixed(2)); };
 
 function getFGRStage(meas) {
@@ -557,6 +566,11 @@ export default function App(){
     AC: form.AC !== "" ? parseFloat(form.AC) : null,
     FL: form.FL !== "" ? parseFloat(form.FL) : null,
   });
+  const liveEFWZ = (liveEFW != null && liveGa != null) ? efwZ(liveEFW, liveGa) : null;
+  const liveEFWPct = liveEFWZ != null ? getPct(liveEFWZ) : null;
+  const livePctMap = {};
+  liveBio.forEach(b => { livePctMap[b.p] = b; });
+  const pctColor = z => z<-1.88||z>1.88 ? C.danger : z<-1.28||z>1.28 ? C.warn : C.ok;
 
   const sidebarContent = (
     <>
@@ -694,8 +708,17 @@ export default function App(){
                     </div>
                   );
                 }
+                const pctInfo = livePctMap[k];
                 return(
-                  <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
+                  <div key={k} style={{minWidth:0,overflow:"hidden"}}>
+                    <div style={{...lbl,display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+                      <span>{lb}</span>
+                      {pctInfo && (
+                        <span className="mono" style={{fontSize:10,fontWeight:600,color:pctColor(pctInfo.z),padding:"1px 6px",background:`${pctColor(pctInfo.z)}18`,border:`1px solid ${pctColor(pctInfo.z)}40`,borderRadius:4,letterSpacing:"0"}}>
+                          P{pctInfo.pct}
+                        </span>
+                      )}
+                    </div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph}
                       onChange={e=>f(k,e.target.value)}
                       style={inp}
@@ -705,25 +728,17 @@ export default function App(){
               })}
             </div>
 
-            {(liveBio.length>0||liveEFW)&&(
-              <div style={{display:"flex",flexWrap:"wrap",gap:vp.isMobile?6:10,alignItems:"center",padding:"10px 14px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
-                {liveEFW!=null&&(
-                  <div style={{display:"flex",alignItems:"center",gap:8,paddingRight:liveBio.length?12:0,borderRight:liveBio.length?`1px solid ${C.border}`:"none"}}>
-                    <span style={{fontSize:10,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase"}}>EFW</span>
-                    <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:15}}>{liveEFW} g</span>
-                  </div>
+            {liveEFW!=null&&(
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"12px 16px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <span style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase"}}>EFW</span>
+                  <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:17}}>{liveEFW} g</span>
+                </div>
+                {liveEFWPct!=null && (
+                  <span className="mono" style={{fontSize:12,fontWeight:600,color:pctColor(liveEFWZ),padding:"3px 10px",background:`${pctColor(liveEFWZ)}18`,border:`1px solid ${pctColor(liveEFWZ)}40`,borderRadius:6}}>
+                    P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
+                  </span>
                 )}
-                {liveBio.map(b=>{
-                  const sigColor = b.z<-1.88||b.z>1.88?C.danger : b.z<-1.28||b.z>1.28?C.warn : C.ok;
-                  return(
-                    <div key={b.p} style={{display:"flex",alignItems:"center",gap:6}}>
-                      <span style={{fontSize:11,fontWeight:700,color:C[b.p]}}>{b.p}</span>
-                      <span className="mono" style={{fontSize:11,fontWeight:600,color:sigColor,padding:"2px 7px",background:`${sigColor}18`,border:`1px solid ${sigColor}40`,borderRadius:5}}>
-                        P{b.pct} · Z{b.z>0?"+":""}{b.z}
-                      </span>
-                    </div>
-                  );
-                })}
               </div>
             )}
 
