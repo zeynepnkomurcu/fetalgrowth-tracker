@@ -393,11 +393,12 @@ export default function App(){
     }
   }, [theme]);
 
+  // Login disabled during testing — defaults to zeynepnur for storage scope
   const [authUser, setAuthUser] = useState(() => {
-    try { return localStorage.getItem(AUTH_KEY) || null; } catch { return null; }
+    try { return localStorage.getItem(AUTH_KEY) || "zeynepnur"; } catch { return "zeynepnur"; }
   });
   function login(u){ try{localStorage.setItem(AUTH_KEY,u);}catch{} setAuthUser(u); }
-  function logout(){ try{localStorage.removeItem(AUTH_KEY);}catch{} setAuthUser(null); }
+  function logout(){ try{localStorage.removeItem(AUTH_KEY);}catch{} setAuthUser("zeynepnur"); }
 
   const [patients,setPatients]=useState([]);
   const [pid,setPid]=useState(null);
@@ -475,7 +476,8 @@ export default function App(){
   function delM(id){setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:p.measurements.filter(m=>m.id!==id)}:p));}
   function pickPatient(id){setPid(id);setDrawerOpen(false);}
 
-  if (!authUser) {
+  // Login screen disabled for testing — re-enable by removing the `false &&`
+  if (false && !authUser) {
     return <LoginScreen onLogin={login} T={T} lang={lang} setLang={setLang} vp={vp} C={C} theme={theme} setTheme={setTheme}/>;
   }
   const userInfo = USERS[authUser];
@@ -628,8 +630,11 @@ export default function App(){
                     </div>
                   );
                 }
+                const cellStyle = k==="date"&&vp.isMobile
+                  ? {minWidth:0,overflow:"hidden",gridColumn:"span 2"}
+                  : {minWidth:0,overflow:"hidden"};
                 return(
-                  <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
+                  <div key={k} style={cellStyle}><div style={lbl}>{lb}</div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph}
                       onChange={e=>f(k,e.target.value)}
                       style={inp}
