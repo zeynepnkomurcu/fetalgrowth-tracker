@@ -378,7 +378,8 @@ function LoginScreen({ onLogin, T, lang, setLang, vp, C, theme, setTheme }) {
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
-const BLANK={date:"",ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:null,MCA_PI:"",MCA_RI:"",DV_PIV:""};
+const todayISO = () => new Date().toISOString().slice(0,10);
+const blankForm = () => ({date:todayISO(),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"",UA_RI:"",UA_SD:"",UA_EDF:null,MCA_PI:"",MCA_RI:"",DV_PIV:""});
 
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
@@ -409,7 +410,7 @@ export default function App(){
   const [patients,setPatients]=useState([]);
   const [pid,setPid]=useState(null);
   const [loadedFor, setLoadedFor] = useState(null);
-  const [form,setForm]=useState(BLANK);
+  const [form,setForm]=useState(blankForm);
   const [tab,setTab]=useState("chart");
   const [param,setParam]=useState("AC");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -468,7 +469,7 @@ export default function App(){
       MCA_PI:form.MCA_PI?parseFloat(form.MCA_PI):null,MCA_RI:form.MCA_RI?parseFloat(form.MCA_RI):null,
       DV_PIV:form.DV_PIV?parseFloat(form.DV_PIV):null};
     setPatients(ps=>ps.map(p=>p.id===pid?{...p,measurements:[...p.measurements,m]}:p));
-    setForm(BLANK);
+    setForm(blankForm());
   }
   function openNewPt(){ setNewPt(NEW_PT_BLANK); setNewPtErr(""); setShowNewPt(true); setDrawerOpen(false); }
   function openDummy(){ setDummyLmp(""); setDummyErr(""); setShowDummy(true); setDrawerOpen(false); }
