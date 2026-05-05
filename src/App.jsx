@@ -628,12 +628,11 @@ export default function App(){
                     </div>
                   );
                 }
-                const dateOnMobile = k==="date"&&vp.isMobile;
                 return(
                   <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
                     <input type={tp} inputMode={tp==="number"?"decimal":undefined} value={form[k]} placeholder={ph}
                       onChange={e=>f(k,e.target.value)}
-                      style={dateOnMobile?{...inp,fontSize:11,padding:"10px 6px"}:inp}
+                      style={inp}
                       step={tp==="number"?"0.01":undefined}/>
                   </div>
                 );
