@@ -416,6 +416,9 @@ export default function App(){
   const [showNewPt, setShowNewPt] = useState(false);
   const [newPt, setNewPt] = useState(NEW_PT_BLANK);
   const [newPtErr, setNewPtErr] = useState("");
+  const [showDummy, setShowDummy] = useState(false);
+  const [dummyLmp, setDummyLmp] = useState("");
+  const [dummyErr, setDummyErr] = useState("");
 
   // Close drawer when switching to desktop
   useEffect(() => { if (vp.isDesktop) setDrawerOpen(false); }, [vp.isDesktop]);
@@ -468,6 +471,26 @@ export default function App(){
     setForm(BLANK);
   }
   function openNewPt(){ setNewPt(NEW_PT_BLANK); setNewPtErr(""); setShowNewPt(true); setDrawerOpen(false); }
+  function openDummy(){ setDummyLmp(""); setDummyErr(""); setShowDummy(true); setDrawerOpen(false); }
+  function saveDummy(){
+    if (!dummyLmp) { setDummyErr(T.required); return; }
+    const dummyCount = patients.filter(p=>p.firstName==="Dummy").length + 1;
+    const num = String(dummyCount).padStart(3,"0");
+    const id = Date.now();
+    setPatients(ps => [...ps, {
+      id,
+      firstName: "Dummy",
+      lastName: num,
+      name: `Dummy ${num}`,
+      birthDate: "1990-01-01",
+      tcKimlik: "00000000000",
+      lmpDate: dummyLmp,
+      measurements: [],
+    }]);
+    setPid(id);
+    setShowDummy(false);
+    setDummyLmp("");
+  }
   function savePt(){
     const np = { ...newPt, firstName: newPt.firstName.trim(), lastName: newPt.lastName.trim(), tcKimlik: newPt.tcKimlik.trim() };
     if (!np.firstName || !np.lastName || !np.birthDate || !np.tcKimlik || !np.lmpDate) { setNewPtErr(T.required); return; }
@@ -544,6 +567,7 @@ export default function App(){
         );
       })}
       <button onClick={openNewPt} style={{background:"transparent",border:`1px dashed ${C.borderStrong}`,color:C.muted,borderRadius:10,padding:"11px",cursor:"pointer",fontSize:13,fontFamily:"inherit",fontWeight:500,marginTop:8}}>+ {T.newPatient}</button>
+      <button onClick={openDummy} style={{background:"transparent",border:`1px dashed ${C.borderStrong}`,color:C.mutedSoft,borderRadius:10,padding:"9px",cursor:"pointer",fontSize:12,fontFamily:"inherit",fontWeight:500,marginTop:4}}>⚡ Dummy</button>
     </>
   );
 
@@ -612,7 +636,10 @@ export default function App(){
             <div style={{...card,textAlign:"center",padding:vp.isMobile?28:48,color:C.muted,marginTop:vp.isMobile?20:60}}>
               <div style={{fontSize:36,marginBottom:12}}>♡</div>
               <div style={{fontSize:14,marginBottom:14,color:C.text}}>{T.patients} · 0</div>
-              <button onClick={openNewPt} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>+ {T.newPatient}</button>
+              <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap"}}>
+                <button onClick={openNewPt} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>+ {T.newPatient}</button>
+                <button onClick={openDummy} style={{background:"transparent",color:C.muted,border:`1px dashed ${C.borderStrong}`,borderRadius:10,padding:"12px 22px",fontSize:14,fontWeight:500,cursor:"pointer",fontFamily:"inherit"}}>⚡ Dummy</button>
+              </div>
             </div>
           )}
 
@@ -925,6 +952,31 @@ export default function App(){
               <div style={{display:"flex",gap:8,marginTop:8,flexDirection:vp.isMobile?"column-reverse":"row",justifyContent:"flex-end"}}>
                 <button onClick={()=>setShowNewPt(false)} style={{...tb(false),padding:"10px 18px",fontSize:13}}>{T.cancel}</button>
                 <button onClick={savePt} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>{T.save}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dummy patient modal */}
+      {showDummy && (
+        <div onClick={()=>setShowDummy(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:vp.isMobile?18:24,width:"100%",maxWidth:380,boxShadow:C.shadowLg}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div style={{fontSize:16,fontWeight:700,color:C.accent,letterSpacing:"0.04em"}}>⚡ Dummy patient</div>
+              <button onClick={()=>setShowDummy(false)} aria-label="Close"
+                style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:22,padding:"0 4px",lineHeight:1,fontFamily:"inherit"}}>×</button>
+            </div>
+            <div style={{fontSize:12,color:C.muted,marginBottom:14}}>Quick test patient — only LMP needed.</div>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div>
+                <div style={lbl}>{T.lmpDate} *</div>
+                <input type="date" value={dummyLmp} onChange={e=>{setDummyLmp(e.target.value);setDummyErr("");}} style={inp} autoFocus/>
+              </div>
+              {dummyErr && <div style={{fontSize:11,color:C.danger,padding:"8px 10px",background:`${C.danger}15`,border:`1px solid ${C.danger}40`,borderRadius:6}}>{dummyErr}</div>}
+              <div style={{display:"flex",gap:8,marginTop:6,flexDirection:vp.isMobile?"column-reverse":"row",justifyContent:"flex-end"}}>
+                <button onClick={()=>setShowDummy(false)} style={{...tb(false),padding:"10px 18px",fontSize:13}}>{T.cancel}</button>
+                <button onClick={saveDummy} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>{T.save}</button>
               </div>
             </div>
           </div>
