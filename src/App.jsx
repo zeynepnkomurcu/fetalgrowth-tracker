@@ -161,6 +161,7 @@ const USERS = {
   zeynepnur: { password: "Summer2027", display: "Dr. Zeynep" },
 };
 const AUTH_KEY = "fgt_auth_user";
+const PATIENTS_KEY = (user) => `fgt_patients_${user}`;
 
 // ─── Responsive hook ─────────────────────────────────────────────────────────
 function useViewport() {
@@ -344,6 +345,7 @@ export default function App(){
 
   const [patients,setPatients]=useState([]);
   const [pid,setPid]=useState(null);
+  const [loadedFor, setLoadedFor] = useState(null);
   const [form,setForm]=useState(BLANK);
   const [tab,setTab]=useState("chart");
   const [param,setParam]=useState("AC");
@@ -354,6 +356,24 @@ export default function App(){
 
   // Close drawer when switching to desktop
   useEffect(() => { if (vp.isDesktop) setDrawerOpen(false); }, [vp.isDesktop]);
+
+  // Load patients from localStorage on auth change
+  useEffect(() => {
+    if (!authUser) { setPatients([]); setPid(null); setLoadedFor(null); return; }
+    try {
+      const raw = localStorage.getItem(PATIENTS_KEY(authUser));
+      const data = raw ? JSON.parse(raw) : [];
+      setPatients(Array.isArray(data) ? data : []);
+      setPid(Array.isArray(data) && data.length > 0 ? data[0].id : null);
+    } catch { setPatients([]); setPid(null); }
+    setLoadedFor(authUser);
+  }, [authUser]);
+
+  // Persist patients to localStorage on every change
+  useEffect(() => {
+    if (!authUser || loadedFor !== authUser) return;
+    try { localStorage.setItem(PATIENTS_KEY(authUser), JSON.stringify(patients)); } catch {}
+  }, [patients, authUser, loadedFor]);
 
   const patient=patients.find(p=>p.id===pid);
   const meas=patient?.measurements||[];
