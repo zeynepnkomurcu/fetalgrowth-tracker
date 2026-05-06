@@ -149,24 +149,38 @@ const efwZ = (efw, ga) => {
 };
 const calcCPR = m => { if(!m.MCA_PI||!m.UA_PI) return null; return parseFloat((m.MCA_PI/m.UA_PI).toFixed(2)); };
 
-function getFGRStage(meas) {
-  if (!meas.length) return { stage:0, findings:[] };
-  const sorted=[...meas].sort((a,b)=>a.ga-b.ga);
-  const last=sorted[sorted.length-1], prev=sorted.length>1?sorted[sorted.length-2]:null;
-  let stage=0; const findings=[];
-  const acZ=getZ("AC",last.ga,last.AC);
-  if(acZ!=null&&acZ<-1.88){stage=Math.max(stage,1);findings.push({level:"WARN",text:`AC < 3rd %ile (Z=${acZ})`});}
-  if(prev){for(const p of["BPD","HC","AC","FL"]){if(last[p]&&prev[p]){const z1=getZ(p,prev.ga,prev[p]),z2=getZ(p,last.ga,last[p]);if(z1!=null&&z2!=null&&z1-z2>1.0){stage=Math.max(stage,1);findings.push({level:"WARN",text:`${p}: Δz=${(z1-z2).toFixed(1)} SD ↓`});}}}}
-  const wk=Math.round(last.ga),uaRef=UA_PI_95[wk],mcaRef=MCA_PI_REF[wk];
-  if(last.UA_EDF===1){stage=Math.max(stage,2);findings.push({level:"HIGH",text:"Absent EDF (AEDF)"});}
-  if(last.UA_EDF===2){stage=Math.max(stage,3);findings.push({level:"HIGH",text:"Reversed EDF (REDF) — critical"});}
-  if(last.UA_PI&&uaRef&&last.UA_PI>uaRef){stage=Math.max(stage,1);findings.push({level:"WARN",text:`UA PI ${last.UA_PI} > 95th %ile (${uaRef})`});}
-  if(last.MCA_PI&&mcaRef&&last.MCA_PI<mcaRef.p5){stage=Math.max(stage,3);findings.push({level:"HIGH",text:`MCA PI ${last.MCA_PI} < 5th %ile — brain-sparing`});}
-  const cpr=calcCPR(last);
-  if(cpr!=null&&cpr<1.0){stage=Math.max(stage,2);findings.push({level:"HIGH",text:`CPR = ${cpr} < 1.0`});}
-  if(last.DV_PIV&&last.DV_PIV>1.0){stage=Math.max(stage,4);findings.push({level:"HIGH",text:`Ductus venosus PIV ${last.DV_PIV} elevated`});}
-  if(!findings.length) findings.push({level:"OK",text:"All parameters normal"});
-  return {stage,findings};
+function getISUOGManagement(meas) {
+  if (!meas || meas.length === 0) return { alert: false, message: "Ölçüm bekleniyor", action: "" };
+  
+  const last = [...meas].sort((a,b) => a.ga - b.ga).pop(); // En son viziti al
+  const efw = calcEFW(last); // Ağırlık hesapla
+  const acZ = getZ("AC", last.ga, last.AC); // Karın çevresi z-skoru
+  const efwZVal = efwZ(efw, last.ga); // Ağırlık z-skoru
+  
+  // %10 persantil altı mı? (Z skoru -1.28'den küçükse)
+  const isSGA = (acZ !== null && acZ < -1.28) || (efwZVal !== null && efwZVal < -1.28);
+
+  // EĞER BEBEK KÜÇÜKSE AMA DOPPLER GİRİLMEMİŞSE
+  if (isSGA && !last.UA_PI) {
+    return {
+      alert: true,
+      type: "DOPPLER_REQUIRED",
+      message: "⚠️ DİKKAT: Biyometri < 10. persantil.",
+      action: "ISUOG protokolü gereği bu hastada Doppler (UA PI, MCA PI) bakılması zorunludur."
+    };
+  }
+
+  // ISUOG EVRELEME (Doppler varsa burası çalışır)
+  if (last.UA_EDF === 2) return { alert: true, stage: "EVRE 3/4", action: "Acil doğum düşünülmeli." };
+  if (last.UA_EDF === 1) return { alert: true, stage: "EVRE 2", action: "32-34. haftada doğum planla." };
+  
+  if (isSGA) {
+    const uaRef = UA_PI_95[Math.round(last.ga)];
+    if (last.UA_PI > uaRef) return { alert: true, stage: "EVRE 1", action: "Haftalık takip, 37. haftada doğum." };
+    return { alert: false, stage: "SGA", action: "Doppler normal. 2 hafta sonra büyüme takibi." };
+  }
+
+  return { alert: false, message: "Normal Gelişim", action: "Rutin takip." };
 }
 
 function getRefCurve(param) {
