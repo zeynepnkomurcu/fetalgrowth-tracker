@@ -153,14 +153,8 @@ function getFGRStage(meas) {
   if (!meas.length) return { stage:0, findings:[] };
   const sorted=[...meas].sort((a,b)=>a.ga-b.ga);
   const last=sorted[sorted.length-1], prev=sorted.length>1?sorted[sorted.length-2]:null;
-  let dopplerNeeded = false;
   let stage=0; const findings=[];
   const acZ=getZ("AC",last.ga,last.AC);
-  // AC < 10th percentile (Z < -1.28) → Doppler needed
-if (acZ != null && acZ < -1.28) {
-  dopplerNeeded = true;
-  findings.push({ level: "WARN", text: "AC < 10th percentile → Doppler indicated" });
-}
   if(acZ!=null&&acZ<-1.88){stage=Math.max(stage,1);findings.push({level:"WARN",text:`AC < 3rd %ile (Z=${acZ})`});}
   if(prev){for(const p of["BPD","HC","AC","FL"]){if(last[p]&&prev[p]){const z1=getZ(p,prev.ga,prev[p]),z2=getZ(p,last.ga,last[p]);if(z1!=null&&z2!=null&&z1-z2>1.0){stage=Math.max(stage,1);findings.push({level:"WARN",text:`${p}: Δz=${(z1-z2).toFixed(1)} SD ↓`});}}}}
   const wk=Math.round(last.ga),uaRef=UA_PI_95[wk],mcaRef=MCA_PI_REF[wk];
@@ -172,7 +166,7 @@ if (acZ != null && acZ < -1.28) {
   if(cpr!=null&&cpr<1.0){stage=Math.max(stage,2);findings.push({level:"HIGH",text:`CPR = ${cpr} < 1.0`});}
   if(last.DV_PIV&&last.DV_PIV>1.0){stage=Math.max(stage,4);findings.push({level:"HIGH",text:`Ductus venosus PIV ${last.DV_PIV} elevated`});}
   if(!findings.length) findings.push({level:"OK",text:"All parameters normal"});
-  return {stage,findings,dopplerNeeded};
+  return {stage,findings};
 }
 
 function getRefCurve(param) {
@@ -477,7 +471,7 @@ export default function App(){
     if (ga && ga.decimal !== form.ga) setForm(x => ({ ...x, ga: ga.decimal }));
   }, [form.date, patient?.lmpDate]);
 
-  cconst {stage,findings,dopplerNeeded}=useMemo(()=>getFGRStage(meas),[meas]);
+  const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
 
@@ -577,13 +571,6 @@ export default function App(){
   const liveEFWZ = (liveEFW != null && liveGa != null) ? efwZ(liveEFW, liveGa) : null;
   const liveEFWPct = liveEFWZ != null ? getPct(liveEFWZ) : null;
   const livePctMap = {};
-  const dopplerNeeded =
-  (liveEFWPct != null && liveEFWPct < 10) ||
-  (form.AC && parseFloat(form.AC) < 10); // AC için örnek basit eşik
-const dopplerWarning =
-  dopplerNeeded
-    ? "⚠️ Doppler indicated (EFW or AC < 10th percentile)"
-    : null;
   liveBio.forEach(b => { livePctMap[b.p] = b; });
   const pctColor = z => z<-1.88||z>1.88 ? C.danger : z<-1.28||z>1.28 ? C.warn : C.ok;
 
@@ -631,28 +618,6 @@ const dopplerWarning =
         )}
         <div style={{width:vp.isMobile?32:36,height:vp.isMobile?32:36,borderRadius:10,background:`linear-gradient(135deg,${C.accent},${C.MCA})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:vp.isMobile?16:18,color:"#fff",boxShadow:`0 4px 12px ${C.accent}40`,flexShrink:0}}>♡</div>
         <div style={{minWidth:0,flex:1}}>
-          {dopplerNeeded && (
-  <div
-    onClick={() => setTab("doppler")}
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 6,
-      marginLeft: 10,
-      padding: "4px 10px",
-      borderRadius: 8,
-      background: "#f59e0b18",
-      border: "1px solid #f59e0b",
-      color: "#f59e0b",
-      fontSize: 11,
-      fontWeight: 700,
-      cursor: "pointer",
-      whiteSpace: "nowrap"
-    }}
-  >
-    ⚠ Doppler indicated
-  </div>
-)}
           <div style={{fontSize:vp.isMobile?15:17,fontWeight:700,color:C.textStrong,letterSpacing:"-0.01em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{T.appTitle}</div>
           {!vp.isMobile && <div style={{fontSize:11,color:C.muted,letterSpacing:"0.04em"}}>INTERGROWTH-21 · Biometry · Doppler · FGR</div>}
         </div>
