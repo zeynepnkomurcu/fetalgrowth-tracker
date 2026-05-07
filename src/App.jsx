@@ -573,12 +573,12 @@ export default function App(){
   const livePctMap = {};
   liveBio.forEach(b => { livePctMap[b.p] = b; });
   
-  // ISUOG-based Doppler indication
   const acPct = livePctMap["AC"]?.pct ?? null;
 
   const showDoppler =
-  (acPct != null && acPct < 10) ||
-  (liveEFWPct != null && liveEFWPct < 10);
+   (acPct != null && acPct < 10) ||
+   (liveEFWPct != null && liveEFWPct < 10);
+  
   const pctColor = z => z<-1.88||z>1.88 ? C.danger : z<-1.28||z>1.28 ? C.warn : C.ok;
 
   const sidebarContent = (
@@ -750,7 +750,7 @@ export default function App(){
                 )}
               </div>
             )}
-{showDoppler && (
+            {showDoppler ? (
             <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
@@ -775,8 +775,6 @@ export default function App(){
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
-                       </>
-)}
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
@@ -784,7 +782,22 @@ export default function App(){
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
           </div>
-
+</>
+) : (
+  <div
+    style={{
+      fontSize: 11,
+      color: C.muted,
+      padding: "10px 12px",
+      background: C.innerBg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 8,
+      marginBottom: 12,
+    }}
+  >
+    Doppler assessment not indicated.
+  </div>
+)}
           {/* ── CHART ── */}
           {tab==="chart"&&(
             <div style={card}>
