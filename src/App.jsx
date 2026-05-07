@@ -734,23 +734,22 @@ export default function App(){
                 );
               })}
             </div>
-{liveEFW != null && (
-  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"12px 16px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
+<>
+  {liveEFW != null && (
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"12px 16px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
 
-    <div style={{display:"flex",alignItems:"center",gap:10}}>
-      <span style={{fontSize:11,color:C.muted,fontWeight:600,textTransform:"uppercase"}}>
-        EFW
-      </span>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <span style={{fontSize:11,color:C.muted,fontWeight:600,textTransform:"uppercase"}}>
+          EFW
+        </span>
 
-      <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:17}}>
-        {liveEFW} g
-      </span>
-    </div>
+        <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:17}}>
+          {liveEFW} g
+        </span>
+      </div>
 
-    {liveEFWPct != null && (
-      <span
-        className="mono"
-        style={{
+      {liveEFWPct != null && (
+        <span className="mono" style={{
           fontSize:12,
           fontWeight:600,
           color:pctColor(liveEFWZ),
@@ -758,39 +757,39 @@ export default function App(){
           background:`${pctColor(liveEFWZ)}18`,
           border:`1px solid ${pctColor(liveEFWZ)}40`,
           borderRadius:6
-        }}
-      >
-        P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
-      </span>
-    )}
+        }}>
+          P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
+        </span>
+      )}
 
-  </div>
-)}
-{showDoppler && (
-  <>
-    <div style={{fontSize:11,color:C.muted,fontWeight:600,textTransform:"uppercase",marginBottom:8,marginTop:4}}>
-      {T.doppler}
     </div>
+  )}
 
-    <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
-      {[{k:"UA_PI",lb:"UA PI"},{k:"UA_RI",lb:"UA RI"},
-        {k:"UA_SD",lb:"UA S/D"},{k:"MCA_PI",lb:"MCA PI"},
-        {k:"MCA_RI",lb:"MCA RI"},{k:"DV_PIV",lb:"DV PIV"}
-      ].map(({k,lb})=>(
-        <div key={k}>
-          <div style={lbl}>{lb}</div>
-          <input
-            type="number"
-            value={form[k]}
-            onChange={e=>f(k,e.target.value)}
-            style={inp}
-          />
-        </div>
-      ))}
+  {showDoppler && (
+    <div>
+      <div style={{fontSize:11,color:C.muted,fontWeight:600,textTransform:"uppercase",marginBottom:8,marginTop:4}}>
+        {T.doppler}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
+        {[{k:"UA_PI",lb:"UA PI"},{k:"UA_RI",lb:"UA RI"},
+          {k:"UA_SD",lb:"UA S/D"},{k:"MCA_PI",lb:"MCA PI"},
+          {k:"MCA_RI",lb:"MCA RI"},{k:"DV_PIV",lb:"DV PIV"}
+        ].map(({k,lb})=>(
+          <div key={k}>
+            <div style={lbl}>{lb}</div>
+            <input
+              type="number"
+              value={form[k]}
+              onChange={e=>f(k,e.target.value)}
+              style={inp}
+            />
+          </div>
+        ))}
+      </div>
     </div>
-  </>
-)}
-
+  )}
+</>
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
             {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
