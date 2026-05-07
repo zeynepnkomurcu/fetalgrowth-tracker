@@ -734,19 +734,38 @@ export default function App(){
                 );
               })}
             </div>
+{liveEFW != null && (
+  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"12px 16px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
 
-            {liveEFW!=null&&(
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:"12px 16px",background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:14}}>
-                <div style={{display:"flex",alignItems:"center",gap:10}}>
-                  <span style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase"}}>EFW</span>
-                  <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:17}}>{liveEFW} g</span>
-                </div>
-                {liveEFWPct!=null && (
-                  <span className="mono" style={{fontSize:12,fontWeight:600,color:pctColor(liveEFWZ),padding:"3px 10px",background:`${pctColor(liveEFWZ)}18`,border:`1px solid ${pctColor(liveEFWZ)}40`,borderRadius:6}}>
-                    P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
-                 </span>
-</div>
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <span style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase"}}>
+        EFW
+      </span>
 
+      <span className="mono" style={{fontWeight:700,color:C.accent,fontSize:17}}>
+        {liveEFW} g
+      </span>
+    </div>
+
+    {liveEFWPct != null && (
+      <span
+        className="mono"
+        style={{
+          fontSize:12,
+          fontWeight:600,
+          color:pctColor(liveEFWZ),
+          padding:"3px 10px",
+          background:`${pctColor(liveEFWZ)}18`,
+          border:`1px solid ${pctColor(liveEFWZ)}40`,
+          borderRadius:6
+        }}
+      >
+        P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
+      </span>
+    )}
+
+  </div>
+)}
 {showDoppler ? (
   <>
     <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>
