@@ -744,35 +744,78 @@ export default function App(){
                 {liveEFWPct!=null && (
                   <span className="mono" style={{fontSize:12,fontWeight:600,color:pctColor(liveEFWZ),padding:"3px 10px",background:`${pctColor(liveEFWZ)}18`,border:`1px solid ${pctColor(liveEFWZ)}40`,borderRadius:6}}>
                     P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
-                  </span>
-                )}
-              </div>
-            )}
+                 </span>
+)}
+</div>
+)}
 
-            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
-            <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
-              {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
-                {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
-                {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
-              ].map(({k,lb,ph})=>(
-                <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
-                  <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
-                </div>
-              ))}
-            </div>
-            <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
-              <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
-              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                {T.edfOptions.map((opt,i)=>(
-                  <button key={i} onClick={()=>f("UA_EDF",i)}
-                    style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}>{opt}</button>
-                ))}
-              </div>
-            </div>
-            <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
-              <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
-            </div>
-          </div>
+{showDoppler ? (
+  <>
+    <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>
+      {T.doppler}
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
+      {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
+        {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
+        {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
+      ].map(({k,lb,ph})=>(
+        <div key={k} style={{minWidth:0,overflow:"hidden"}}>
+          <div style={lbl}>{lb}</div>
+          <input
+            type="number"
+            inputMode="decimal"
+            value={form[k]}
+            placeholder={ph}
+            onChange={e=>f(k,e.target.value)}
+            style={inp}
+            step="0.01"
+          />
+        </div>
+      ))}
+    </div>
+
+    <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
+      <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>
+        {T.dopplerLabels.UA_EDF}:
+      </div>
+
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        {T.edfOptions.map((opt,i)=>(
+          <button
+            key={i}
+            onClick={()=>f("UA_EDF",i)}
+            style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
+      <button
+        style={{
+          background:C.accent,
+          color:C.btnFg,
+          border:"none",
+          borderRadius:10,
+          padding:"12px 26px",
+          fontSize:14,
+          fontWeight:600,
+          cursor:"pointer",
+          letterSpacing:"0.01em",
+          fontFamily:"inherit",
+          width:vp.isMobile?"100%":"auto",
+          boxShadow:`0 4px 14px ${C.accent}30`
+        }}
+        onClick={addMeas}
+      >
+        {T.addBtn}
+      </button>
+    </div>
+  </>
+) : null}
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
