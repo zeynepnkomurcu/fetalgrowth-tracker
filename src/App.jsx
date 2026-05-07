@@ -745,9 +745,7 @@ export default function App(){
                   <span className="mono" style={{fontSize:12,fontWeight:600,color:pctColor(liveEFWZ),padding:"3px 10px",background:`${pctColor(liveEFWZ)}18`,border:`1px solid ${pctColor(liveEFWZ)}40`,borderRadius:6}}>
                     P{liveEFWPct} · Z{liveEFWZ>0?"+":""}{liveEFWZ}
                  </span>
-)}
 </div>
-)}
 
 {showDoppler ? (
   <>
