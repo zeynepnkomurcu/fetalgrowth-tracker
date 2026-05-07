@@ -572,13 +572,6 @@ export default function App(){
   const liveEFWPct = liveEFWZ != null ? getPct(liveEFWZ) : null;
   const livePctMap = {};
   liveBio.forEach(b => { livePctMap[b.p] = b; });
-  
-  const acPct = livePctMap["AC"]?.pct ?? null;
-
-  const showDoppler =
-   (acPct != null && acPct < 10) ||
-   (liveEFWPct != null && liveEFWPct < 10);
-  
   const pctColor = z => z<-1.88||z>1.88 ? C.danger : z<-1.28||z>1.28 ? C.warn : C.ok;
 
   const sidebarContent = (
@@ -750,7 +743,7 @@ export default function App(){
                 )}
               </div>
             )}
-            {showDoppler ? (
+
             <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
             <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
@@ -782,22 +775,7 @@ export default function App(){
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
           </div>
-</>
-) : (
-  <div
-    style={{
-      fontSize: 11,
-      color: C.muted,
-      padding: "10px 12px",
-      background: C.innerBg,
-      border: `1px solid ${C.border}`,
-      borderRadius: 8,
-      marginBottom: 12,
-    }}
-  >
-    Doppler assessment not indicated.
-  </div>
-)}
+
           {/* ── CHART ── */}
           {tab==="chart"&&(
             <div style={card}>
