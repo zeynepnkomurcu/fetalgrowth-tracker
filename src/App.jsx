@@ -175,6 +175,34 @@ function getRefCurve(param) {
     p50:parseFloat(v.m.toFixed(1)), p90:parseFloat((v.m+1.28*v.sd).toFixed(1)), p97:parseFloat((v.m+1.88*v.sd).toFixed(1)) }));
 }
 
+function shouldShowDoppler(measurements) {
+  if (!measurements || measurements.length === 0) return false;
+
+  return measurements.some((m) => {
+    // Existing Doppler already entered
+    const hasDoppler =
+      m.UA_PI != null ||
+      m.MCA_PI != null ||
+      m.DV_PIV != null;
+
+    if (hasDoppler) return true;
+
+    // AC percentile
+    const acZ = getZ("AC", m.ga, m.AC);
+    const acPct = acZ != null ? getPct(acZ) : null;
+
+    // EFW percentile
+    const efw = calcEFW(m);
+    const efwZScore = efw != null ? efwZ(efw, m.ga) : null;
+    const efwPct = efwZScore != null ? getPct(efwZScore) : null;
+
+    return (
+      (acPct != null && acPct < 10) ||
+      (efwPct != null && efwPct < 10)
+    );
+  });
+}
+
 // ─── Themes ──────────────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
@@ -472,6 +500,10 @@ export default function App(){
   }, [form.date, patient?.lmpDate]);
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
+  const dopplerVisible =
+  stage > 0 ||
+  efwPct < 10 ||
+  acPct < 10;
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
 
@@ -771,7 +803,12 @@ export default function App(){
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
-            {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
+            {[
+  ["chart", T.tabChart],
+  ["zscore", T.tabZ],
+  ...(dopplerVisible ? [["doppler", T.tabDoppler]] : []),
+  ["fgr", T.tabFGR]
+].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
           </div>
