@@ -895,7 +895,6 @@ export default function App(){
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {meas.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeasFGR}</div>}
               {meas.length>0&&(
-                <>
                   <div style={{...card,borderColor:sc,background:`${sc}12`,display:"flex",alignItems:"center",gap:16}}>
                     <div style={{width:52,height:52,borderRadius:"50%",background:`${sc}25`,border:`2px solid ${sc}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:700,color:sc,flexShrink:0}}>{stage}</div>
                     <div>
@@ -915,11 +914,13 @@ export default function App(){
                     <div style={{fontSize:13,fontWeight:600,color:C.textStrong,marginBottom:10,letterSpacing:"0.01em"}}>{T.interpretTitle}</div>
                     {T.interpretLines.map((line,i)=><div key={i} style={{fontSize:11,color:C.muted,lineHeight:1.8}}>• {line}</div>)}
                     <div style={{marginTop:10,fontSize:9,color:"#2d4060",lineHeight:1.6}}>{T.refNote}<br/>{T.disclaimer}</div>
-                  </div>
-            </>
+                           </div>
+            </div>
           )}
 
         </div>
+      </div>
+
 
       {/* New patient modal */}
       {showNewPt && (
