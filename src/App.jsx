@@ -1070,16 +1070,11 @@ export default function App(){
             {T.refNote}
             <br/>
             {T.disclaimer}
-             </div>
-        </div>
-      </>
-    )}
+              </div>
+    </div>
 
-  </div>
+  </>
 )}
-
-          </>
-          )}
                       
       {/* New patient modal */}
       {showNewPt && (
