@@ -799,10 +799,6 @@ export default function App(){
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
-
-            <div style={{color:"red",fontSize:40,fontWeight:"bold"}}>
-TEST123
-</div>
             
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
@@ -883,7 +879,12 @@ TEST123
           )}
 
           {/* ── DOPPLER ── */}
-          {false && (
+
+            <div style={{background:"yellow",padding:20,fontSize:30}}>
+DOPPLER BLOCK
+</div>
+            
+            {false && (
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
               {sorted.map((m,i)=>{
