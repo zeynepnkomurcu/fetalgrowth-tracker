@@ -850,50 +850,137 @@ export default function App(){
             </div>
           )}
 
-          {/* ── DOPPLER ── */}
-          {tab==="doppler"&&(
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
-              {sorted.map((m,i)=>{
-                const wk=Math.round(m.ga),uaRef=UA_PI_95[wk],mcaRef=MCA_PI_REF[wk],cpr=calcCPR(m);
-                return(
-                  <div key={m.id} style={card}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                      <div>
-                        <span style={{fontWeight:700,color:C.accent}}>{T.visit} {i+1}</span>
-                        <span style={{color:C.muted,fontSize:11,marginLeft:8}}>{m.date} · GA {m.ga}w</span>
-                      </div>
-                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1}}>×</button>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
-                      <DGauge value={m.UA_PI} label={T.dopplerLabels.UA_PI} ref95={uaRef} C={C}/>
-                      <DGauge value={m.UA_RI} label={T.dopplerLabels.UA_RI} ref95={0.70} C={C}/>
-                      <DGauge value={m.UA_SD} label={T.dopplerLabels.UA_SD} ref95={3.0} C={C}/>
-                      <DGauge value={m.MCA_PI} label={T.dopplerLabels.MCA_PI} ref5={mcaRef?.p5} isLow C={C}/>
-                      <DGauge value={m.MCA_RI} label={T.dopplerLabels.MCA_RI} ref5={0.60} isLow C={C}/>
-                      <DGauge value={m.DV_PIV} label={T.dopplerLabels.DV_PIV} ref95={1.0} C={C}/>
-                                           {cpr!=null&&(
-                        <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
-                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                            <span style={{fontSize:10,color:C.muted}}>CPR</span>
-                            <span style={{fontSize:13,fontWeight:700,color:cpr<1.0?C.danger:C.ok}}>
-                              {cpr}
-                            </span>
-                          </div>
+            {/* ── DOPPLER ── */}
+{tab==="doppler"&&(
+  <div style={{display:"flex",flexDirection:"column",gap:10}}>
 
-                          <div style={{fontSize:9,color:C.muted}}>
-                            {T.cprFormula} · ≥ 1.0
-                          </div>
-                        </div>
-                      )}
+    {sorted.length===0 && (
+      <div style={{...card,color:C.muted,textAlign:"center",padding:32}}>
+        {T.noMeas}
+      </div>
+    )}
 
-                    </div>
-                  </div>
-                );
-              })}
+    {sorted.map((m,i)=>{
+      const wk=Math.round(m.ga),
+            uaRef=UA_PI_95[wk],
+            mcaRef=MCA_PI_REF[wk],
+            cpr=calcCPR(m);
+
+      return(
+        <div key={m.id} style={card}>
+
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div>
+              <span style={{fontWeight:700,color:C.accent}}>
+                {T.visit} {i+1}
+              </span>
+
+              <span style={{color:C.muted,fontSize:11,marginLeft:8}}>
+                {m.date} · GA {m.ga}w
+              </span>
             </div>
-          )}
 
+            <button
+              onClick={()=>delM(m.id)}
+              style={{
+                background:"transparent",
+                border:"none",
+                color:C.muted,
+                cursor:"pointer",
+                fontSize:18,
+                padding:"0 4px",
+                lineHeight:1
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
+
+            <DGauge
+              value={m.UA_PI}
+              label={T.dopplerLabels.UA_PI}
+              ref95={uaRef}
+              C={C}
+            />
+
+            <DGauge
+              value={m.UA_RI}
+              label={T.dopplerLabels.UA_RI}
+              ref95={0.70}
+              C={C}
+            />
+
+            <DGauge
+              value={m.UA_SD}
+              label={T.dopplerLabels.UA_SD}
+              ref95={3.0}
+              C={C}
+            />
+
+            <DGauge
+              value={m.MCA_PI}
+              label={T.dopplerLabels.MCA_PI}
+              ref5={mcaRef?.p5}
+              isLow
+              C={C}
+            />
+
+            <DGauge
+              value={m.MCA_RI}
+              label={T.dopplerLabels.MCA_RI}
+              ref5={0.60}
+              isLow
+              C={C}
+            />
+
+            <DGauge
+              value={m.DV_PIV}
+              label={T.dopplerLabels.DV_PIV}
+              ref95={1.0}
+              C={C}
+            />
+
+            {cpr!=null && (
+              <div style={{
+                background:C.innerBg,
+                border:`1px solid ${C.border}`,
+                borderRadius:10,
+                padding:"11px 13px"
+              }}>
+                <div style={{
+                  display:"flex",
+                  justifyContent:"space-between",
+                  marginBottom:3
+                }}>
+                  <span style={{fontSize:10,color:C.muted}}>
+                    CPR
+                  </span>
+
+                  <span style={{
+                    fontSize:13,
+                    fontWeight:700,
+                    color:cpr<1.0 ? C.danger : C.ok
+                  }}>
+                    {cpr}
+                  </span>
+                </div>
+
+                <div style={{fontSize:9,color:C.muted}}>
+                  {T.cprFormula} · ≥ 1.0
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      );
+    })}
+
+  </div>
+)}
+            
         {/* ── FGR STAGE ── */}
 {tab==="fgr"&&(
   <div style={{display:"flex",flexDirection:"column",gap:10}}>
