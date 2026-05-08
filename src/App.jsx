@@ -889,9 +889,6 @@ export default function App(){
                           <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
                         </div>
                       )}
-                      
-
-          )}
 
           {/* ── FGR STAGE ── */}
           {tab==="fgr"&&(
