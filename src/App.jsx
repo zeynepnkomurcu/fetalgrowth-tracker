@@ -862,7 +862,8 @@ export default function App(){
               })}
             </div>
           )}
-{/* ── DOPPLER LOCKED ── */}
+
+            {/* ── DOPPLER LOCKED ── */}
 {tab==="doppler_locked"&&(
   <div style={card}>
     <div style={{
@@ -901,7 +902,8 @@ export default function App(){
     </div>
   </div>
 )}
-          {/* ── DOPPLER ── */}
+
+            {/* ── DOPPLER ── */}
           {tab==="doppler"&&(
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
