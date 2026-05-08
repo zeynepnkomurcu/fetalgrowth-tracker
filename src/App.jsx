@@ -175,34 +175,6 @@ function getRefCurve(param) {
     p50:parseFloat(v.m.toFixed(1)), p90:parseFloat((v.m+1.28*v.sd).toFixed(1)), p97:parseFloat((v.m+1.88*v.sd).toFixed(1)) }));
 }
 
-function shouldShowDoppler(measurements) {
-  if (!measurements || measurements.length === 0) return false;
-
-  return measurements.some((m) => {
-    // Existing Doppler already entered
-    const hasDoppler =
-  m.UA_PI !== "" ||
-  m.MCA_PI !== "" ||
-  m.DV_PIV !== "";
-
-    if (hasDoppler) return true;
-
-    // AC percentile
-    const acZ = getZ("AC", m.ga, m.AC);
-    const acPct = acZ != null ? getPct(acZ) : null;
-
-    // EFW percentile
-    const efw = calcEFW(m);
-    const efwZScore = efw != null ? efwZ(efw, m.ga) : null;
-    const efwPct = efwZScore != null ? getPct(efwZScore) : null;
-    
-    return (
-      (acPct != null && acPct < 10) ||
-      (efwPct != null && efwPct < 10)
-    );
-  });
-}
-
 // ─── Themes ──────────────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
@@ -429,8 +401,7 @@ const blankForm = () => ({date:todayISO(),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"
 
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
-const dopplerVisible = false;
-  
+export default function App(){
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
   const [theme, setTheme] = useState(() => {
@@ -501,9 +472,6 @@ const dopplerVisible = false;
   }, [form.date, patient?.lmpDate]);
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
-  
-  const dopplerVisible = false;
-  
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
 
@@ -800,20 +768,10 @@ const dopplerVisible = false;
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
-            
+
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
-           {[
-  ["chart", T.tabChart],
-  ["zscore", T.tabZ],
-
-  ...(dopplerVisible
-    ? [["doppler", T.tabDoppler]]
-    : []),
-
-  ["fgr", T.tabFGR]
-
-].map(([k,lb])=>(
+            {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
           </div>
@@ -880,7 +838,7 @@ const dopplerVisible = false;
           )}
 
           {/* ── DOPPLER ── */}
-{dopplerVisible && tab==="doppler" && (
+          {tab==="doppler"&&(
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
               {sorted.map((m,i)=>{
