@@ -744,8 +744,13 @@ export default function App(){
               </div>
             )}
 
-            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
-            <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
+            {false && (
+<>
+  <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>
+    {T.doppler}
+  </div>
+
+  <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
               {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
                 {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
                 {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
@@ -768,7 +773,8 @@ export default function App(){
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
-
+</>
+)}
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
             {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
@@ -868,32 +874,8 @@ export default function App(){
                           <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
                         </div>
                       )}
-                      <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px",gridColumn:vp.isMobile?"span 2":"auto"}}>
-                        <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{T.dopplerLabels.UA_EDF}</div>
-                        <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF==null?C.muted:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{m.UA_EDF==null?"—":T.edfOptions[m.UA_EDF]}</span>
-                      </div>
-                    </div>
-                    {dpD.length>1&&i===sorted.length-1&&(
-                      <div style={{marginTop:12}}>
-                        <div style={{fontSize:9,color:C.muted,marginBottom:6}}>UA PI / MCA PI TREND</div>
-                        <ResponsiveContainer width="100%" height={vp.isMobile?140:160}>
-                          <LineChart data={dpD} margin={{top:4,right:vp.isMobile?4:10,bottom:14,left:vp.isMobile?-12:4}}>
-                            <CartesianGrid stroke={C.border} strokeDasharray="3 3"/>
-                            <XAxis dataKey="week" stroke={C.muted} tick={{fontSize:9}} label={{value:"GA (w)",position:"insideBottom",offset:-6,fill:C.muted,fontSize:9}}/>
-                            <YAxis stroke={C.muted} tick={{fontSize:9}} domain={[0,"auto"]}/>
-                            <Tooltip contentStyle={{background:C.card,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
-                            <Line type="monotone" dataKey="UA_PI"  stroke={C.UA}  strokeWidth={2} dot={{r:4}} name="UA PI"/>
-                            <Line type="monotone" dataKey="MCA_PI" stroke={C.MCA} strokeWidth={2} dot={{r:4}} name="MCA PI"/>
-                            <Line type="monotone" dataKey="UA95"   stroke={C.danger} strokeDasharray="4 2" strokeWidth={1} dot={false} name="UA 95th"/>
-                            <Line type="monotone" dataKey="MCA5"   stroke={C.warn}   strokeDasharray="4 2" strokeWidth={1} dot={false} name="MCA 5th"/>
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                      
+
           )}
 
           {/* ── FGR STAGE ── */}
