@@ -196,6 +196,11 @@ function shouldShowDoppler(measurements) {
     const efwZScore = efw != null ? efwZ(efw, m.ga) : null;
     const efwPct = efwZScore != null ? getPct(efwZScore) : null;
 
+    const dopplerVisible =
+  (stage ?? 0) > 0 ||
+  (efwPct != null && efwPct < 10) ||
+  (acPct != null && acPct < 10);
+    
     return (
       (acPct != null && acPct < 10) ||
       (efwPct != null && efwPct < 10)
