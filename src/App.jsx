@@ -472,6 +472,16 @@ export default function App(){
   }, [form.date, patient?.lmpDate]);
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
+  const isDopplerEnabled = useMemo(() => {
+  if (!sorted.length) return false;
+  const last = sorted[sorted.length - 1];
+  const gaOk = last.ga >= 24;
+  const acZ = getZ("AC", last.ga, last.AC);
+  const efwVal = calcEFW(last);
+  const efwZVal = (efwVal != null) ? efwZ(efwVal, last.ga) : null;
+  const biometryOk = (acZ != null && acZ < -1.28) || (efwZVal != null && efwZVal < -1.28);
+  return gaOk || biometryOk;
+}, [sorted]);
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
 
