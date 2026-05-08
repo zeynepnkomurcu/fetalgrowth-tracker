@@ -63,7 +63,7 @@ const LANG = {
     noMeas: "Henüz ölçüm yok. Yukarıdan ilk ölçümü girin.",
     noMeasFGR: "Analiz için en az 1 ölçüm ekleyin.",
     tabChart: "📈 Büyüme Eğrisi", tabZ: "Z-Skorlar", tab: "🔴 ", tabFGR: "⚠ FGR Evresi",
-    biometry: "BİYOMETRİ", : "",
+    biometry: "BİYOMETRİ", 
     paramRef: "INTERGROWTH-21 referans eğrisi · hasta ölçümleri",
     notMeasured: "Ölçülmedi", interpretTitle: "YORUM KILAVUZU",
     fgrRiskBanner: "⚠ FGR RİSKİ",
