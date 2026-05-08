@@ -464,6 +464,25 @@ export default function App(){
   const meas=patient?.measurements||[];
   const sorted=[...meas].sort((a,b)=>a.ga-b.ga);
 
+  const isDopplerEnabled = useMemo(() => {
+  if (!sorted.length) return false;
+
+  const last = sorted[sorted.length - 1];
+  const gaOk = last.ga >= 24;
+
+  const acZ = getZ("AC", last.ga, last.AC);
+
+  const efwVal = calcEFW(last);
+  const efwZVal =
+    (efwVal != null) ? efwZ(efwVal, last.ga) : null;
+
+  const biometryOk =
+    (acZ != null && acZ < -1.28) ||
+    (efwZVal != null && efwZVal < -1.28);
+
+  return gaOk || biometryOk;
+}, [sorted]);
+  
   // Auto-calc GA from LMP when measurement date changes
   useEffect(() => {
     if (!patient?.lmpDate || !form.date) return;
