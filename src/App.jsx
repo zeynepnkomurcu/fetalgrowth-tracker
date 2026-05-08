@@ -781,9 +781,25 @@ export default function App(){
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
-            {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
-              <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
-            ))}
+           {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>{
+  const isLocked = k === "doppler" && !isDopplerEnabled;
+  return (
+    <button key={k}
+      style={{
+        ...tb(tab===k),
+        opacity: isLocked ? 0.4 : 1,
+        cursor: isLocked ? "not-allowed" : "pointer",
+      }}
+      onClick={() => {
+        if (isLocked) {
+          setTab("doppler_locked");
+        } else {
+          setTab(k);
+        }
+      }}
+    >{lb}</button>
+  );
+})}
           </div>
 
           {/* ── CHART ── */}
