@@ -872,15 +872,27 @@ export default function App(){
                       <DGauge value={m.MCA_PI} label={T.dopplerLabels.MCA_PI} ref5={mcaRef?.p5} isLow C={C}/>
                       <DGauge value={m.MCA_RI} label={T.dopplerLabels.MCA_RI} ref5={0.60} isLow C={C}/>
                       <DGauge value={m.DV_PIV} label={T.dopplerLabels.DV_PIV} ref95={1.0} C={C}/>
-                      {cpr!=null&&(
+                                           {cpr!=null&&(
                         <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
                           <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
                             <span style={{fontSize:10,color:C.muted}}>CPR</span>
-                            <span style={{fontSize:13,fontWeight:700,color:cpr<1.0?C.danger:C.ok}}>{cpr}</span>
+                            <span style={{fontSize:13,fontWeight:700,color:cpr<1.0?C.danger:C.ok}}>
+                              {cpr}
+                            </span>
                           </div>
-                          <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
+
+                          <div style={{fontSize:9,color:C.muted}}>
+                            {T.cprFormula} · ≥ 1.0
+                          </div>
                         </div>
                       )}
+
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
         {/* ── FGR STAGE ── */}
 {tab==="fgr"&&(
