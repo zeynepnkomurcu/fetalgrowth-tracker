@@ -879,12 +879,7 @@ export default function App(){
           )}
 
           {/* ── DOPPLER ── */}
-
-            <div style={{background:"yellow",padding:20,fontSize:30}}>
-DOPPLER BLOCK
-</div>
-            
-            {false && (
+{tab==="doppler" && dopplerVisible && (
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
               {sorted.map((m,i)=>{
