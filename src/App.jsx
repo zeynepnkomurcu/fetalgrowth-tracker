@@ -918,6 +918,8 @@ export default function App(){
               )}
             </div>
           )}
+        </div>
+      </div>
 
       {/* New patient modal */}
       {showNewPt && (
