@@ -430,8 +430,6 @@ const blankForm = () => ({date:todayISO(),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
 const dopplerVisible = false;
-
-  return <div style={{fontSize:60,color:"red"}}>ONLY THIS</div>;
   
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
