@@ -196,11 +196,6 @@ function shouldShowDoppler(measurements) {
     const efwZScore = efw != null ? efwZ(efw, m.ga) : null;
     const efwPct = efwZScore != null ? getPct(efwZScore) : null;
 
-  const dopplerVisible =
-  (stage ?? 0) > 0 ||
-  (efwPct != null && efwPct < 10) ||
-  (acPct != null && acPct < 10);
-
     return (
       (acPct != null && acPct < 10) ||
       (efwPct != null && efwPct < 10)
@@ -807,7 +802,7 @@ export default function App(){
             {[
   ["chart", T.tabChart],
   ["zscore", T.tabZ],
-  ...(dopplerVisible ? [["doppler", T.tabDoppler]] : []),
+  ...(dopplerVisible ? [["doppler", T.tabDoppler]] : 
   ["fgr", T.tabFGR]
 ].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
