@@ -1041,7 +1041,7 @@ export default function App(){
               <div style={{display:"flex",gap:8,marginTop:6,flexDirection:vp.isMobile?"column-reverse":"row",justifyContent:"flex-end"}}>
                 <button onClick={()=>setShowDummy(false)} style={{...tb(false),padding:"10px 18px",fontSize:13}}>{T.cancel}</button>
                 <button onClick={saveDummy} style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 4px 14px ${C.accent}30`}}>{T.save}</button>
-                           </div>
+                                 </div>
             </div>
           </div>
         </div>
