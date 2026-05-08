@@ -782,7 +782,6 @@ export default function App(){
       </div>
     </div>
   </>
-)}
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
