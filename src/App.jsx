@@ -760,8 +760,10 @@ export default function App(){
                 </div>
               ))}
             </div>
+  
   </>
 )}
+            
             <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
               <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
