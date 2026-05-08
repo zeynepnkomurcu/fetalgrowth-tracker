@@ -1074,6 +1074,8 @@ export default function App(){
 
   </div>
 )}
+                      </>
+          )}
                       
       {/* New patient modal */}
       {showNewPt && (
