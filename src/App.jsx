@@ -745,7 +745,7 @@ export default function App(){
             )}
 
             {false && (
-<>
+      <>
   <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>
     {T.doppler}
   </div>
@@ -760,9 +760,6 @@ export default function App(){
                 </div>
               ))}
             </div>
-  
-  </>
-)}
             
             <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
               <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
@@ -773,6 +770,10 @@ export default function App(){
                 ))}
               </div>
             </div>
+        
+        </>
+)}
+            
             <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
