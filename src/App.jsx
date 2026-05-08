@@ -429,7 +429,10 @@ const blankForm = () => ({date:todayISO(),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"
 
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
-export default function App(){
+const dopplerVisible = false;
+
+  return <div style={{fontSize:60,color:"red"}}>ONLY THIS</div>;
+  
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
   const [theme, setTheme] = useState(() => {
@@ -879,7 +882,7 @@ export default function App(){
           )}
 
           {/* ── DOPPLER ── */}
-{tab==="doppler" && dopplerVisible && (
+{dopplerVisible && tab==="doppler" && (
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
               {sorted.map((m,i)=>{
