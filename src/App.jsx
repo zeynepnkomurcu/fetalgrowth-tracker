@@ -32,7 +32,7 @@ const LANG = {
       "MCA PI < 5th %ile → Brain-sparing (cerebral redistribution)",
       "CPR < 1.0 → Cerebroplacental ratio abnormal — delivery timing critical",
     ],
-    refNote: "Reference: INTERGROWTH-21st · Papageorghiou et al., Lancet 2014 · Mari & Deter Doppler refs",
+    refNote: "Reference: INTERGROWTH-21st · Papageorghiou et al., Lancet 2014 · Mari & Deter  refs",
     disclaimer: "For clinical decision support only. Always combine with clinical judgment.",
     fgrStages: {
       0: { label: "No FGR Detected", desc: "All parameters within normal limits." },
@@ -41,14 +41,14 @@ const LANG = {
       3: { label: "Stage III — Severe FGR", desc: "Reversed EDF or MCA PI < 5th %ile. Urgent evaluation required." },
       4: { label: "Stage IV — Critical FGR", desc: "Abnormal ductus venosus. Delivery may be indicated." },
     },
-    dopplerLabels: { UA_PI:"Umbilical A. PI", UA_RI:"Umbilical A. RI", UA_SD:"Umbilical A. S/D",
+    Labels: { UA_PI:"Umbilical A. PI", UA_RI:"Umbilical A. RI", UA_SD:"Umbilical A. S/D",
       UA_EDF:"End-Diastolic Flow", MCA_PI:"MCA PI", MCA_RI:"MCA RI", CPR:"Cerebroplacental Ratio", DV_PIV:"Ductus Venosus PIV" },
     edfOptions: ["Normal", "Absent (AEDF)", "Reversed (REDF)"],
     efwLabel: "Est. Fetal Weight", cprFormula: "CPR = MCA PI / UA PI",
   },
   TR: {
     appTitle: "FetalGrowth Tracker",
-    appSub: "INTERGROWTH-21 · BİYOMETRİ · DOPPLER · FGR TESPİTİ",
+    appSub: "INTERGROWTH-21 · BİYOMETRİ ·  · FGR TESPİTİ",
     patients: "HASTALAR", newPatient: "Yeni hasta",
     newPatientTitle: "Yeni Hasta", firstName: "İsim", lastName: "Soyisim",
     birthDate: "Doğum Tarihi", tcKimlik: "TC Kimlik No", lmpDate: "Son Adet Tarihi",
@@ -62,8 +62,8 @@ const LANG = {
     visits: "vizit", visit: "Vizit", date: "Tarih", gaWeeks: "GA (h+g)",
     noMeas: "Henüz ölçüm yok. Yukarıdan ilk ölçümü girin.",
     noMeasFGR: "Analiz için en az 1 ölçüm ekleyin.",
-    tabChart: "📈 Büyüme Eğrisi", tabZ: "Z-Skorlar", tabDoppler: "🔴 Doppler", tabFGR: "⚠ FGR Evresi",
-    biometry: "BİYOMETRİ", doppler: "DOPPLER",
+    tabChart: "📈 Büyüme Eğrisi", tabZ: "Z-Skorlar", tab: "🔴 ", tabFGR: "⚠ FGR Evresi",
+    biometry: "BİYOMETRİ", : "",
     paramRef: "INTERGROWTH-21 referans eğrisi · hasta ölçümleri",
     notMeasured: "Ölçülmedi", interpretTitle: "YORUM KILAVUZU",
     fgrRiskBanner: "⚠ FGR RİSKİ",
@@ -75,7 +75,7 @@ const LANG = {
       "MCA PI < 5. persantil → Beyin koruma (serebral yeniden dağılım)",
       "CPR < 1.0 → Serebroplasentral oran anormal — doğum zamanlaması kritik",
     ],
-    refNote: "Referans: INTERGROWTH-21st · Papageorghiou et al., Lancet 2014 · Mari & Deter Doppler referansları",
+    refNote: "Referans: INTERGROWTH-21st · Papageorghiou et al., Lancet 2014 · Mari & Deter  referansları",
     disclaimer: "Yalnızca klinik karar desteği içindir. Her zaman klinik değerlendirmeyle birlikte kullanın.",
     fgrStages: {
       0: { label: "FGR Tespit Edilmedi", desc: "Tüm parametreler normal sınırlar içinde." },
@@ -84,7 +84,7 @@ const LANG = {
       3: { label: "Evre III — Ciddi FGR", desc: "Ters EAD veya MCA PI < 5. persantil. Acil değerlendirme gerekli." },
       4: { label: "Evre IV — Kritik FGR", desc: "Anormal duktus venozus. Doğum endikasyonu olabilir." },
     },
-    dopplerLabels: { UA_PI:"Umblikal A. PI", UA_RI:"Umblikal A. RI", UA_SD:"Umblikal A. S/D",
+    Labels: { UA_PI:"Umblikal A. PI", UA_RI:"Umblikal A. RI", UA_SD:"Umblikal A. S/D",
       UA_EDF:"Diyastol Sonu Akım", MCA_PI:"MCA PI", MCA_RI:"MCA RI", CPR:"Serebroplasentral Oran", DV_PIV:"Duktus Venozus PIV" },
     edfOptions: ["Normal", "Absent (EAD yok)", "Ters (RADS)"],
     efwLabel: "Tahmini Fetal Ağırlık", cprFormula: "CPR = MCA PI / UA PI",
@@ -99,7 +99,7 @@ const IG21 = {
   FL:  {20:{m:33.0,sd:2.5},21:{m:35.5,sd:2.6},22:{m:38.0,sd:2.7},23:{m:40.5,sd:2.8},24:{m:42.9,sd:2.9},25:{m:45.3,sd:3.0},26:{m:47.6,sd:3.1},27:{m:49.8,sd:3.2},28:{m:51.9,sd:3.3},29:{m:54.0,sd:3.4},30:{m:55.9,sd:3.5},31:{m:57.8,sd:3.6},32:{m:59.5,sd:3.7},33:{m:61.2,sd:3.8},34:{m:62.7,sd:3.9},35:{m:64.1,sd:4.0},36:{m:65.4,sd:4.1},37:{m:66.5,sd:4.2},38:{m:67.5,sd:4.3},39:{m:68.3,sd:4.4},40:{m:69.0,sd:4.5}},
 };
 
-// ─── Doppler References ──────────────────────────────────────────────────────
+// ───  References ──────────────────────────────────────────────────────
 const UA_PI_95 = {20:1.80,21:1.75,22:1.70,23:1.65,24:1.60,25:1.55,26:1.50,27:1.45,28:1.40,29:1.35,30:1.30,31:1.25,32:1.20,33:1.15,34:1.10,35:1.05,36:1.00,37:0.96,38:0.93,39:0.90,40:0.88};
 const MCA_PI_REF = {20:{m:2.10,p5:1.55},21:{m:2.15,p5:1.58},22:{m:2.20,p5:1.62},23:{m:2.25,p5:1.66},24:{m:2.28,p5:1.68},25:{m:2.30,p5:1.70},26:{m:2.32,p5:1.72},27:{m:2.35,p5:1.73},28:{m:2.38,p5:1.74},29:{m:2.40,p5:1.75},30:{m:2.42,p5:1.76},31:{m:2.44,p5:1.77},32:{m:2.45,p5:1.76},33:{m:2.43,p5:1.73},34:{m:2.38,p5:1.69},35:{m:2.30,p5:1.62},36:{m:2.18,p5:1.52},37:{m:2.05,p5:1.40},38:{m:1.90,p5:1.28},39:{m:1.75,p5:1.15},40:{m:1.60,p5:1.02}};
 
@@ -862,7 +862,45 @@ export default function App(){
               })}
             </div>
           )}
+{/* ── DOPPLER LOCKED ── */}
+{tab==="doppler_locked"&&(
+  <div style={card}>
+    <div style={{
+      fontSize:16,
+      fontWeight:700,
+      color:C.warn,
+      marginBottom:12
+    }}>
+      🔒 Doppler not indicated
+    </div>
 
+    <div style={{
+      fontSize:13,
+      color:C.text,
+      lineHeight:1.7
+    }}>
+      According to ISUOG guidelines, Doppler assessment is recommended
+      only when fetal growth restriction or placental insufficiency is suspected.
+    </div>
+
+    <div style={{
+      marginTop:14,
+      padding:"12px 14px",
+      background:C.innerBg,
+      border:`1px solid ${C.border}`,
+      borderRadius:10,
+      fontSize:12,
+      color:C.muted
+    }}>
+      Doppler will become available when:
+      <ul style={{marginTop:8,paddingLeft:18}}>
+        <li>GA ≥ 24 weeks</li>
+        <li>AC &lt; 10th percentile</li>
+        <li>EFW &lt; 10th percentile</li>
+      </ul>
+    </div>
+  </div>
+)}
           {/* ── DOPPLER ── */}
           {tab==="doppler"&&(
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
