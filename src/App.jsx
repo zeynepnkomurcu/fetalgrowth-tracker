@@ -744,46 +744,30 @@ export default function App(){
               </div>
             )}
 
-    <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
-      {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
-        {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
-        {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
-      ].map(({k,lb,ph})=>(
-        <div key={k} style={{minWidth:0,overflow:"hidden"}}>
-          <div style={lbl}>{lb}</div>
-          <input
-            type="number"
-            inputMode="decimal"
-            value={form[k]}
-            placeholder={ph}
-            onChange={e=>f(k,e.target.value)}
-            style={inp}
-            step="0.01"
-          />
-        </div>
-      ))}
-    </div>
-
-    <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
-      <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>
-        {T.dopplerLabels.UA_EDF}:
-      </div>
-
-      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {T.edfOptions.map((opt,i)=>(
-          <button
-            key={i}
-            onClick={()=>f("UA_EDF",i)}
-            style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-      
-    </div>
-
-</div>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>{T.doppler}</div>
+            <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
+              {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
+                {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
+                {k:"MCA_RI",lb:"MCA RI",ph:""},{k:"DV_PIV",lb:"DV PIV",ph:""}
+              ].map(({k,lb,ph})=>(
+                <div key={k} style={{minWidth:0,overflow:"hidden"}}><div style={lbl}>{lb}</div>
+                  <input type="number" inputMode="decimal" value={form[k]} placeholder={ph} onChange={e=>f(k,e.target.value)} style={inp} step="0.01"/>
+                </div>
+              ))}
+            </div>
+            <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
+              <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {T.edfOptions.map((opt,i)=>(
+                  <button key={i} onClick={()=>f("UA_EDF",i)}
+                    style={{...tb(form.UA_EDF===i,i===0?C.ok:i===1?C.warn:C.danger),fontSize:11}}>{opt}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{display:"flex",justifyContent:vp.isMobile?"stretch":"flex-end"}}>
+              <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
+            </div>
+          </div>
 
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
@@ -853,229 +837,100 @@ export default function App(){
             </div>
           )}
 
-            {/* ── DOPPLER ── */}
-{tab==="doppler"&&(
-  <div style={{display:"flex",flexDirection:"column",gap:10}}>
-
-    {sorted.length===0 && (
-      <div style={{...card,color:C.muted,textAlign:"center",padding:32}}>
-        {T.noMeas}
-      </div>
-    )}
-
-    {sorted.map((m,i)=>{
-      const wk=Math.round(m.ga),
-            uaRef=UA_PI_95[wk],
-            mcaRef=MCA_PI_REF[wk],
-            cpr=calcCPR(m);
-
-      return(
-        <div key={m.id} style={card}>
-
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <div>
-              <span style={{fontWeight:700,color:C.accent}}>
-                {T.visit} {i+1}
-              </span>
-
-              <span style={{color:C.muted,fontSize:11,marginLeft:8}}>
-                {m.date} · GA {m.ga}w
-              </span>
+          {/* ── DOPPLER ── */}
+          {tab==="doppler"&&(
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {sorted.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeas}</div>}
+              {sorted.map((m,i)=>{
+                const wk=Math.round(m.ga),uaRef=UA_PI_95[wk],mcaRef=MCA_PI_REF[wk],cpr=calcCPR(m);
+                return(
+                  <div key={m.id} style={card}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                      <div>
+                        <span style={{fontWeight:700,color:C.accent}}>{T.visit} {i+1}</span>
+                        <span style={{color:C.muted,fontSize:11,marginLeft:8}}>{m.date} · GA {m.ga}w</span>
+                      </div>
+                      <button onClick={()=>delM(m.id)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:"0 4px",lineHeight:1}}>×</button>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
+                      <DGauge value={m.UA_PI} label={T.dopplerLabels.UA_PI} ref95={uaRef} C={C}/>
+                      <DGauge value={m.UA_RI} label={T.dopplerLabels.UA_RI} ref95={0.70} C={C}/>
+                      <DGauge value={m.UA_SD} label={T.dopplerLabels.UA_SD} ref95={3.0} C={C}/>
+                      <DGauge value={m.MCA_PI} label={T.dopplerLabels.MCA_PI} ref5={mcaRef?.p5} isLow C={C}/>
+                      <DGauge value={m.MCA_RI} label={T.dopplerLabels.MCA_RI} ref5={0.60} isLow C={C}/>
+                      <DGauge value={m.DV_PIV} label={T.dopplerLabels.DV_PIV} ref95={1.0} C={C}/>
+                      {cpr!=null&&(
+                        <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px"}}>
+                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                            <span style={{fontSize:10,color:C.muted}}>CPR</span>
+                            <span style={{fontSize:13,fontWeight:700,color:cpr<1.0?C.danger:C.ok}}>{cpr}</span>
+                          </div>
+                          <div style={{fontSize:9,color:C.muted}}>{T.cprFormula} · ≥ 1.0</div>
+                        </div>
+                      )}
+                      <div style={{background:C.innerBg,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 13px",gridColumn:vp.isMobile?"span 2":"auto"}}>
+                        <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{T.dopplerLabels.UA_EDF}</div>
+                        <span style={{fontWeight:700,fontSize:12,color:m.UA_EDF==null?C.muted:m.UA_EDF===0?C.ok:m.UA_EDF===1?C.warn:C.danger}}>{m.UA_EDF==null?"—":T.edfOptions[m.UA_EDF]}</span>
+                      </div>
+                    </div>
+                    {dpD.length>1&&i===sorted.length-1&&(
+                      <div style={{marginTop:12}}>
+                        <div style={{fontSize:9,color:C.muted,marginBottom:6}}>UA PI / MCA PI TREND</div>
+                        <ResponsiveContainer width="100%" height={vp.isMobile?140:160}>
+                          <LineChart data={dpD} margin={{top:4,right:vp.isMobile?4:10,bottom:14,left:vp.isMobile?-12:4}}>
+                            <CartesianGrid stroke={C.border} strokeDasharray="3 3"/>
+                            <XAxis dataKey="week" stroke={C.muted} tick={{fontSize:9}} label={{value:"GA (w)",position:"insideBottom",offset:-6,fill:C.muted,fontSize:9}}/>
+                            <YAxis stroke={C.muted} tick={{fontSize:9}} domain={[0,"auto"]}/>
+                            <Tooltip contentStyle={{background:C.card,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
+                            <Line type="monotone" dataKey="UA_PI"  stroke={C.UA}  strokeWidth={2} dot={{r:4}} name="UA PI"/>
+                            <Line type="monotone" dataKey="MCA_PI" stroke={C.MCA} strokeWidth={2} dot={{r:4}} name="MCA PI"/>
+                            <Line type="monotone" dataKey="UA95"   stroke={C.danger} strokeDasharray="4 2" strokeWidth={1} dot={false} name="UA 95th"/>
+                            <Line type="monotone" dataKey="MCA5"   stroke={C.warn}   strokeDasharray="4 2" strokeWidth={1} dot={false} name="MCA 5th"/>
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+          )}
 
-            <button
-              onClick={()=>delM(m.id)}
-              style={{
-                background:"transparent",
-                border:"none",
-                color:C.muted,
-                cursor:"pointer",
-                fontSize:18,
-                padding:"0 4px",
-                lineHeight:1
-              }}
-            >
-              ×
-            </button>
-          </div>
+          {/* ── FGR STAGE ── */}
+          {tab==="fgr"&&(
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {meas.length===0&&<div style={{...card,color:C.muted,textAlign:"center",padding:32}}>{T.noMeasFGR}</div>}
+              {meas.length>0&&(
+                <>
+                  <div style={{...card,borderColor:sc,background:`${sc}12`,display:"flex",alignItems:"center",gap:16}}>
+                    <div style={{width:52,height:52,borderRadius:"50%",background:`${sc}25`,border:`2px solid ${sc}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:700,color:sc,flexShrink:0}}>{stage}</div>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:14,color:sc}}>{si.label}</div>
+                      <div style={{fontSize:12,color:C.text,marginTop:3}}>{si.desc}</div>
+                    </div>
+                  </div>
+                  {findings.map((fd,i)=>(
+                    <div key={i} style={{...card,borderColor:fd.level==="HIGH"?C.danger:fd.level==="WARN"?C.warn:C.ok,background:fd.level==="HIGH"?"#ef444412":fd.level==="WARN"?"#f59e0b12":"#10b98112"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                        <Badge level={fd.level} small C={C}/>
+                        <span style={{fontSize:12,color:C.text}}>{fd.text}</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={card}>
+                    <div style={{fontSize:13,fontWeight:600,color:C.textStrong,marginBottom:10,letterSpacing:"0.01em"}}>{T.interpretTitle}</div>
+                    {T.interpretLines.map((line,i)=><div key={i} style={{fontSize:11,color:C.muted,lineHeight:1.8}}>• {line}</div>)}
+                    <div style={{marginTop:10,fontSize:9,color:"#2d4060",lineHeight:1.6}}>{T.refNote}<br/>{T.disclaimer}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          </>)}
 
-          <div style={{display:"grid",gridTemplateColumns:dgCols,gap:8}}>
-
-            <DGauge
-              value={m.UA_PI}
-              label={T.dopplerLabels.UA_PI}
-              ref95={uaRef}
-              C={C}
-            />
-
-            <DGauge
-              value={m.UA_RI}
-              label={T.dopplerLabels.UA_RI}
-              ref95={0.70}
-              C={C}
-            />
-
-            <DGauge
-              value={m.UA_SD}
-              label={T.dopplerLabels.UA_SD}
-              ref95={3.0}
-              C={C}
-            />
-
-            <DGauge
-              value={m.MCA_PI}
-              label={T.dopplerLabels.MCA_PI}
-              ref5={mcaRef?.p5}
-              isLow
-              C={C}
-            />
-
-            <DGauge
-              value={m.MCA_RI}
-              label={T.dopplerLabels.MCA_RI}
-              ref5={0.60}
-              isLow
-              C={C}
-            />
-
-            <DGauge
-              value={m.DV_PIV}
-              label={T.dopplerLabels.DV_PIV}
-              ref95={1.0}
-              C={C}
-            />
-
-            {cpr!=null && (
-              <div style={{
-                background:C.innerBg,
-                border:`1px solid ${C.border}`,
-                borderRadius:10,
-                padding:"11px 13px"
-              }}>
-                <div style={{
-                  display:"flex",
-                  justifyContent:"space-between",
-                  marginBottom:3
-                }}>
-                  <span style={{fontSize:10,color:C.muted}}>
-                    CPR
-                  </span>
-
-                  <span style={{
-                    fontSize:13,
-                    fontWeight:700,
-                    color:cpr<1.0 ? C.danger : C.ok
-                  }}>
-                    {cpr}
-                  </span>
-                </div>
-
-                <div style={{fontSize:9,color:C.muted}}>
-                  {T.cprFormula} · ≥ 1.0
-                </div>
-              </div>
-            )}
-
-          </div>
         </div>
-      );
-    })}
-
-  </div>
-)}
-            
-        {/* ── FGR STAGE ── */}
-{tab==="fgr"&&(
-  <div style={{display:"flex",flexDirection:"column",gap:10}}>
-
-    {meas.length===0 && (
-      <div style={{...card,color:C.muted,textAlign:"center",padding:32}}>
-        {T.noMeasFGR}
       </div>
-    )}
 
-    {meas.length>0 && (
-      <>
-        <div style={{...card,borderColor:sc,background:`${sc}12`,display:"flex",alignItems:"center",gap:16}}>
-          <div
-            style={{
-              width:52,
-              height:52,
-              borderRadius:"50%",
-              background:`${sc}25`,
-              border:`2px solid ${sc}`,
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              fontSize:22,
-              fontWeight:700,
-              color:sc,
-              flexShrink:0
-            }}
-          >
-            {stage}
-          </div>
-
-          <div>
-            <div style={{fontWeight:700,fontSize:14,color:sc}}>
-              {si.label}
-            </div>
-
-            <div style={{fontSize:12,color:C.text,marginTop:3}}>
-              {si.desc}
-            </div>
-          </div>
-        </div>
-
-        {findings.map((fd,i)=>(
-          <div
-            key={i}
-            style={{
-              ...card,
-              borderColor:
-                fd.level==="HIGH"
-                  ? C.danger
-                  : fd.level==="WARN"
-                  ? C.warn
-                  : C.ok,
-              background:
-                fd.level==="HIGH"
-                  ? "#ef444412"
-                  : fd.level==="WARN"
-                  ? "#f59e0b12"
-                  : "#10b98112"
-            }}
-          >
-            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-              <Badge level={fd.level} small C={C}/>
-              <span style={{fontSize:12,color:C.text}}>
-                {fd.text}
-              </span>
-            </div>
-          </div>
-        ))}
-
-        <div style={card}>
-          <div style={{fontSize:13,fontWeight:600,color:C.textStrong,marginBottom:10,letterSpacing:"0.01em"}}>
-            {T.interpretTitle}
-          </div>
-
-          {T.interpretLines.map((line,i)=>(
-            <div key={i} style={{fontSize:11,color:C.muted,lineHeight:1.8}}>
-              • {line}
-            </div>
-          ))}
-
-          <div style={{marginTop:10,fontSize:9,color:"#2d4060",lineHeight:1.6}}>
-            {T.refNote}
-            <br/>
-            {T.disclaimer}
-              </div>
-    </div>
-
-  </>
-)}
-                      
       {/* New patient modal */}
       {showNewPt && (
         <div onClick={()=>setShowNewPt(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
