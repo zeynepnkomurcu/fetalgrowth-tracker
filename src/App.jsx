@@ -501,7 +501,7 @@ export default function App(){
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
   
-  const dopplerVisible = stage >= 1 && findings?.length > 0;
+  const dopplerVisible = false;
   
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
