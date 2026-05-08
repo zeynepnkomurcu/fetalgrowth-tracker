@@ -744,12 +744,6 @@ export default function App(){
               </div>
             )}
 
-{false && (
-  <>
-    <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.04em",textTransform:"uppercase",marginBottom:8,marginTop:4}}>
-      {T.doppler}
-    </div>
-
     <div style={{display:"grid",gridTemplateColumns:dopCols,gap:8,marginBottom:10}}>
       {[{k:"UA_PI",lb:"UA PI",ph:""},{k:"UA_RI",lb:"UA RI",ph:""},
         {k:"UA_SD",lb:"UA S/D",ph:""},{k:"MCA_PI",lb:"MCA PI",ph:""},
