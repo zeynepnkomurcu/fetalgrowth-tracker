@@ -925,7 +925,6 @@ export default function App(){
         </div>
       </div>
 
-
       {/* New patient modal */}
       {showNewPt && (
         <div onClick={()=>setShowNewPt(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
