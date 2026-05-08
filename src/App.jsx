@@ -196,6 +196,11 @@ function shouldShowDoppler(measurements) {
     const efwZScore = efw != null ? efwZ(efw, m.ga) : null;
     const efwPct = efwZScore != null ? getPct(efwZScore) : null;
 
+   const dopplerVisible =
+   stage > 0 ||
+   efwPct < 10 ||
+   acPct < 10;
+
     return (
       (acPct != null && acPct < 10) ||
       (efwPct != null && efwPct < 10)
@@ -500,10 +505,6 @@ export default function App(){
   }, [form.date, patient?.lmpDate]);
 
   const {stage,findings}=useMemo(()=>getFGRStage(meas),[meas]);
-  const dopplerVisible =
-  stage > 0 ||
-  efwPct < 10 ||
-  acPct < 10;
   const si=T.fgrStages[stage];
   const sc=stage===0?C.ok:stage===1?C.warn:C.danger;
 
