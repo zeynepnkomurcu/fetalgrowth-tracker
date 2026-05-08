@@ -402,9 +402,6 @@ const blankForm = () => ({date:todayISO(),ga:"",BPD:"",HC:"",AC:"",FL:"",UA_PI:"
 const NEW_PT_BLANK = { firstName: "", lastName: "", birthDate: "", tcKimlik: "", lmpDate: "" };
 
 export default function App(){
-
-  const dopplerVisible = false;
-
   const vp = useViewport();
   const [lang,setLang]=useState("EN"); const T=LANG[lang];
   const [theme, setTheme] = useState(() => {
@@ -775,9 +772,8 @@ export default function App(){
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
             {[
-  ["chart", T.tabChart],
+  ["chart", "TEST123"],
   ["zscore", T.tabZ],
-  ...(dopplerVisible ? [["doppler", T.tabDoppler]] : []),
   ["fgr", T.tabFGR]
 ].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
