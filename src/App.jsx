@@ -181,9 +181,9 @@ function shouldShowDoppler(measurements) {
   return measurements.some((m) => {
     // Existing Doppler already entered
     const hasDoppler =
-      m.UA_PI != null ||
-      m.MCA_PI != null ||
-      m.DV_PIV != null;
+  m.UA_PI !== "" ||
+  m.MCA_PI !== "" ||
+  m.DV_PIV !== "";
 
     if (hasDoppler) return true;
 
