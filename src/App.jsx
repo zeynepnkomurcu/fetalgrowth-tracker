@@ -760,6 +760,8 @@ export default function App(){
                 </div>
               ))}
             </div>
+  </>
+)}
             <div style={{display:"flex",alignItems:vp.isMobile?"flex-start":"center",gap:vp.isMobile?6:12,marginBottom:12,flexWrap:"wrap",flexDirection:vp.isMobile?"column":"row"}}>
               <div style={{...lbl,marginBottom:0,whiteSpace:"nowrap"}}>{T.dopplerLabels.UA_EDF}:</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -773,8 +775,7 @@ export default function App(){
               <button style={{background:C.accent,color:C.btnFg,border:"none",borderRadius:10,padding:"12px 26px",fontSize:14,fontWeight:600,cursor:"pointer",letterSpacing:"0.01em",fontFamily:"inherit",width:vp.isMobile?"100%":"auto",boxShadow:`0 4px 14px ${C.accent}30`}} onClick={addMeas}>{T.addBtn}</button>
             </div>
           </div>
-</>
-)}
+
           {/* Tabs */}
           <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
             {[["chart",T.tabChart],["zscore",T.tabZ],["doppler",T.tabDoppler],["fgr",T.tabFGR]].map(([k,lb])=>(
