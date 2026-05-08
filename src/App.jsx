@@ -780,6 +780,7 @@ export default function App(){
           </button>
         ))}
       </div>
+      
     </div>
 
           {/* Tabs */}
@@ -1074,8 +1075,7 @@ export default function App(){
 
   </div>
 )}
-                      </>
-          )}
+               
                       
       {/* New patient modal */}
       {showNewPt && (
