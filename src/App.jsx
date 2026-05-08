@@ -802,8 +802,13 @@ export default function App(){
            {[
   ["chart", T.tabChart],
   ["zscore", T.tabZ],
-  ["doppler", T.tabDoppler],
+
+  ...(dopplerVisible
+    ? [["doppler", T.tabDoppler]]
+    : []),
+
   ["fgr", T.tabFGR]
+
 ].map(([k,lb])=>(
               <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
             ))}
