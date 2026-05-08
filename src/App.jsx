@@ -770,15 +770,21 @@ export default function App(){
           </div>
 
           {/* Tabs */}
-          <div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
-            {[
-  ["chart", "TEST123"],
-  ["zscore", T.tabZ],
-  ["fgr", T.tabFGR]
-].map(([k,lb])=>(
-              <button key={k} style={tb(tab===k)} onClick={()=>setTab(k)}>{lb}</button>
-            ))}
-          </div>
+<div style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:4,paddingTop:2,flexShrink:0,scrollbarWidth:"none"}}>
+  {[
+    ["chart", "TEST123"],
+    ["zscore", T.tabZ],
+    ["fgr", T.tabFGR]
+  ].map(([k,lb])=>(
+    <button
+      key={k}
+      style={tb(tab===k)}
+      onClick={()=>setTab(k)}
+    >
+      {lb}
+    </button>
+  ))}
+</div>
 
           {/* ── CHART ── */}
           {tab==="chart"&&(
