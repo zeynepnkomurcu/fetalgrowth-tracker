@@ -1,21 +1,4 @@
-import { ClinicalFlag } from "../flags/lowCprFlag"
-
-interface StageInput {
-  lowCPR?: ClinicalFlag
-  abnormalUA?: ClinicalFlag
-  aedf?: ClinicalFlag
-  redf?: ClinicalFlag
-}
-
-export interface FgrStage {
-  level: number
-  label: string
-  description: string
-}
-
-export function determineFgrStage(
-  input: StageInput
-): FgrStage {
+export function determineFgrStage(input) {
 
   if (input.redf?.active) {
     return {
@@ -33,10 +16,7 @@ export function determineFgrStage(
     }
   }
 
-  if (
-    input.abnormalUA?.active &&
-    input.lowCPR?.active
-  ) {
+  if (input.abnormalUA?.active && input.lowCPR?.active) {
     return {
       level: 2,
       label: "Stage 2",
@@ -44,10 +24,7 @@ export function determineFgrStage(
     }
   }
 
-  if (
-    input.lowCPR?.active ||
-    input.abnormalUA?.active
-  ) {
+  if (input.lowCPR?.active || input.abnormalUA?.active) {
     return {
       level: 1,
       label: "Stage 1",

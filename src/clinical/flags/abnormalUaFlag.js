@@ -1,9 +1,4 @@
-import { ClinicalFlag }
-  from "./lowCprFlag"
-
-export function abnormalUaFlag(
-  uaPi?: number
-): ClinicalFlag {
+export function abnormalUaFlag(uaPi) {
 
   if (!uaPi) {
     return {
@@ -17,8 +12,7 @@ export function abnormalUaFlag(
     return {
       active: true,
       severity: "high",
-      message:
-        "Elevated umbilical artery Doppler resistance detected",
+      message: "Elevated umbilical artery Doppler resistance detected",
       evidence: `UA PI ${uaPi}`
     }
   }
@@ -26,7 +20,6 @@ export function abnormalUaFlag(
   return {
     active: false,
     severity: "low",
-    message:
-      "UA Doppler within expected range"
+    message: "UA Doppler within expected range"
   }
 }

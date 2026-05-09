@@ -1,13 +1,4 @@
-export interface ClinicalFlag {
-  active: boolean
-  severity: "low" | "moderate" | "high" | "critical"
-  message: string
-  evidence?: string
-}
-
-export function lowCprFlag(
-  cpr?: number
-): ClinicalFlag {
+export function lowCprFlag(cpr) {
 
   if (!cpr) {
     return {
