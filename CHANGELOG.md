@@ -8,7 +8,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
-_Nog niets._
+### Changed
+- Dashboard toont biometry + growth curve nu pas **na klik op een patient** — default state is een patient-select prompt. Geen lege biometry-velden meer zichtbaar zonder context.
+- Patient-clicks blijven op **dezelfde pagina** (`/`) — selected patient is een state, geen route. Biometry, AC growth curve en clinical summary worden conditional gerenderd.
+
+### Removed
+- Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.
 
 ---
 
