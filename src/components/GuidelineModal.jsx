@@ -1,35 +1,31 @@
-import React from "react";
-
-const GuidelineModal = ({ visible, onClose, message }) => {
+export default function GuidelineModal({ visible, onClose, message, title = "Clinical alert" }) {
   if (!visible) return null;
 
   return (
-    <div style={{
-      position: "fixed",
-      top: 0, left: 0,
-      width: "100%", height: "100%",
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center"
-    }}>
-      <div style={{
-        backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "8px",
-        width: "300px",
-        textAlign: "center"
-      }}>
-        <p>{message}</p>
+    <div
+      onClick={onClose}
+      className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+      >
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-xl">⚠️</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-800">{title}</h3>
+            <p className="text-slate-600 mt-1 text-sm">{message}</p>
+          </div>
+        </div>
         <button
           onClick={onClose}
-          style={{ marginTop: "10px", padding: "5px 10px" }}
+          className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all"
         >
-          Tamam
+          OK
         </button>
       </div>
     </div>
   );
-};
-
-export default GuidelineModal;
+}

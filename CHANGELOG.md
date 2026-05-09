@@ -14,6 +14,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Biometry-velden zijn compacter (4 op één rij ipv 2x2, kleinere padding).
 - Doppler-sectie is nu standaard zichtbaar onder Biometry (was eerst gated achter Save & Analyze + lelijk inline-styled).
 - `MeasurementCard` en `DopplerInput` herschreven met Tailwind-only, geen inline styles meer.
+- `GuidelineModal` herschreven met Tailwind, klikbaar overlay, OK-knop in app-stijl.
+
+### Fixed
+- Save & Analyze slaat de visit nu **echt op** (in `localStorage` onder `patient.visits`) en de nieuwe meting verschijnt direct als zwarte dot op de AC growth curve.
+- EFW wordt nu berekend met **Hadlock IV** (echte formule, was simpel gemiddelde van AC/BPD/HC/FL — klopte clinisch niet).
+- Modal triggerde foutief bij waarde `"0"` (string-truthiness bug). Nu pas trigger boven 0.
+
+### Added
+- Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
+- "✓ Visit saved" toast verschijnt 2.5s na succesvolle save zodat duidelijk is dat het werkt.
+- GA wordt automatisch berekend uit LMP als `week`/`days` niet expliciet op patient zit.
 
 ### Removed
 - Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.

@@ -16,10 +16,39 @@ const percentileTable = {
 const emptyMeasurements = { AC: "", BPD: "", HC: "", FL: "", EFW: "" };
 const emptyDoppler = { uaPi: "", mcaPi: "", dvPiv: "", edfState: null };
 
+function calcGaFromLmp(lmp) {
+  if (!lmp) return null;
+  const lmpDate = new Date(lmp);
+  if (isNaN(lmpDate.getTime())) return null;
+  const today = new Date();
+  const diffDays = Math.floor((today - lmpDate) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return null;
+  return {
+    weeks: Math.floor(diffDays / 7),
+    days: diffDays % 7,
+  };
+}
+
+function calcEfwHadlock({ ac, bpd, hc, fl }) {
+  if (!ac || !bpd || !hc || !fl) return null;
+  // Hadlock IV: input in cm (UI inputs zijn in mm → /10)
+  const acCm = ac / 10;
+  const bpdCm = bpd / 10;
+  const hcCm = hc / 10;
+  const flCm = fl / 10;
+  const log10Efw =
+    1.326
+    - 0.00326 * acCm * flCm
+    + 0.0107  * hcCm
+    + 0.0438  * acCm
+    + 0.158   * flCm;
+  return Math.round(Math.pow(10, log10Efw));
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const [patients] = useState(
+  const [patients, setPatients] = useState(
     () => JSON.parse(localStorage.getItem("patients")) || []
   );
 
@@ -29,12 +58,18 @@ export default function Dashboard() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [savedToast, setSavedToast] = useState(false);
 
   const selectedPatient =
     selectedPatientId !== null ? patients[selectedPatientId] : null;
 
   const visits = selectedPatient?.visits || [];
-  const week = selectedPatient?.week || 28;
+
+  const ga = selectedPatient
+    ? selectedPatient.week != null
+      ? { weeks: selectedPatient.week, days: selectedPatient.days || 0 }
+      : calcGaFromLmp(selectedPatient.lmp) || { weeks: 28, days: 0 }
+    : { weeks: 28, days: 0 };
 
   const handleSelectPatient = (index) => {
     setSelectedPatientId(index);
@@ -50,7 +85,6 @@ export default function Dashboard() {
     const weekTable = percentileTable[type]?.[w];
     if (!weekTable) return null;
     const [p3, p10, p50, p90, p97] = weekTable;
-
     if (value < p3)   return { label: "<3p", color: "text-red-500" };
     if (value < p10)  return { label: "10p", color: "text-red-500" };
     if (value < p50)  return { label: "25p", color: "text-yellow-500" };
@@ -60,28 +94,73 @@ export default function Dashboard() {
   };
 
   const handleSave = () => {
-    const { AC, BPD, HC, FL } = measurements;
-    let efw = null;
-    const entered = [];
-    if (AC) entered.push(Number(AC));
-    if (BPD) entered.push(Number(BPD));
-    if (HC) entered.push(Number(HC));
-    if (FL) entered.push(Number(FL));
+    if (selectedPatientId === null) return;
 
-    if (entered.length >= 2) {
-      efw = entered.reduce((a, b) => a + b, 0) / entered.length;
-      setMeasurements((prev) => ({ ...prev, EFW: Math.round(efw) }));
+    const ac = Number(measurements.AC) || null;
+    const bpd = Number(measurements.BPD) || null;
+    const hc = Number(measurements.HC) || null;
+    const fl = Number(measurements.FL) || null;
+
+    if (!ac && !bpd && !hc && !fl && !doppler.uaPi && !doppler.mcaPi) {
+      setModalMessage("Vul minimaal één meting in voor je opslaat.");
+      setModalVisible(true);
+      return;
     }
+
+    const efw = calcEfwHadlock({ ac, bpd, hc, fl });
+
+    const visit = {
+      id: crypto.randomUUID(),
+      date: new Date().toISOString(),
+      gaWeeks: ga.weeks,
+      gaDays: ga.days,
+      rawData: {
+        ac:    ac    || undefined,
+        bpd:   bpd   || undefined,
+        hc:    hc    || undefined,
+        fl:    fl    || undefined,
+        uaPi:  Number(doppler.uaPi)  || undefined,
+        mcaPi: Number(doppler.mcaPi) || undefined,
+        dvPiv: Number(doppler.dvPiv) || undefined,
+        edfState: doppler.edfState || undefined,
+      },
+      calculations: {
+        efw: efw || undefined,
+      },
+    };
+
+    const updatedPatients = [...patients];
+    const patient = { ...updatedPatients[selectedPatientId] };
+    patient.visits = [...(patient.visits || []), visit];
+    updatedPatients[selectedPatientId] = patient;
+
+    setPatients(updatedPatients);
+    localStorage.setItem("patients", JSON.stringify(updatedPatients));
+
+    setMeasurements({ ...emptyMeasurements, EFW: efw || "" });
+    setDoppler(emptyDoppler);
+
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 2500);
 
     const AC_10th = 125;
     const EFW_10th = 2000;
-
-    if ((AC && Number(AC) < AC_10th) || (efw && efw < EFW_10th)) {
+    if ((ac && ac < AC_10th) || (efw && efw < EFW_10th)) {
       setModalMessage(
         "ISUOG Guideline: Doppler evaluation recommended due to low AC or EFW percentile."
       );
       setModalVisible(true);
     }
+  };
+
+  const handleDeleteVisit = (visitId) => {
+    if (selectedPatientId === null) return;
+    const updatedPatients = [...patients];
+    const patient = { ...updatedPatients[selectedPatientId] };
+    patient.visits = (patient.visits || []).filter((v) => v.id !== visitId);
+    updatedPatients[selectedPatientId] = patient;
+    setPatients(updatedPatients);
+    localStorage.setItem("patients", JSON.stringify(updatedPatients));
   };
 
   return (
@@ -160,25 +239,24 @@ export default function Dashboard() {
           ) : (
             <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-3 gap-4">
 
-              {/* Left: Biometry + Doppler + Curve */}
+              {/* Left: Biometry + Doppler + Curve + Visits */}
               <div className="xl:col-span-2 space-y-4">
 
-                {/* Selected patient header */}
+                {/* Patient header */}
                 <div className="bg-white rounded-2xl shadow-sm p-4">
                   <h2 className="text-xl font-bold text-slate-800">
                     {selectedPatient.name} {selectedPatient.surname || ""}
                   </h2>
-                  {selectedPatient.week != null && (
-                    <p className="text-slate-500 text-sm mt-0.5">
-                      GA: {selectedPatient.week}w {selectedPatient.days || 0}d
-                    </p>
-                  )}
+                  <p className="text-slate-500 text-sm mt-0.5">
+                    GA: {ga.weeks}w {ga.days}d
+                    {selectedPatient.lmp && (
+                      <span className="text-slate-400"> · LMP: {selectedPatient.lmp}</span>
+                    )}
+                  </p>
                 </div>
 
-                {/* Biometry + Doppler combined card */}
+                {/* Biometry + Doppler */}
                 <div className="bg-white rounded-2xl shadow-sm p-5 space-y-5">
-
-                  {/* Biometry */}
                   <div>
                     <h2 className="text-base font-bold text-slate-800 mb-3">Biometry</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -195,7 +273,7 @@ export default function Dashboard() {
                           }
                           percentile={
                             measurements[field]
-                              ? calculatePercentile(field, Number(measurements[field]), week)
+                              ? calculatePercentile(field, Number(measurements[field]), ga.weeks)
                               : null
                           }
                         />
@@ -203,23 +281,75 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Doppler */}
                   <div>
                     <h2 className="text-base font-bold text-slate-800 mb-3">Doppler</h2>
                     <DopplerInput values={doppler} onChange={handleDopplerChange} />
                   </div>
 
-                  {/* Save */}
-                  <button
-                    onClick={handleSave}
-                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all shadow"
-                  >
-                    Save & Analyze
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={handleSave}
+                      className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all shadow"
+                    >
+                      Save & Analyze
+                    </button>
+                    {savedToast && (
+                      <div className="absolute -top-12 left-0 right-0 bg-green-500 text-white text-sm font-semibold py-2 px-4 rounded-xl text-center shadow-lg animate-pulse">
+                        ✓ Visit saved — added to growth curve
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Growth Curve */}
                 <IntergrowthChart visits={visits} />
+
+                {/* Visit history */}
+                {visits.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-sm p-5">
+                    <h2 className="text-base font-bold text-slate-800 mb-3">
+                      Visit History ({visits.length})
+                    </h2>
+                    <div className="space-y-2">
+                      {[...visits].reverse().map((v) => (
+                        <div
+                          key={v.id}
+                          className="border border-slate-200 rounded-xl p-3 flex items-start justify-between"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-baseline gap-3">
+                              <span className="font-bold text-slate-800 text-sm">
+                                {v.gaWeeks}w {v.gaDays}d
+                              </span>
+                              <span className="text-xs text-slate-500">
+                                {new Date(v.date).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2 text-xs text-slate-600 mt-2">
+                              <span>AC: <strong>{v.rawData?.ac ?? "-"}</strong></span>
+                              <span>BPD: <strong>{v.rawData?.bpd ?? "-"}</strong></span>
+                              <span>HC: <strong>{v.rawData?.hc ?? "-"}</strong></span>
+                              <span>FL: <strong>{v.rawData?.fl ?? "-"}</strong></span>
+                              <span>UA-PI: <strong>{v.rawData?.uaPi ?? "-"}</strong></span>
+                              <span>MCA-PI: <strong>{v.rawData?.mcaPi ?? "-"}</strong></span>
+                              <span>EDF: <strong>{v.rawData?.edfState ?? "-"}</strong></span>
+                              <span className="font-semibold text-slate-800">
+                                EFW: <strong>{v.calculations?.efw ? `${v.calculations.efw} g` : "-"}</strong>
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteVisit(v.id)}
+                            className="ml-2 text-slate-400 hover:text-red-500 text-lg leading-none"
+                            title="Delete visit"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right: EFW + Summary */}
@@ -229,20 +359,22 @@ export default function Dashboard() {
                   <h2 className="text-4xl font-bold mt-2">
                     {measurements.EFW ? `${measurements.EFW} g` : "-"}
                   </h2>
-                  <p className="mt-2 text-cyan-100 text-xs">Hadlock-based approximation</p>
+                  <p className="mt-2 text-cyan-100 text-xs">Hadlock IV — needs AC/BPD/HC/FL</p>
                 </div>
                 <div className="bg-white rounded-2xl p-5 shadow-sm">
-                  <h2 className="text-base font-bold text-slate-800 mb-3">
-                    Clinical Summary
-                  </h2>
+                  <h2 className="text-base font-bold text-slate-800 mb-3">Clinical Summary</h2>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">Growth Status</span>
-                      <span className="font-bold text-green-600 text-sm">Stable</span>
+                      <span className="text-slate-600 text-sm">Visits</span>
+                      <span className="font-bold text-slate-800 text-sm">{visits.length}</span>
                     </div>
                     <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">Doppler Need</span>
-                      <span className="font-bold text-orange-500 text-sm">Conditional</span>
+                      <span className="text-slate-600 text-sm">Last GA</span>
+                      <span className="font-bold text-slate-800 text-sm">
+                        {visits.length > 0
+                          ? `${visits[visits.length - 1].gaWeeks}w ${visits[visits.length - 1].gaDays}d`
+                          : "-"}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
                       <span className="text-slate-600 text-sm">Guideline</span>
