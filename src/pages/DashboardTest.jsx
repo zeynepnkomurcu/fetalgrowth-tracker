@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import MeasurementCard from "../components/MeasurementCard";
 import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
+import LanguageSwitch from "../components/LanguageSwitch";
 
 const percentileTable = {
   AC:  { 28: [80, 90, 100, 110, 120],  29: [85, 95, 105, 115, 125] },
@@ -47,6 +49,7 @@ function calcEfwHadlock({ ac, bpd, hc, fl }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [patients, setPatients] = useState(
     () => JSON.parse(localStorage.getItem("patients")) || []
@@ -103,7 +106,7 @@ export default function Dashboard() {
     const fl = Number(measurements.FL) || null;
 
     if (!ac && !bpd && !hc && !fl && !doppler.uaPi && !doppler.mcaPi) {
-      setModalMessage("Vul minimaal één meting in voor je opslaat.");
+      setModalMessage(t("modal.fillFields"));
       setModalVisible(true);
       return;
     }
@@ -155,9 +158,7 @@ export default function Dashboard() {
     const AC_10th = 125;
     const EFW_10th = 2000;
     if ((ac && ac < AC_10th) || (efw && efw < EFW_10th)) {
-      setModalMessage(
-        "ISUOG Guideline: Doppler evaluation recommended due to low AC or EFW percentile."
-      );
+      setModalMessage(t("modal.isuogAlert"));
       setModalVisible(true);
     }
   };
@@ -177,21 +178,24 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+        <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
-              Fetal Growth Tracker
+              {t("app.title")}
             </h1>
             <p className="mt-1 text-slate-500 text-sm">
-              Clinical fetal growth assessment platform based on ISUOG guidelines
+              {t("app.subtitle")}
             </p>
           </div>
-          <button
-            onClick={() => navigate("/new-patient")}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
-          >
-            + Add Patient
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <button
+              onClick={() => navigate("/new-patient")}
+              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
+            >
+              {t("common.addPatient")}
+            </button>
+          </div>
         </div>
 
         {/* Main Grid */}
@@ -199,10 +203,10 @@ export default function Dashboard() {
 
           {/* Patients sidebar */}
           <div className="bg-white rounded-2xl shadow-sm p-4 h-fit">
-            <h2 className="text-base font-bold text-slate-800 mb-3">Patients</h2>
+            <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.patients")}</h2>
             <div className="space-y-2">
               {patients.length === 0 && (
-                <p className="text-slate-500 text-sm">No patients yet</p>
+                <p className="text-slate-500 text-sm">{t("dash.noPatients")}</p>
               )}
               {patients.map((patient, index) => {
                 const isSelected = selectedPatientId === index;
@@ -236,12 +240,12 @@ export default function Dashboard() {
                   <span className="text-2xl">👶</span>
                 </div>
                 <h2 className="text-xl font-bold text-slate-800 mb-1">
-                  Select a patient
+                  {t("dash.selectPatient")}
                 </h2>
                 <p className="text-slate-500 max-w-md text-sm">
                   {patients.length === 0
-                    ? "Add a new patient using the button above to start tracking fetal biometry and growth curves."
-                    : "Choose a patient from the list on the left to view their biometry, growth curve and clinical summary."}
+                    ? t("dash.selectPatientHintEmpty")
+                    : t("dash.selectPatientHint")}
                 </p>
               </div>
             </div>
@@ -257,9 +261,9 @@ export default function Dashboard() {
                     {selectedPatient.name} {selectedPatient.surname || ""}
                   </h2>
                   <p className="text-slate-500 text-sm mt-0.5">
-                    GA: {ga.weeks}w {ga.days}d
+                    {t("dash.ga")}: {ga.weeks}w {ga.days}d
                     {selectedPatient.lmp && (
-                      <span className="text-slate-400"> · LMP: {selectedPatient.lmp}</span>
+                      <span className="text-slate-400"> · {t("dash.lmp")}: {selectedPatient.lmp}</span>
                     )}
                   </p>
                 </div>
@@ -267,7 +271,7 @@ export default function Dashboard() {
                 {/* Biometry + Doppler */}
                 <div className="bg-white rounded-2xl shadow-sm p-5 space-y-5">
                   <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-3">Biometry</h2>
+                    <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.biometry")}</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {["AC", "BPD", "HC", "FL"].map((field) => (
                         <MeasurementCard
@@ -291,7 +295,7 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-3">Doppler</h2>
+                    <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.doppler")}</h2>
                     <DopplerInput values={doppler} onChange={handleDopplerChange} />
                   </div>
 
@@ -300,13 +304,13 @@ export default function Dashboard() {
                       onClick={handleSave}
                       className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all shadow"
                     >
-                      Save & Analyze
+                      {t("dash.saveAnalyze")}
                     </button>
                     {savedToast && (
                       <div className="absolute -top-12 left-0 right-0 bg-green-500 text-white text-sm font-semibold py-2 px-4 rounded-xl text-center shadow-lg animate-pulse">
                         {savedToast === "updated"
-                          ? "✓ Today's visit updated — same-day overwrite"
-                          : "✓ Visit saved — added to growth curve"}
+                          ? t("dash.visitUpdated")
+                          : t("dash.visitSaved")}
                       </div>
                     )}
                   </div>
@@ -339,7 +343,7 @@ export default function Dashboard() {
                 {visits.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-sm p-5">
                     <h2 className="text-base font-bold text-slate-800 mb-3">
-                      Visit History ({visits.length})
+                      {t("dash.visitHistory")} ({visits.length})
                     </h2>
                     <div className="space-y-2">
                       {[...visits].reverse().map((v) => (
@@ -372,7 +376,7 @@ export default function Dashboard() {
                           <button
                             onClick={() => handleDeleteVisit(v.id)}
                             className="ml-2 text-slate-400 hover:text-red-500 text-lg leading-none"
-                            title="Delete visit"
+                            title={t("dash.deleteVisit")}
                           >
                             ×
                           </button>
@@ -386,21 +390,21 @@ export default function Dashboard() {
               {/* Right: EFW + Summary */}
               <div className="space-y-4">
                 <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-5 text-white shadow-lg">
-                  <p className="text-xs opacity-80 uppercase tracking-wide">Estimated Fetal Weight</p>
+                  <p className="text-xs opacity-80 uppercase tracking-wide">{t("dash.efw")}</p>
                   <h2 className="text-4xl font-bold mt-2">
                     {measurements.EFW ? `${measurements.EFW} g` : "-"}
                   </h2>
-                  <p className="mt-2 text-cyan-100 text-xs">Hadlock IV — needs AC/BPD/HC/FL</p>
+                  <p className="mt-2 text-cyan-100 text-xs">{t("dash.efwHint")}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-5 shadow-sm">
-                  <h2 className="text-base font-bold text-slate-800 mb-3">Clinical Summary</h2>
+                  <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.summary")}</h2>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">Visits</span>
+                      <span className="text-slate-600 text-sm">{t("dash.visits")}</span>
                       <span className="font-bold text-slate-800 text-sm">{visits.length}</span>
                     </div>
                     <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">Last GA</span>
+                      <span className="text-slate-600 text-sm">{t("dash.lastGa")}</span>
                       <span className="font-bold text-slate-800 text-sm">
                         {visits.length > 0
                           ? `${visits[visits.length - 1].gaWeeks}w ${visits[visits.length - 1].gaDays}d`

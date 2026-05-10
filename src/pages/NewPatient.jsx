@@ -2,11 +2,14 @@ import { useState } from "react";
 
 import { useNavigate }
   from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitch from "../components/LanguageSwitch";
 
 export default function NewPatient() {
 
   const navigate =
     useNavigate();
+  const { t } = useTranslation();
 
   const [form, setForm] =
     useState({
@@ -67,18 +70,14 @@ export default function NewPatient() {
       !form.lmp
     ) {
 
-      alert(
-        "Please fill all required fields"
-      );
+      alert(t("newPatient.fillAll"));
 
       return;
     }
 
     if (form.tc.length !== 11) {
 
-      alert(
-        "Turkish ID number must be 11 digits"
-      );
+      alert(t("newPatient.tcLength"));
 
       return;
     }
@@ -153,24 +152,16 @@ export default function NewPatient() {
         space-y-5
       ">
 
-        <div>
-
-          <h1 className="
-            text-3xl
-            font-bold
-            text-slate-800
-          ">
-            New Patient
-          </h1>
-
-          <p className="
-            text-slate-500
-            mt-2
-          ">
-            ISUOG-based fetal growth
-            follow-up registration
-          </p>
-
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">
+              {t("newPatient.title")}
+            </h1>
+            <p className="text-slate-500 mt-2">
+              {t("newPatient.subtitle")}
+            </p>
+          </div>
+          <LanguageSwitch />
         </div>
 
         <div className="
@@ -182,7 +173,7 @@ export default function NewPatient() {
 
           <input
             type="text"
-            placeholder="Patient Name"
+            placeholder={t("newPatient.namePh")}
 
             value={form.name}
 
@@ -210,7 +201,7 @@ export default function NewPatient() {
 
           <input
             type="text"
-            placeholder="Patient Surname"
+            placeholder={t("newPatient.surnamePh")}
 
             value={form.surname}
 
@@ -245,7 +236,7 @@ export default function NewPatient() {
 
           maxLength={11}
 
-          placeholder="Turkish ID Number"
+          placeholder={t("newPatient.tcPh")}
 
           value={form.tc}
 
@@ -281,7 +272,7 @@ export default function NewPatient() {
             font-semibold
             text-slate-700
           ">
-            Last Menstrual Period (LMP)
+            {t("newPatient.lmpLabel")}
           </label>
 
           <input
@@ -327,7 +318,7 @@ export default function NewPatient() {
             shadow-lg
           "
         >
-          Save Patient
+          {t("common.savePatient")}
         </button>
 
       </div>

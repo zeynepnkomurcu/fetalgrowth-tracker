@@ -28,6 +28,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - "✓ Visit saved" toast verschijnt 2.5s na succesvolle save zodat duidelijk is dat het werkt.
 - GA wordt automatisch berekend uit LMP als `week`/`days` niet expliciet op patient zit.
 - **Growth curve parameter-switcher** — AC/BPD/HC/FL/EFW tabs boven de chart. Elk parameter heeft eigen INTERGROWTH-21 P3/P10/P50/P90/P97 banden (afgeleid van mean+SD via z-multipliers). EFW gebruikt Hadlock-1991 referentietabel met CV 12.7%.
+- **Volledige EN/TR vertaling** — alle UI-strings in i18n, `LanguageSwitch` component (EN/TR toggle) rechtsboven in de header van Dashboard én NewPatient. Taalkeuze wordt opgeslagen in `localStorage` onder key `lang` zodat reload de keuze behoudt. Resterende Nederlandse strings (modal "Vul minimaal..." etc) zijn vertaald naar EN+TR.
 
 ### Removed
 - Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.

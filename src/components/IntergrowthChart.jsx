@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   LineChart,
   Line,
@@ -23,11 +24,11 @@ const EFW_REF = {20:331,21:387,22:451,23:524,24:608,25:704,26:815,27:941,28:1085
 const Z3 = 1.881, Z10 = 1.282, Z90 = 1.282, Z97 = 1.881;
 
 const PARAM_META = {
-  AC:  { label: "Abdominal Circumference", unit: "mm", domain: [120, 360], visitKey: "ac"  },
-  BPD: { label: "Biparietal Diameter",     unit: "mm", domain: [40, 100],  visitKey: "bpd" },
-  HC:  { label: "Head Circumference",      unit: "mm", domain: [150, 360], visitKey: "hc"  },
-  FL:  { label: "Femur Length",            unit: "mm", domain: [25, 80],   visitKey: "fl"  },
-  EFW: { label: "Estimated Fetal Weight",  unit: "g",  domain: [200, 5000], visitKey: "efw" },
+  AC:  { unit: "mm", domain: [120, 360], visitKey: "ac"  },
+  BPD: { unit: "mm", domain: [40, 100],  visitKey: "bpd" },
+  HC:  { unit: "mm", domain: [150, 360], visitKey: "hc"  },
+  FL:  { unit: "mm", domain: [25, 80],   visitKey: "fl"  },
+  EFW: { unit: "g",  domain: [200, 5000], visitKey: "efw" },
 };
 
 function buildReferenceData(parameter) {
@@ -67,6 +68,7 @@ function getVisitValue(visit, parameter) {
 }
 
 export default function IntergrowthChart({ visits, parameter = "AC" }) {
+  const { t } = useTranslation();
   const meta = PARAM_META[parameter];
   const referenceData = buildReferenceData(parameter);
 
@@ -86,9 +88,9 @@ export default function IntergrowthChart({ visits, parameter = "AC" }) {
     <div className="bg-white rounded-2xl p-5 shadow-sm">
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="text-base font-bold text-slate-800">
-          {parameter} Growth Curve
+          {t("chart.title", { param: parameter })}
         </h2>
-        <span className="text-xs text-slate-500">{meta.label} ({meta.unit})</span>
+        <span className="text-xs text-slate-500">{t(`chart.${parameter}`)} ({meta.unit})</span>
       </div>
 
       <div className="h-[420px]">

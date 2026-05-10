@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export default function DopplerInput({ values, onChange }) {
+  const { t } = useTranslation();
 
   const inputClass =
     "w-full border-0 px-0 py-0 text-base text-slate-900 focus:outline-none focus:ring-0 bg-transparent";
@@ -40,12 +43,12 @@ export default function DopplerInput({ values, onChange }) {
       </div>
 
       <div>
-        <span className={labelClass}>End-Diastolic Flow</span>
+        <span className={labelClass}>{t("doppler.edf")}</span>
         <div className="flex gap-2 flex-wrap">
           {[
-            { key: "normal",   label: "Normal" },
-            { key: "absent",   label: "AEDF" },
-            { key: "reversed", label: "REDF" },
+            { key: "normal",   label: t("doppler.normal") },
+            { key: "absent",   label: t("doppler.aedf") },
+            { key: "reversed", label: t("doppler.redf") },
           ].map((opt) => {
             const active = values.edfState === opt.key;
             return (
