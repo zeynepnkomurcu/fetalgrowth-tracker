@@ -31,6 +31,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - EFW wordt nu berekend met **Hadlock IV** (echte formule, was simpel gemiddelde van AC/BPD/HC/FL — klopte clinisch niet).
 - Modal triggerde foutief bij waarde `"0"` (string-truthiness bug). Nu pas trigger boven 0.
 - Biometry- en Doppler-inputvelden accepteren nu **alleen numerieke input** — `e`, `E`, `+`, `-` toetsen worden geblokkeerd, scroll-wiel verandert geen getal meer per ongeluk, `inputMode="decimal"` voor mobile keyboards.
+- Browser-spinner pijltjes (▲▼) op number-inputs zijn globaal weggestyled in `index.css` — overbodig, namen visueel ruimte in en gaven nooit een goede UX voor decimale waarden.
 
 ### Added
 - Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
