@@ -8,6 +8,7 @@ import {
   Check,
   CalendarDays,
   Users,
+  Search,
 } from "lucide-react";
 
 import MeasurementCard from "../components/MeasurementCard";
@@ -57,6 +58,8 @@ export default function Dashboard() {
 
   const [dummyOpen, setDummyOpen] = useState(false);
   const [dummyLmp, setDummyLmp] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCreateDummy = () => {
     if (!dummyLmp) return;
@@ -226,11 +229,11 @@ export default function Dashboard() {
             </div>
             <button onClick={() => setDummyOpen(true)} className={btnSecondary}>
               <FlaskConical className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("common.addDummy")}</span>
+              {t("common.addDummy")}
             </button>
             <button onClick={() => navigate("/new-patient")} className={btnPrimary}>
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("common.addPatient")}</span>
+              {t("common.addPatient")}
             </button>
           </div>
         </div>
@@ -243,6 +246,21 @@ export default function Dashboard() {
             <h2 className="text-base font-semibold text-slate-800 mb-3 px-1">
               {t("dash.patients")}
             </h2>
+
+            {/* Unified search */}
+            {patients.length > 0 && (
+              <div className="relative mb-3">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t("common.searchPatient")}
+                  className="w-full pl-9 pr-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#134e4a] focus:border-transparent"
+                />
+              </div>
+            )}
+
             <div className="space-y-1.5">
               {patients.length === 0 && (
                 <div className="flex flex-col items-center text-center py-8">
@@ -252,27 +270,54 @@ export default function Dashboard() {
                   <p className="text-xs text-slate-500">{t("dash.noPatients")}</p>
                 </div>
               )}
-              {patients.map((patient, index) => {
-                const isSelected = selectedPatientId === index;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectPatient(index)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
-                      isSelected
-                        ? "bg-[#134e4a] text-white"
-                        : "border border-slate-200 hover:border-[#134e4a]/40 hover:bg-[#f0fdfa] text-slate-800"
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">
-                      {patient.name} {patient.surname}
+              {(() => {
+                const q = searchQuery.trim().toLowerCase();
+                const filtered = patients
+                  .map((patient, index) => ({ patient, index }))
+                  .filter(({ patient }) => {
+                    if (!q) return true;
+                    const haystack = [
+                      patient.name,
+                      patient.surname,
+                      `${patient.name || ""} ${patient.surname || ""}`,
+                      patient.protocolNumber,
+                    ]
+                      .filter(Boolean)
+                      .join(" ")
+                      .toLowerCase();
+                    return haystack.includes(q);
+                  });
+
+                if (patients.length > 0 && filtered.length === 0) {
+                  return (
+                    <p className="text-xs text-slate-400 text-center py-4">
+                      —
                     </p>
-                    <p className={`text-xs mt-0.5 tabular ${isSelected ? "text-white/80" : "text-slate-500"}`}>
-                      {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
-                    </p>
-                  </button>
-                );
-              })}
+                  );
+                }
+
+                return filtered.map(({ patient, index }) => {
+                  const isSelected = selectedPatientId === index;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleSelectPatient(index)}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
+                        isSelected
+                          ? "bg-[#134e4a] text-white"
+                          : "border border-slate-200 hover:border-[#134e4a]/40 hover:bg-[#f0fdfa] text-slate-800"
+                      }`}
+                    >
+                      <p className="font-semibold text-sm">
+                        {patient.name} {patient.surname}
+                      </p>
+                      <p className={`text-xs mt-0.5 tabular ${isSelected ? "text-white/80" : "text-slate-500"}`}>
+                        {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
+                      </p>
+                    </button>
+                  );
+                });
+              })()}
             </div>
           </div>
 

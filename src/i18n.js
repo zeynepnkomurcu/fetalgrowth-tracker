@@ -7,8 +7,9 @@ const en = {
   "app.subtitle": "Clinical fetal growth assessment platform based on ISUOG guidelines",
 
   // Common
-  "common.addPatient": "+ Add Patient",
-  "common.addDummy": "+ Dummy",
+  "common.addPatient": "Add Patient",
+  "common.addDummy": "Dummy",
+  "common.searchPatient": "Search patient",
   "common.savePatient": "Save Patient",
   "common.save": "Save",
   "common.cancel": "Cancel",
@@ -79,8 +80,9 @@ const tr = {
   "app.subtitle": "ISUOG kılavuzlarına dayalı klinik fetal büyüme değerlendirme platformu",
 
   // Common
-  "common.addPatient": "+ Hasta Ekle",
-  "common.addDummy": "+ Dummy",
+  "common.addPatient": "Hasta Ekle",
+  "common.addDummy": "Dummy",
+  "common.searchPatient": "Hasta ara",
   "common.savePatient": "Hastayı Kaydet",
   "common.save": "Kaydet",
   "common.cancel": "İptal",
