@@ -7,6 +7,7 @@ import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
 import LanguageSwitch from "../components/LanguageSwitch";
+import FetalHero from "../components/FetalHero";
 import {
   getPercentile,
   percentileBadge,
@@ -49,6 +50,8 @@ export default function Dashboard() {
 
   const [dummyOpen, setDummyOpen] = useState(false);
   const [dummyLmp, setDummyLmp] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCreateDummy = () => {
     if (!dummyLmp) return;
@@ -226,42 +229,97 @@ export default function Dashboard() {
           {/* Patients sidebar */}
           <div className="bg-white rounded-2xl shadow-sm p-4 h-fit">
             <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.patients")}</h2>
+
+            {/* Search */}
+            <div className="relative mb-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={patients.length === 0 ? t("dash.noPatients") : t("dash.patients")}
+                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+              />
+            </div>
+
             <div className="space-y-2">
               {patients.length === 0 && (
-                <p className="text-slate-500 text-sm">{t("dash.noPatients")}</p>
+                <div className="flex flex-col items-center text-center py-6">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-5 h-5 text-slate-400"
+                    >
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-slate-500">{t("dash.noPatients")}</p>
+                </div>
               )}
-              {patients.map((patient, index) => {
-                const isSelected = selectedPatientId === index;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectPatient(index)}
-                    className={`w-full text-left p-3 rounded-xl transition-all ${
-                      isSelected
-                        ? "bg-cyan-500 text-white shadow"
-                        : "border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50 text-slate-800"
-                    }`}
-                  >
-                    <p className="font-semibold text-sm">
-                      {patient.name} {patient.surname}
-                    </p>
-                    <p className={`text-xs mt-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
-                      {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
-                    </p>
-                  </button>
-                );
-              })}
+              {patients
+                .map((patient, index) => ({ patient, index }))
+                .filter(({ patient }) => {
+                  const q = searchQuery.trim().toLowerCase();
+                  if (!q) return true;
+                  const haystack = [
+                    patient.name,
+                    patient.surname,
+                    patient.protocolNumber,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+                  return haystack.includes(q);
+                })
+                .map(({ patient, index }) => {
+                  const isSelected = selectedPatientId === index;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleSelectPatient(index)}
+                      className={`w-full text-left p-3 rounded-xl transition-all ${
+                        isSelected
+                          ? "bg-cyan-500 text-white shadow"
+                          : "border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50 text-slate-800"
+                      }`}
+                    >
+                      <p className="font-semibold text-sm">
+                        {patient.name} {patient.surname}
+                      </p>
+                      <p className={`text-xs mt-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
+                        {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
+                      </p>
+                    </button>
+                  );
+                })}
             </div>
           </div>
 
           {/* Conditional content */}
           {selectedPatient === null ? (
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center text-center min-h-[400px]">
-                <div className="w-14 h-14 bg-cyan-100 rounded-full flex items-center justify-center mb-3">
-                  <span className="text-2xl">👶</span>
-                </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col items-center justify-center text-center min-h-[460px] px-6 py-10">
+                <FetalHero />
+                <h2 className="text-xl font-bold text-slate-800 mt-4 mb-1">
                   {t("dash.selectPatient")}
                 </h2>
                 <p className="text-slate-500 max-w-md text-sm">
