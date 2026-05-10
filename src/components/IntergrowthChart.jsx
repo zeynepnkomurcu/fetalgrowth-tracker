@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ComposedChart,
+  LineChart,
   Line,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,6 +10,7 @@ import {
 } from "recharts";
 import { IG21, EFW_REF } from "../clinical/ig21";
 
+// z-multipliers for percentiles
 const Z3 = 1.881, Z10 = 1.282, Z90 = 1.282, Z97 = 1.881;
 
 const PARAM_META = {
@@ -58,67 +57,10 @@ function getVisitValue(visit, parameter) {
   return visit.rawData?.[key] ?? null;
 }
 
-// Listen to <html class="dark"> changes so we re-render with the right colors.
-function useIsDark() {
-  const [dark, setDark] = useState(() =>
-    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-  );
-  useEffect(() => {
-    const obs = new MutationObserver(() =>
-      setDark(document.documentElement.classList.contains("dark"))
-    );
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => obs.disconnect();
-  }, []);
-  return dark;
-}
-
-function CustomTooltip({ active, payload, label, unit, t }) {
-  if (!active || !payload || !payload.length) return null;
-  const order = { actual: 0, p50: 1, p10: 2, p90: 3, p3: 4, p97: 5 };
-  const sorted = [...payload].sort(
-    (a, b) => (order[a.dataKey] ?? 99) - (order[b.dataKey] ?? 99)
-  );
-  return (
-    <div className="bg-[--color-surface] border border-[--color-border] rounded-lg shadow-lg px-3 py-2 text-xs">
-      <div className="font-semibold mb-1.5 tabular text-[--color-text]">
-        {Math.round(label * 10) / 10}w
-      </div>
-      <div className="space-y-0.5">
-        {sorted.map((entry, i) => {
-          if (entry.value == null || entry.dataKey === "p10band" || entry.dataKey === "p90band") return null;
-          const labelText = entry.dataKey === "actual" ? t("chart.patient") : entry.dataKey.toUpperCase();
-          return (
-            <div key={i} className="flex items-center justify-between gap-4 tabular">
-              <span className="flex items-center gap-1.5">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: entry.stroke || entry.fill }}
-                />
-                <span className="text-[--color-text-muted]">{labelText}</span>
-              </span>
-              <span className="font-semibold text-[--color-text]">
-                {entry.value} {unit}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export default function IntergrowthChart({ visits, parameter = "AC" }) {
   const { t } = useTranslation();
-  const isDark = useIsDark();
   const meta = PARAM_META[parameter];
   const referenceData = buildReferenceData(parameter);
-
-  // Add a "band" pair for area-fill between P10 and P90 (Apple Health style).
-  const data = referenceData.map((d) => ({
-    ...d,
-    band: [d.p10, d.p90],
-  }));
 
   const visitPoints = (visits || [])
     .filter((v) => v.gaWeeks >= 20)
@@ -130,101 +72,56 @@ export default function IntergrowthChart({ visits, parameter = "AC" }) {
     })
     .filter(Boolean);
 
-  const mergedData = [...data, ...visitPoints].sort((a, b) => a.ga - b.ga);
-
-  const colors = isDark
-    ? {
-        grid:    "#2a2d33",
-        axis:    "#71717a",
-        bandFill:"rgba(16,185,129,0.06)",
-        bandLine:"#3a3e45",
-        outerLine:"#52525b",
-        median:  "#10b981",
-        actual:  "#f5f5f5",
-        actualDot:"#f5f5f5",
-        actualStroke:"#0b0d10",
-      }
-    : {
-        grid:    "#f1f5f9",
-        axis:    "#94a3b8",
-        bandFill:"rgba(16,185,129,0.08)",
-        bandLine:"#cbd5e1",
-        outerLine:"#e2e8f0",
-        median:  "#10b981",
-        actual:  "#0a0a0a",
-        actualDot:"#0a0a0a",
-        actualStroke:"#ffffff",
-      };
+  const mergedData = [...referenceData, ...visitPoints].sort((a, b) => a.ga - b.ga);
 
   return (
-    <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-5">
+    <div className="bg-white rounded-2xl p-5 shadow-sm">
       <div className="flex items-baseline justify-between mb-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle]">
+        <h2 className="text-base font-bold text-slate-800">
           {t("chart.title", { param: parameter })}
-        </h3>
-        <span className="text-xs text-[--color-text-subtle]">
-          {t(`chart.${parameter}`)} ({meta.unit})
-        </span>
+        </h2>
+        <span className="text-xs text-slate-500">{t(`chart.${parameter}`)} ({meta.unit})</span>
       </div>
 
       <div className="h-[420px]">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={mergedData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-            <CartesianGrid stroke={colors.grid} strokeDasharray="0" vertical={false} />
+          <LineChart data={mergedData}>
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="ga"
               type="number"
               domain={[20, 40]}
               ticks={[20, 24, 28, 32, 36, 40]}
               tickFormatter={(v) => `${Math.round(v)}w`}
-              stroke={colors.axis}
-              tick={{ fontSize: 11, fill: colors.axis }}
-              axisLine={false}
-              tickLine={false}
             />
             <YAxis
               domain={meta.domain}
-              stroke={colors.axis}
-              tick={{ fontSize: 11, fill: colors.axis }}
-              axisLine={false}
-              tickLine={false}
-              width={48}
+              label={{
+                value: `${parameter} (${meta.unit})`,
+                angle: -90,
+                position: "insideLeft",
+              }}
             />
             <Tooltip
-              content={<CustomTooltip unit={meta.unit} t={t} />}
-              cursor={{ stroke: colors.axis, strokeDasharray: "3 3" }}
+              itemSorter={(item) => {
+                const order = { p3: 5, p10: 4, p50: 3, p90: 2, p97: 1, actual: 0 };
+                return order[item.dataKey];
+              }}
             />
-
-            {/* P10–P90 area band — Apple Health style */}
-            <Area
-              type="monotone"
-              dataKey="band"
-              fill={colors.bandFill}
-              stroke="transparent"
-              isAnimationActive={false}
-              connectNulls
-            />
-
-            {/* Outer percentiles — subtle */}
-            <Line type="monotone" dataKey="p97" stroke={colors.outerLine} strokeWidth={1} strokeDasharray="2 4" dot={false} />
-            <Line type="monotone" dataKey="p90" stroke={colors.bandLine}  strokeWidth={1} dot={false} />
-            <Line type="monotone" dataKey="p50" stroke={colors.median}    strokeWidth={1.5} dot={false} />
-            <Line type="monotone" dataKey="p10" stroke={colors.bandLine}  strokeWidth={1} dot={false} />
-            <Line type="monotone" dataKey="p3"  stroke={colors.outerLine} strokeWidth={1} strokeDasharray="2 4" dot={false} />
-
-            {/* Patient line + dots */}
+            <Line type="monotone" dataKey="p97" stroke="#ec4899" dot={false} />
+            <Line type="monotone" dataKey="p90" stroke="#8b5cf6" dot={false} />
+            <Line type="monotone" dataKey="p50" stroke="#06b6d4" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="p10" stroke="#f59e0b" dot={false} />
+            <Line type="monotone" dataKey="p3"  stroke="#ef4444" dot={false} />
             <Line
               type="monotone"
               dataKey="actual"
-              stroke={colors.actual}
-              strokeWidth={2}
+              stroke="#111827"
+              strokeWidth={3}
               connectNulls
-              dot={{ r: 5, strokeWidth: 2, fill: colors.actualDot, stroke: colors.actualStroke }}
-              activeDot={{ r: 7, strokeWidth: 2 }}
-              isAnimationActive
-              animationDuration={300}
+              dot={{ r: 6, strokeWidth: 2, fill: "#111827" }}
             />
-          </ComposedChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>

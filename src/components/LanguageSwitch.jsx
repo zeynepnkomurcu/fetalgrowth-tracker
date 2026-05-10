@@ -11,7 +11,7 @@ export default function LanguageSwitch() {
   const current = i18n.language?.startsWith("tr") ? "tr" : "en";
 
   return (
-    <div className="inline-flex items-center rounded-lg border border-[--color-border] bg-[--color-surface] overflow-hidden text-xs font-semibold">
+    <div className="inline-flex border border-slate-200 rounded-xl overflow-hidden text-sm font-semibold">
       {[
         { key: "en", label: "EN" },
         { key: "tr", label: "TR" },
@@ -21,10 +21,10 @@ export default function LanguageSwitch() {
           <button
             key={opt.key}
             onClick={() => change(opt.key)}
-            className={`px-3 h-9 transition-colors ${
+            className={`px-3 py-1.5 transition-all ${
               active
-                ? "bg-[--color-text] text-[--color-surface]"
-                : "text-[--color-text-muted] hover:text-[--color-text] hover:bg-[--color-surface-muted]"
+                ? "bg-cyan-500 text-white"
+                : "bg-white text-slate-600 hover:bg-slate-100"
             }`}
           >
             {opt.label}

@@ -8,16 +8,6 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
-### Added
-- **Apple Health-geïnspireerde UI redesign — foundation laag** (eerste van een meertraps polish):
-  - Inter font + tabular-nums voor alle cijfers, font-feature-settings voor refined letterforms
-  - Volledig design-token systeem in `src/index.css` met `@theme` (font-sans, brand-emerald palet, semantische surface/border/text tokens)
-  - **Auto dark/light mode** via `prefers-color-scheme` + manuele override in `localStorage["theme"]` (system/light/dark cyclus)
-  - `ThemeSwitch` component (zon/maan/monitor icoon, top-right naast LanguageSwitch)
-  - `lucide-react` icons vervangen alle emojis (👶 → Baby icoon, ⚠️ → AlertTriangle, × → X, etc.)
-  - Inline FOUC-script in `index.html` past dark class toe voor React mount → geen flash van wit op laden
-- **Apple Health-stijl growth chart** — area-shading tussen P10/P90 (subtiele emerald tint), dunne axis zonder lines, custom tooltip die theme-tokens volgt, smoothere patient-line met grotere active dots, listen op `<html class="dark">` mutaties zodat de chart re-rendert bij theme-switch.
-
 ### Changed
 - Dashboard toont biometry + growth curve nu pas **na klik op een patient** — default state is een patient-select prompt. Geen lege biometry-velden meer zichtbaar zonder context.
 - Patient-clicks blijven op **dezelfde pagina** (`/`) — selected patient is een state, geen route. Biometry, AC growth curve en clinical summary worden conditional gerenderd.

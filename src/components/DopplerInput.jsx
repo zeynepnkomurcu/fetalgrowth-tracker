@@ -3,6 +3,12 @@ import { useTranslation } from "react-i18next";
 export default function DopplerInput({ values, onChange }) {
   const { t } = useTranslation();
 
+  const inputClass =
+    "w-full border-0 px-0 py-0 text-base text-slate-900 focus:outline-none focus:ring-0 bg-transparent";
+
+  const labelClass =
+    "text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2";
+
   const fields = [
     { key: "uaPi",  label: "UA PI",  step: "0.01" },
     { key: "mcaPi", label: "MCA PI", step: "0.01" },
@@ -12,15 +18,13 @@ export default function DopplerInput({ values, onChange }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {fields.map((f) => (
           <div
             key={f.key}
-            className="border border-[--color-border] rounded-xl px-3 py-2.5 bg-[--color-surface] hover:border-[--color-border-strong] focus-within:border-[--color-text] focus-within:ring-1 focus-within:ring-[--color-text] transition-colors"
+            className="border border-slate-200 rounded-xl p-3 bg-white"
           >
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-[--color-text-subtle] block mb-1">
-              {f.label}
-            </label>
+            <label className={labelClass}>{f.label}</label>
             <input
               type="number"
               inputMode="decimal"
@@ -33,21 +37,19 @@ export default function DopplerInput({ values, onChange }) {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0.00"
-              className="w-full border-0 px-0 py-0 text-base font-semibold text-[--color-text] focus:outline-none focus:ring-0 bg-transparent tabular placeholder:text-[--color-text-subtle]"
+              className={inputClass}
             />
           </div>
         ))}
       </div>
 
       <div>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-[--color-text-subtle] block mb-2">
-          {t("doppler.edf")}
-        </span>
-        <div className="grid grid-cols-3 gap-2">
+        <span className={labelClass}>{t("doppler.edf")}</span>
+        <div className="flex gap-2 flex-wrap">
           {[
-            { key: "normal",   label: t("doppler.normal"),  active: "bg-brand-500 text-white" },
-            { key: "absent",   label: t("doppler.aedf"),    active: "bg-amber-500 text-white" },
-            { key: "reversed", label: t("doppler.redf"),    active: "bg-red-500 text-white" },
+            { key: "normal",   label: t("doppler.normal") },
+            { key: "absent",   label: t("doppler.aedf") },
+            { key: "reversed", label: t("doppler.redf") },
           ].map((opt) => {
             const active = values.edfState === opt.key;
             return (
@@ -55,10 +57,14 @@ export default function DopplerInput({ values, onChange }) {
                 key={opt.key}
                 type="button"
                 onClick={() => onChange("edfState", active ? null : opt.key)}
-                className={`h-10 rounded-lg text-sm font-semibold transition-colors ${
+                className={`flex-1 py-2 px-3 rounded-xl text-sm font-semibold transition-all ${
                   active
-                    ? opt.active
-                    : "border border-[--color-border] text-[--color-text-muted] hover:bg-[--color-surface-muted] hover:text-[--color-text]"
+                    ? opt.key === "normal"
+                      ? "bg-green-500 text-white"
+                      : opt.key === "absent"
+                      ? "bg-orange-500 text-white"
+                      : "bg-red-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 {opt.label}
