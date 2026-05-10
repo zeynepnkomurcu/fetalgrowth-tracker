@@ -12,6 +12,7 @@ import {
   percentileBadge,
   calcEfwHadlock,
 } from "../clinical/ig21";
+import { formatLongDate } from "../utils/formatDate";
 
 const emptyMeasurements = { AC: "", BPD: "", HC: "", FL: "", EFW: "" };
 const emptyDoppler = { uaPi: "", mcaPi: "", sd: "", dvPiv: "", edfState: null };
@@ -31,7 +32,7 @@ function calcGaFromLmp(lmp) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [patients, setPatients] = useState(
     () => JSON.parse(localStorage.getItem("patients")) || []
@@ -247,7 +248,7 @@ export default function Dashboard() {
                   <p className="text-slate-500 text-sm mt-0.5">
                     {t("dash.ga")}: {ga.weeks}w {ga.days}d
                     {selectedPatient.lmp && (
-                      <span className="text-slate-400"> · {t("dash.lmp")}: {selectedPatient.lmp}</span>
+                      <span className="text-slate-400"> · {t("dash.lmp")}: {formatLongDate(selectedPatient.lmp, i18n.language)}</span>
                     )}
                   </p>
                 </div>
@@ -362,7 +363,7 @@ export default function Dashboard() {
                                 {v.gaWeeks}w {v.gaDays}d
                               </span>
                               <span className="text-xs text-slate-500">
-                                {new Date(v.date).toLocaleDateString()}
+                                {formatLongDate(v.date, i18n.language)}
                               </span>
                             </div>
                             <div className="grid grid-cols-4 gap-2 text-xs text-slate-600 mt-2">
