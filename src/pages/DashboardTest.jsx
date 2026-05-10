@@ -193,19 +193,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[--color-bg] text-[--color-text] p-4 md:p-6 relative">
-
-      {/* Floating top-right controls */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10 flex items-center gap-2">
-        <ThemeSwitch />
-        <LanguageSwitch />
-      </div>
+    <div className="min-h-screen bg-[--color-bg] text-[--color-text] p-4 md:p-6">
 
       <div className="max-w-7xl mx-auto space-y-4">
 
-        {/* Header */}
-        <header className="bg-[--color-surface] border border-[--color-border] rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
-          <div>
+        {/* Header — title + integrated toolbar */}
+        <header className="bg-[--color-surface] border border-[--color-border] rounded-2xl px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
             <h1 className="text-2xl font-semibold tracking-tight">
               {t("app.title")}
             </h1>
@@ -214,12 +208,15 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeSwitch />
+            <LanguageSwitch />
+            <span className="w-px h-6 bg-[--color-border] mx-1" aria-hidden />
             <button
               onClick={() => setDummyOpen(true)}
               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[--color-border] bg-[--color-surface] text-[--color-text-muted] hover:text-[--color-text] hover:bg-[--color-surface-muted] text-sm font-medium transition-colors"
             >
               <FlaskConical className="w-4 h-4" />
-              {t("common.addDummy")}
+              <span className="hidden sm:inline">{t("common.addDummy")}</span>
             </button>
             <button
               onClick={() => navigate("/new-patient")}
