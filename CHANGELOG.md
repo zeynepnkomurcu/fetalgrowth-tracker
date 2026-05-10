@@ -31,6 +31,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 ### Removed
 - Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.
 - "Guideline: ISUOG" rij uit Clinical Summary kaart — was puur decoratief, geen functionele info.
+- Legenda onder de growth curve — tooltip toont al P3/P10/P50/P90/P97 + Patient bij hover, dus de aparte legenda was redundant.
 
 ---
 

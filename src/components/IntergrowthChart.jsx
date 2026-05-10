@@ -6,7 +6,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 
 // INTERGROWTH-21st means + SDs by GA week (20–40)
@@ -116,16 +115,6 @@ export default function IntergrowthChart({ visits, parameter = "AC" }) {
                 const order = { p3: 5, p10: 4, p50: 3, p90: 2, p97: 1, actual: 0 };
                 return order[item.dataKey];
               }}
-            />
-            <Legend
-              payload={[
-                { value: "P97", type: "line", color: "#ec4899" },
-                { value: "P90", type: "line", color: "#8b5cf6" },
-                { value: "P50", type: "line", color: "#06b6d4" },
-                { value: "P10", type: "line", color: "#f59e0b" },
-                { value: "P3",  type: "line", color: "#ef4444" },
-                { value: "Patient", type: "line", color: "#111827" },
-              ]}
             />
             <Line type="monotone" dataKey="p97" stroke="#ec4899" dot={false} />
             <Line type="monotone" dataKey="p90" stroke="#8b5cf6" dot={false} />
