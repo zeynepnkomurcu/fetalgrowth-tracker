@@ -12,7 +12,7 @@ export default function DopplerInput({ values, onChange }) {
   const fields = [
     { key: "uaPi",  label: "UA PI",  step: "0.01" },
     { key: "mcaPi", label: "MCA PI", step: "0.01" },
-    { key: "sd",    label: "S/D",    step: "0.01" },
+    { key: "sd",    label: "UA S/D", step: "0.01" },
     { key: "dvPiv", label: "DV PIV", step: "0.01" },
   ];
 

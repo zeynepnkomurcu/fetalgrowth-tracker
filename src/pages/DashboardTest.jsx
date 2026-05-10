@@ -372,7 +372,7 @@ export default function Dashboard() {
                               <span>FL: <strong>{v.rawData?.fl ?? "-"}</strong></span>
                               <span>UA-PI: <strong>{v.rawData?.uaPi ?? "-"}</strong></span>
                               <span>MCA-PI: <strong>{v.rawData?.mcaPi ?? "-"}</strong></span>
-                              <span>S/D: <strong>{v.rawData?.sd ?? "-"}</strong></span>
+                              <span>UA S/D: <strong>{v.rawData?.sd ?? "-"}</strong></span>
                               <span>EDF: <strong>{v.rawData?.edfState ?? "-"}</strong></span>
                               <span className="font-semibold text-slate-800">
                                 EFW: <strong>{v.calculations?.efw ? `${v.calculations.efw} g` : "-"}</strong>
