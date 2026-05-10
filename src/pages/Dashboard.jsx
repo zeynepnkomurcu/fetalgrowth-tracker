@@ -57,9 +57,39 @@ useEffect(() => {
           ascending: false,
         });
 
-    if (!error && data) {
-      setPatients(data);
-    }
+if (!error && data) {
+  console.log(data);
+if (!error && data) {
+
+  const formattedPatients = [];
+
+  for (const p of data) {
+
+    const { data: visitsData } = await supabase
+      .from("visits")
+      .select("*")
+      .eq("patient_id", p.id)
+      .order("created_at", { ascending: true });
+
+    formattedPatients.push({
+      ...p,
+      protocolNumber: p.protocol_number,
+      researchId: p.research_id,
+      createdAt: p.created_at,
+      visits: (visitsData || []).map((v) => ({
+        id: v.id,
+        date: v.created_at,
+        gaWeeks: v.ga_weeks,
+        gaDays: v.ga_days,
+        rawData: v.raw_data,
+        calculations: v.calculations,
+      })),
+    });
+  }
+
+  setPatients(formattedPatients);
+}
+}
   };
 
   fetchPatients();
@@ -143,7 +173,7 @@ const [patients, setPatients] = useState([]);
   const liveEfwPct = liveEfw ? getPercentile("EFW", ga.weeks, liveEfw) : null;
   const liveEfwBadge = percentileBadge(liveEfwPct);
 
-  const handleSave = () => {
+const handleSave = async () => {
     if (selectedPatientId === null) return;
 
     const ac = Number(measurements.AC) || null;
@@ -160,15 +190,10 @@ const [patients, setPatients] = useState([]);
     const efw = calcEfwHadlock({ ac, bpd, hc, fl });
 
     const nowIso = new Date().toISOString();
-    const todayKey = nowIso.slice(0, 10);
-
-    const updatedPatients = [...patients];
-    const patient = { ...updatedPatients[selectedPatientId] };
-    const existingVisits = patient.visits || [];
-    const existingToday = existingVisits.find((v) => (v.date || "").slice(0, 10) === todayKey);
-
+  const updatedPatients = [...patients];
+const patient = { ...updatedPatients[selectedPatientId] };
     const visit = {
-      id: existingToday?.id || crypto.randomUUID(),
+id: crypto.randomUUID(),
       date: nowIso,
       gaWeeks: ga.weeks,
       gaDays: ga.days,
@@ -188,17 +213,33 @@ const [patients, setPatients] = useState([]);
       },
     };
 
-    patient.visits = existingToday
-      ? existingVisits.map((v) => (v.id === existingToday.id ? visit : v))
-      : [...existingVisits, visit];
-    updatedPatients[selectedPatientId] = patient;
+const { error: visitError } = await supabase
+  .from("visits")
+  .insert([
+    {
+      id: visit.id,
+      patient_id: patient.id,
+      ga_weeks: visit.gaWeeks,
+      ga_days: visit.gaDays,
+      raw_data: visit.rawData,
+      calculations: visit.calculations,
+    },
+  ]);
 
-    setPatients(updatedPatients);
+if (visitError) {
+  console.error(visitError);
+  return;
+}
+patient.visits = [...(patient.visits || []), visit];
+
+updatedPatients[selectedPatientId] = patient;
+
+setPatients(updatedPatients);
 
     setMeasurements({ ...emptyMeasurements, EFW: efw || "" });
     setDoppler(emptyDoppler);
 
-    setSavedToast(existingToday ? "updated" : "saved");
+setSavedToast("saved");
     setTimeout(() => setSavedToast(false), 2500);
 
     const AC_10th = 125;
@@ -209,13 +250,21 @@ const [patients, setPatients] = useState([]);
     }
   };
 
-  const handleDeleteVisit = (visitId) => {
+const handleDeleteVisit = async (visitId) => {
     if (selectedPatientId === null) return;
     const updatedPatients = [...patients];
     const patient = { ...updatedPatients[selectedPatientId] };
     patient.visits = (patient.visits || []).filter((v) => v.id !== visitId);
     updatedPatients[selectedPatientId] = patient;
     setPatients(updatedPatients);
+const { error } = await supabase
+  .from("visits")
+  .delete()
+  .eq("id", visitId);
+
+if (error) {
+  console.error(error);
+}
   };
 
   // ── shared classNames ─────────────────────────────────────────────

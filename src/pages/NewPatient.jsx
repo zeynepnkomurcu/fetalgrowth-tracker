@@ -19,16 +19,15 @@ export default function NewPatient() {
   });
 
   const generateProtocolNumber = (name, surname) => {
-    const patients = JSON.parse(localStorage.getItem("patients")) || [];
     const nextNumber = patients.length + 1;
     const initials = `${name[0] || ""}${surname[0] || ""}`.toUpperCase();
     return `${initials}-${String(nextNumber).padStart(4, "0")}`;
   };
 
   const generateResearchId = () => {
-    const patients = JSON.parse(localStorage.getItem("patients")) || [];
-    const nextNumber = patients.length + 1;
-    return `FGR-${String(nextNumber).padStart(4, "0")}`;
+const nextNumber = Date.now().toString().slice(-4);
+
+return `${initials}-${nextNumber}`;
   };
 
 const handleSave = async () => {
@@ -73,13 +72,6 @@ if (error) {
   alert(error.message);
   return;
 }
-
-patients.push(newPatient);
-
-localStorage.setItem(
-  "patients",
-  JSON.stringify(patients)
-);
 
 navigate("/");
   };
