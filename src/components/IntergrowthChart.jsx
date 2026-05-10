@@ -14,10 +14,10 @@ import { IG21, EFW_REF } from "../clinical/ig21";
 const Z3 = 1.881, Z10 = 1.282, Z90 = 1.282, Z97 = 1.881;
 
 const PARAM_META = {
-  AC:  { unit: "mm", domain: [120, 360], visitKey: "ac"  },
-  BPD: { unit: "mm", domain: [40, 100],  visitKey: "bpd" },
-  HC:  { unit: "mm", domain: [150, 360], visitKey: "hc"  },
-  FL:  { unit: "mm", domain: [25, 80],   visitKey: "fl"  },
+  AC:  { unit: "mm", domain: [110, 380], visitKey: "ac"  },
+  BPD: { unit: "mm", domain: [40, 105],  visitKey: "bpd" },
+  HC:  { unit: "mm", domain: [150, 380], visitKey: "hc"  },
+  FL:  { unit: "mm", domain: [25, 85],   visitKey: "fl"  },
   EFW: { unit: "g",  domain: [200, 5000], visitKey: "efw" },
 };
 

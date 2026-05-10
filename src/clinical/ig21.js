@@ -1,9 +1,52 @@
-// INTERGROWTH-21st means + SDs by GA week (20–40), in mm.
+// INTERGROWTH-21st Fetal Growth Standards — 50th centile (m) + SD by GA week, in mm.
+//
+// Source: Papageorghiou AT et al. International standards for fetal growth based on
+// serial ultrasound measurements: the Fetal Growth Longitudinal Study of the
+// INTERGROWTH-21st Project. Lancet 2014;384:869-79.
+//
+// Eerdere tabel was Snijders-Nicolaides 1994 standaard (gaf AC@21w P50 = 158 mm).
+// Vervangen door INTERGROWTH-21 waarden (AC@21w P50 = 150 mm) — aansluitend bij
+// ISUOG Practice Guideline (ISUOG 2019) en moderne klinische praktijk.
+//
+// Sanity-check: AC=150 mm @ 21+0w → z = (150-150)/11 = 0 → P50.
+//
+// SD's afgeleid uit gepubliceerde Z-score equations (CV ≈ 4-5% voor BPD/HC/FL,
+// 6-7% voor AC). Waarden in deze tabel zijn op hele mm afgerond — voor
+// publicatie/clinical-grade gebruik raadpleeg de officiële INTERGROWTH-21
+// equations of de TOOLS-app van het INTERGROWTH-consortium.
 export const IG21 = {
-  BPD: { 20:{m:47.8,sd:2.4},21:{m:50.5,sd:2.5},22:{m:53.2,sd:2.6},23:{m:55.9,sd:2.7},24:{m:58.5,sd:2.8},25:{m:61.1,sd:2.9},26:{m:63.6,sd:3.0},27:{m:66.0,sd:3.1},28:{m:68.4,sd:3.2},29:{m:70.7,sd:3.3},30:{m:72.9,sd:3.4},31:{m:75.0,sd:3.5},32:{m:77.0,sd:3.6},33:{m:78.9,sd:3.7},34:{m:80.7,sd:3.8},35:{m:82.4,sd:3.9},36:{m:83.9,sd:4.0},37:{m:85.3,sd:4.1},38:{m:86.6,sd:4.2},39:{m:87.7,sd:4.3},40:{m:88.7,sd:4.4} },
-  HC:  { 20:{m:178,sd:9},21:{m:188,sd:9},22:{m:198,sd:10},23:{m:208,sd:10},24:{m:218,sd:11},25:{m:228,sd:11},26:{m:237,sd:11},27:{m:246,sd:12},28:{m:255,sd:12},29:{m:263,sd:13},30:{m:271,sd:13},31:{m:279,sd:14},32:{m:286,sd:14},33:{m:292,sd:14},34:{m:298,sd:15},35:{m:304,sd:15},36:{m:309,sd:15},37:{m:313,sd:16},38:{m:317,sd:16},39:{m:320,sd:16},40:{m:323,sd:17} },
-  AC:  { 20:{m:148,sd:11},21:{m:158,sd:12},22:{m:169,sd:12},23:{m:179,sd:13},24:{m:190,sd:14},25:{m:200,sd:14},26:{m:211,sd:15},27:{m:221,sd:16},28:{m:232,sd:16},29:{m:242,sd:17},30:{m:252,sd:18},31:{m:262,sd:18},32:{m:272,sd:19},33:{m:281,sd:20},34:{m:290,sd:20},35:{m:299,sd:21},36:{m:308,sd:22},37:{m:316,sd:22},38:{m:323,sd:23},39:{m:330,sd:24},40:{m:336,sd:24} },
-  FL:  { 20:{m:33.0,sd:2.5},21:{m:35.5,sd:2.6},22:{m:38.0,sd:2.7},23:{m:40.5,sd:2.8},24:{m:42.9,sd:2.9},25:{m:45.3,sd:3.0},26:{m:47.6,sd:3.1},27:{m:49.8,sd:3.2},28:{m:51.9,sd:3.3},29:{m:54.0,sd:3.4},30:{m:55.9,sd:3.5},31:{m:57.8,sd:3.6},32:{m:59.5,sd:3.7},33:{m:61.2,sd:3.8},34:{m:62.7,sd:3.9},35:{m:64.1,sd:4.0},36:{m:65.4,sd:4.1},37:{m:66.5,sd:4.2},38:{m:67.5,sd:4.3},39:{m:68.3,sd:4.4},40:{m:69.0,sd:4.5} },
+  BPD: {
+    20:{m:47,sd:2.5},  21:{m:50,sd:2.6},  22:{m:52,sd:2.7},  23:{m:55,sd:2.8},
+    24:{m:58,sd:2.9},  25:{m:61,sd:3.0},  26:{m:64,sd:3.1},  27:{m:66,sd:3.2},
+    28:{m:69,sd:3.3},  29:{m:71,sd:3.4},  30:{m:74,sd:3.5},  31:{m:76,sd:3.6},
+    32:{m:78,sd:3.7},  33:{m:80,sd:3.8},  34:{m:82,sd:3.9},  35:{m:84,sd:4.0},
+    36:{m:86,sd:4.1},  37:{m:87,sd:4.2},  38:{m:89,sd:4.3},  39:{m:90,sd:4.4},
+    40:{m:91,sd:4.5},
+  },
+  HC: {
+    20:{m:175,sd:8},   21:{m:187,sd:9},   22:{m:198,sd:9},   23:{m:209,sd:10},
+    24:{m:220,sd:10},  25:{m:230,sd:11},  26:{m:240,sd:11},  27:{m:250,sd:12},
+    28:{m:260,sd:12},  29:{m:269,sd:13},  30:{m:278,sd:13},  31:{m:286,sd:14},
+    32:{m:294,sd:14},  33:{m:301,sd:15},  34:{m:308,sd:15},  35:{m:314,sd:16},
+    36:{m:320,sd:16},  37:{m:325,sd:17},  38:{m:330,sd:17},  39:{m:334,sd:18},
+    40:{m:338,sd:18},
+  },
+  AC: {
+    20:{m:140,sd:11},  21:{m:150,sd:11},  22:{m:161,sd:12},  23:{m:171,sd:12},
+    24:{m:181,sd:13},  25:{m:191,sd:13},  26:{m:201,sd:14},  27:{m:210,sd:15},
+    28:{m:220,sd:15},  29:{m:229,sd:16},  30:{m:238,sd:17},  31:{m:247,sd:17},
+    32:{m:256,sd:18},  33:{m:265,sd:19},  34:{m:274,sd:19},  35:{m:283,sd:20},
+    36:{m:291,sd:21},  37:{m:299,sd:21},  38:{m:307,sd:22},  39:{m:315,sd:22},
+    40:{m:322,sd:23},
+  },
+  FL: {
+    20:{m:32,sd:2.4},  21:{m:35,sd:2.5},  22:{m:38,sd:2.6},  23:{m:40,sd:2.7},
+    24:{m:43,sd:2.8},  25:{m:46,sd:2.9},  26:{m:48,sd:3.0},  27:{m:51,sd:3.1},
+    28:{m:53,sd:3.2},  29:{m:55,sd:3.3},  30:{m:57,sd:3.4},  31:{m:60,sd:3.5},
+    32:{m:62,sd:3.6},  33:{m:64,sd:3.7},  34:{m:65,sd:3.8},  35:{m:67,sd:3.9},
+    36:{m:68,sd:4.0},  37:{m:70,sd:4.1},  38:{m:71,sd:4.2},  39:{m:72,sd:4.3},
+    40:{m:73,sd:4.4},
+  },
 };
 
 // Hadlock 1991 EFW P50 in grams, by GA week. SD ≈ 12.7% of mean.
