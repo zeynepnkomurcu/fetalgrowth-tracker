@@ -60,21 +60,21 @@ export default function NewPatient() {
     "w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#134e4a] focus:border-transparent transition-all";
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6 relative">
+    <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6">
 
-      {/* Floating language switch — top-right corner of the page */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
-        <LanguageSwitch />
-      </div>
+      <div className="max-w-xl mx-auto">
 
-      <div className="max-w-xl mx-auto pt-12">
-        <button
-          onClick={() => navigate("/")}
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {t("common.back")}
-        </button>
+        {/* Top toolbar: back + language switch */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t("common.back")}
+          </button>
+          <LanguageSwitch />
+        </div>
 
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-8 space-y-5">
           <div>

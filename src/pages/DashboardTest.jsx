@@ -202,31 +202,35 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6 relative">
 
-      {/* Floating language switch — top-right corner of the page */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
+      {/* Floating language switch — desktop only, top-right corner of the page */}
+      <div className="hidden md:block absolute md:top-6 md:right-6 z-10">
         <LanguageSwitch />
       </div>
 
       <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header */}
-        <div className={`${card} px-6 py-5 flex items-center justify-between gap-4 flex-wrap`}>
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">
+        <div className={`${card} px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 flex-wrap`}>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight">
               {t("app.title")}
             </h1>
-            <p className="mt-1 text-slate-500 text-sm">
+            <p className="mt-1 text-slate-500 text-xs sm:text-sm">
               {t("app.subtitle")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Mobile-only language switch (inside header) */}
+            <div className="md:hidden">
+              <LanguageSwitch />
+            </div>
             <button onClick={() => setDummyOpen(true)} className={btnSecondary}>
               <FlaskConical className="w-4 h-4" />
-              {t("common.addDummy")}
+              <span className="hidden sm:inline">{t("common.addDummy")}</span>
             </button>
             <button onClick={() => navigate("/new-patient")} className={btnPrimary}>
               <Plus className="w-4 h-4" />
-              {t("common.addPatient")}
+              <span className="hidden sm:inline">{t("common.addPatient")}</span>
             </button>
           </div>
         </div>
