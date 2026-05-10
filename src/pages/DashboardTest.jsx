@@ -154,13 +154,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <div className="min-h-screen bg-slate-100 p-4 md:p-6 relative">
 
-        {/* Top bar — language switch only, top right */}
-        <div className="flex justify-end">
-          <LanguageSwitch />
-        </div>
+      {/* Floating language switch — top-right corner of the page */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
+        <LanguageSwitch />
+      </div>
+
+      <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between gap-4">
