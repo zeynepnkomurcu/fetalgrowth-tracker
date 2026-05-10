@@ -8,51 +8,71 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
-### Changed
-- Dashboard toont biometry + growth curve nu pas **na klik op een patient** — default state is een patient-select prompt. Geen lege biometry-velden meer zichtbaar zonder context.
-- Patient-clicks blijven op **dezelfde pagina** (`/`) — selected patient is een state, geen route. Biometry, AC growth curve en clinical summary worden conditional gerenderd.
-- Biometry-velden zijn compacter (4 op één rij ipv 2x2, kleinere padding).
-- **Veldvolgorde nu BPD → HC → AC → FL** (was AC → BPD → HC → FL) in zowel biometry-form, chart-tabs als visit-history grid. EFW blijft achteraan in chart-tabs.
-- **Live percentielen op alle biometry-velden + EFW** — terwijl je typt verschijnt rechtsboven het veld een chip met `Pxx`, kleurgecodeerd: groen P25–P75, geel P10–P25/P75–P90, oranje P3–P10/P90–P97, rood <P3/>P97. EFW kaart toont live Hadlock-IV waarde + matching percentiel-chip in plaats van pas-na-save te updaten. Berekening via z-score uit INTERGROWTH-21 mean+SD (Abramowitz-Stegun normCDF).
-- **EFW staat nu inline tussen Biometry en Doppler** als compacte cyan strip met EFW-waarde + percentile-chip + Hadlock-IV hint, ipv een grote blok in de rechter sidebar. Right sidebar bevat nu enkel Clinical Summary.
-- **LanguageSwitch verplaatst naar rechtsbovenhoek van de pagina** (boven het header-card op Dashboard, absoluut top-right op NewPatient) ipv naast de "Add Patient" knop — meer als een normale top-bar layout.
+(Geen openstaande wijzigingen — volgende sessie.)
 
-### Fixed
-- **IG-21 referentietabel her-aligneerd** — eerdere tabel was Snijders-Nicolaides 1994 standaard (gaf AC=150 mm @ 21w → P25), nu echte INTERGROWTH-21 50e percentiel waarden (AC@21w P50 = 150 mm, valideert tegen klinische verwachting van Zeynep). Bron: Papageorghiou AT et al., Lancet 2014;384:869-79. Aanpassing geldt voor BPD, HC, AC en FL (GA 20-40w). Chart Y-axis domeinen iets verruimd om de nieuwe range te dekken. EFW blijft Hadlock-1991 met CV 12.7%.
-- **Nieuwe `src/clinical/ig21.js` shared module** — IG-21 referentietabellen, Hadlock-1991 EFW reference + Hadlock-IV formule + percentile/badge helpers. `IntergrowthChart` gebruikt nu dezelfde data (was eerder gedupliceerd).
-- MeasurementCard krijgt unit-suffix (mm) en chip-style percentiel-badge ipv kleine tekst.
-- Doppler-sectie is nu standaard zichtbaar onder Biometry (was eerst gated achter Save & Analyze + lelijk inline-styled).
-- `MeasurementCard` en `DopplerInput` herschreven met Tailwind-only, geen inline styles meer.
-- `GuidelineModal` herschreven met Tailwind, klikbaar overlay, OK-knop in app-stijl.
-- **Max 1 visit per patient per dag** — een tweede save op dezelfde dag overschrijft de bestaande visit van die dag (zelfde visit-id, nieuwe waarden). Toast meldt "updated" ipv "saved" zodat duidelijk is dat een overwrite is gebeurd.
+---
 
-### Fixed
-- Save & Analyze slaat de visit nu **echt op** (in `localStorage` onder `patient.visits`) en de nieuwe meting verschijnt direct als zwarte dot op de AC growth curve.
-- EFW wordt nu berekend met **Hadlock IV** (echte formule, was simpel gemiddelde van AC/BPD/HC/FL — klopte clinisch niet).
-- Modal triggerde foutief bij waarde `"0"` (string-truthiness bug). Nu pas trigger boven 0.
-- Biometry- en Doppler-inputvelden accepteren nu **alleen numerieke input** — `e`, `E`, `+`, `-` toetsen worden geblokkeerd, scroll-wiel verandert geen getal meer per ongeluk, `inputMode="decimal"` voor mobile keyboards.
-- Browser-spinner pijltjes (▲▼) op number-inputs zijn globaal weggestyled in `index.css` — overbodig, namen visueel ruimte in en gaven nooit een goede UX voor decimale waarden.
+## [0.3.0] — 2026-05-10
 
-### Added
-- **S/D ratio veld in Doppler** tussen MCA PI en DV PIV — Systolic/Diastolic ratio, klinisch standaard. Doppler-grid groeit van 3 naar 4 kolommen. Veld wordt mee opgeslagen in `visit.rawData.sd` en getoond in visit history.
-- **Datum-format "4 February 2026"** (dag-maandnaam-jaar) overal waar datums getoond worden — patient header LMP en visit history dates. Lokale aware: in Turkse mode toont het "4 Şubat 2026". Helper in `src/utils/formatDate.js`.
-- **"+ Dummy" knop naast "+ Add Patient"** — opent een kleine modal die enkel om LMP vraagt en direct een test-patient aanmaakt (`Dummy #1`, `Dummy #2`, ...) met `protocolNumber DUMMY-XXXX`. Voor snelle UI-tests zonder de volle name/surname/TC-validation door te lopen. Patient wordt meteen geselecteerd zodat je biometry kunt invullen.
+### Klinisch & data
+- **IG-21 referentietabel her-aligneerd** naar de officiële INTERGROWTH-21 publicatie (Papageorghiou AT et al., Lancet 2014;384:869-79). Voorgaande tabel was Snijders-Nicolaides 1994 en gaf AC=150 mm @ 21w → P25; nu m@21w = 150 dus AC=150 @ 21w → P50, in lijn met Zeynep's klinische verwachting. Aanpassing geldt voor BPD/HC/AC/FL (GA 20–40w).
+- **Decimal-precision tabel via quadratische fit** door 3 INTERGROWTH-21 ankers (20w/30w/40w). Voorheen waren ronde-mm waarden ingevoerd met afwisselende +2/+3 sprongen tussen weken; dat veroorzaakte zichtbare hoeken/golfjes in de curve. Nu vloeiend afnemende slopes per week.
+- **Live percentielen op alle biometry-velden + EFW** — terwijl je typt verschijnt rechtsboven het veld een chip met `Pxx`, kleurgecodeerd: emerald P25–P75, geel P10–P25/P75–P90, oranje P3–P10/P90–P97, rood <P3/>P97. Berekening via z-score uit IG-21 mean+SD met Abramowitz-Stegun normCDF. EFW kaart toont live Hadlock-IV waarde + matching percentiel-chip ipv pas-na-save.
+- **Hadlock IV EFW formule** vervangt het eerdere simple-gemiddelde dat clinisch niet klopte.
+- **Max 1 visit per patient per dag** — een tweede save op dezelfde dag overschrijft de bestaande visit (zelfde id, nieuwe waarden). Toast meldt "updated" ipv "saved".
+- **GA berekening uit LMP** als patient geen `week`/`days` heeft (helper `calcGaFromLmp` in DashboardTest).
+- **Datum-format "4 February 2026"** (dag-maandnaam-jaar) overal — patient header LMP, visit history dates. Locale-aware: Turkse mode toont "4 Şubat 2026". Helper in `src/utils/formatDate.js`.
 
-### Changed
-- Growth-curve percentile-lijnen gebruiken nu **linear interpolatie** ipv `monotone` cubic spline. De afwisselende +2/+3 mm sprongen tussen weken in de IG-21 tabel veroorzaakten zichtbare golfjes in de smooth-spline; rechte segmenten tussen week-ankers zijn klinisch correcter en visueel rustiger. P50-lijn iets dikker (strokeWidth 2) voor extra leesbaarheid.
-- **IG-21 tabel naar 1 decimaal precisie via quadratische fit** — eerdere ronde-mm waarden (BPD 47, 50, 52...) hadden afwisselende +2/+3 sprongen die zichtbare hoeken gaven in de curve. Nu vloeiend afnemende slopes per week. Coefficiënten gefit door 3 INTERGROWTH-21 ankers (20w/30w/40w). Curves teruggeschakeld naar `monotone` cubic spline — met smoothe data geen overshoot meer. Sanity-check (AC=150 @ 21w → P49) blijft kloppen.
+### UI redesign — medical-teal / clinical look
+- **Volledige design-system pass** met `#134e4a` (medical-teal / teal-900) als primaire accent, slate-50 page-background, witte kaarten met `border-slate-200 rounded-xl shadow-sm`. Inter font, font-feature-settings voor scherpere letterforms, tabular-nums voor alle cijfers.
+- **Lucide icons** (lucide-react dependency) vervangen alle emojis: Plus, FlaskConical, X, Check, CalendarDays, Users, Search, AlertTriangle, ArrowLeft.
+- **Knop-system**:
+  - Primary (Add Patient, Save & Analyze, Selected patient card, Active chart-tab, Modal OK, Dummy create) → solid teal-900 white text, hover teal-700.
+  - Secondary (+ Dummy) → outlined teal-900.
+  - Doppler EDF (Normal/AEDF/REDF) → outlined teal default, filled teal-900 wanneer geselecteerd.
+- **EFW strip** is solid teal-900 ipv cyan gradient.
+- **GuidelineModal** → Lucide AlertTriangle in amber halo, teal OK-knop, slate-900/40 backdrop met blur.
+- **Save-toast** → bottom-right floating, teal-900 met Lucide Check, slide-in animation (`@keyframes toast-in`).
+- **Patient-empty-state** in sidebar → Lucide Users avatar + "No patients yet".
+- **Empty-state hoofdscherm** → fetal-echo PNG illustratie in `public/empty-state-fetus.png` (cropped om dubbele "Fetal Büyüme Analizi" tekst te vermijden), vergroot tot `max-w-lg`, met i18n-titel "Bir hasta seçin / Select a patient" eronder.
 
-### Added
-- Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
-- "✓ Visit saved" toast verschijnt 2.5s na succesvolle save zodat duidelijk is dat het werkt.
-- GA wordt automatisch berekend uit LMP als `week`/`days` niet expliciet op patient zit.
-- **Growth curve parameter-switcher** — AC/BPD/HC/FL/EFW tabs boven de chart. Elk parameter heeft eigen INTERGROWTH-21 P3/P10/P50/P90/P97 banden (afgeleid van mean+SD via z-multipliers). EFW gebruikt Hadlock-1991 referentietabel met CV 12.7%.
-- **Volledige EN/TR vertaling** — alle UI-strings in i18n, `LanguageSwitch` component (EN/TR toggle) rechtsboven in de header van Dashboard én NewPatient. Taalkeuze wordt opgeslagen in `localStorage` onder key `lang` zodat reload de keuze behoudt. Resterende Nederlandse strings (modal "Vul minimaal..." etc) zijn vertaald naar EN+TR.
+### Chart polish
+- **Apple Health-stijl Area-band** tussen P10 en P90 met verticaal teal-gradient (10%→4% alpha). Geeft visueel duidelijk de "normale range".
+- **ComposedChart** ipv plain LineChart om Area + Line te combineren.
+- **Custom tooltip** in design-system stijl: witte card, slate border, soft shadow, gekleurde dots per percentile, tabular numbers. Rijen gesorteerd in zelfde volgorde als chart-lijnen visueel staan: P97 → P90 → P50 → P10 → P3 → Patient.
+- **Klinische lijn-palet**: P50 in teal-900, P10/P90 in amber, P3/P97 in red dashed (extremes), Patient lijn in slate-900 met witte stroke om dots.
+- **Mobile-responsive chart** — hoogte 280px op mobiel (vs 420px desktop), Y-axis width 36 op mobiel (vs 48), X-tick reductie tot `[20, 28, 36, 40]` op smal scherm, axis-lines verborgen, tickLine off voor cleane uitstraling.
+- **Growth-curve parameter-switcher** — BPD/HC/AC/FL/EFW tabs boven de chart, in volgorde gevraagd door Zeynep. Actieve tab is teal-900.
+
+### Mobile & PWA
+- **Safe-area inset** op `body` (`padding: env(safe-area-inset-*)`) zodat content nooit meer onder iOS dynamic island/notch schuift in standalone PWA-mode.
+- **PWA chrome kleur** in `manifest.json` en `index.html` theme-color → `#134e4a`, background-color → `#f8fafc`.
+- **Mobile knop-labels** altijd zichtbaar (was iconen-only) zodat gebruiker niet moet raden welke knop wat doet.
+- **Header padding** schaalt: `px-5 py-4` op mobiel, `px-6 py-5` op desktop. Title `text-xl sm:text-2xl`.
+- **LanguageSwitch** floats top-right corner — desktop altijd zichtbaar, mobile alleen op landing/empty-state. Wanneer een patient geopend is op mobiel verbergt de switch zich om schermruimte vrij te geven; op desktop blijft hij staan.
+
+### Patient management
+- **+ Dummy knop** naast + Add Patient — opent modal die enkel om LMP vraagt en direct test-patient aanmaakt (`Dummy #1`, `DUMMY-0001`). Voor snelle UI-tests zonder name/surname/TC validation.
+- **Unified search** in patients sidebar — Lucide Search icoon, real-time filter op voornaam, achternaam, voor+achternaam combo, en protocolnummer (case-insensitive). Empty result toont een quiet "—".
+
+### Doppler
+- **UA S/D ratio veld** tussen MCA PI en DV PIV. Doppler-grid groeit van 3 naar 4 kolommen. Veld in `visit.rawData.sd` en getoond in visit history.
 
 ### Removed
-- Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.
-- "Guideline: ISUOG" rij uit Clinical Summary kaart — was puur decoratief, geen functionele info.
-- Legenda onder de growth curve — tooltip toont al P3/P10/P50/P90/P97 + Patient bij hover, dus de aparte legenda was redundant.
+- Route `/patient/:id` uit `App.jsx` (vervangen door same-page state). `src/pages/PatientDetails.jsx` blijft als file maar is niet meer gewired — kandidaat voor cleanup.
+- "Guideline: ISUOG" rij uit Clinical Summary (puur decoratief).
+- Legenda onder de growth curve (tooltip dekt al alles).
+- Cyan kleur palette door de hele app vervangen door teal-900.
+
+### Fixed
+- **Save & Analyze persisteert echt** in `localStorage` onder `patient.visits[]`, dot verschijnt direct op de growth curve (was eerder leeg-witte modal).
+- Modal-trigger string-truthiness bug op `"0"` waarde.
+- Biometry/Doppler velden accepteren alleen numerieke input — `e/E/+/-` toetsen geblokkeerd, scroll-wiel verandert getal niet meer per ongeluk, `inputMode="decimal"` voor mobile keyboards.
+- Browser-spinner pijltjes (▲▼) globaal gestyled weg in `index.css`.
+- Dubbele "+" glyph in Add Patient / Dummy knoppen weggehaald (vertaalstrings begonnen al met "+ " én lucide Plus icoon ervoor).
+
+### Doc & infra
+- **Repo en URL gesplitst**: GitHub repo blijft `fetalgrowth-tracker2`, Vercel-project hernoemd naar `fetalgrowth-tracker` zodat de v2-code op de v1-URL `https://fetalgrowth-tracker.vercel.app` draait. v1 archief leeft op `fetalgrowth-tracker-v1-archive.vercel.app`.
 
 ---
 
@@ -61,23 +81,26 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 ### Added
 - Documentatie-skeleton: `README.md`, `CHANGELOG.md`, `docs/architecture.md`, `docs/clinical-formulas.md`, `docs/deployment.md`, `docs/commit-conventie.md`.
 - Vercel auto-deploy gekoppeld aan `main` branch.
+- Volledige EN/TR i18n via react-i18next, LanguageSwitch component, sticky in `localStorage`.
+- Growth curve P3/P10/P50/P90/P97 banden afgeleid van mean+SD via z-multipliers.
+- Visit history onder de curve met delete-knop per visit, "✓ Visit saved" toast.
 
 ### Changed
-- Alle TypeScript modules (`*.ts`) geconverteerd naar plain JavaScript (`*.js`) voor consistentie. Geen TypeScript meer in dit project.
-- `src/layouts/Mainlayout.jsx` hernoemd naar `MainLayout.jsx` (file-naam matcht nu de component-naam).
+- Alle TypeScript modules (`*.ts`) geconverteerd naar plain JavaScript (`*.js`).
+- `src/layouts/Mainlayout.jsx` hernoemd naar `MainLayout.jsx`.
+- Dashboard toont biometry/curve nu pas **na klik op een patient** — same-page state, geen route change.
+- Biometry-veldvolgorde **BPD → HC → AC → FL** (was AC → BPD → HC → FL).
+- Biometry compacter (4 op 1 rij ipv 2x2).
+- Doppler-sectie standaard zichtbaar onder Biometry.
+- `MeasurementCard`, `DopplerInput`, `GuidelineModal` herschreven met Tailwind-only.
 
 ### Removed
-- Dode duplicate `src/translations/translations.js` (was identiek aan inline data in `src/i18n.js`).
-- Dode duplicate `src/clinical/reference/acReference.js` (oudere AC-percentiel tabel, niet gebruikt).
-- Dode duplicate `src/references/acReferences.ts` (alternatieve AC-percentiel tabel, niet gebruikt).
-- Dode duplicate `src/clinical/calculations/cpr.ts` (TypeScript-versie van `calculateCpr.js`, niet gebruikt).
-- `src/types/visit.ts` — TypeScript interface, niet bruikbaar in JS-only project.
+- Dode duplicate files: `src/translations/translations.js`, `src/clinical/reference/acReference.js`, `src/references/acReferences.ts`, `src/clinical/calculations/cpr.ts`, `src/types/visit.ts`.
 
-### Known issues / TODO
-- `src/pages/Patients.jsx` en `src/pages/Reports.jsx` bestaan maar zijn nog niet aan de router gekoppeld in `App.jsx`. Beslissen: in routing zetten of weghalen.
-- `src/clinical/processVisit.js` orchestreert flags + staging + recommendations, maar wordt nog niet gebruikt door enige page. Wireup in `PatientDetails.jsx` is nog open.
-- `src/clinical/calculateAcPercentile.js` heeft nog inline AC-referentie tabel — zou naar een aparte `clinical/references/` file moeten als andere percentiel-tabellen worden toegevoegd.
-- `src/clinical/detectStage.js` is een legacy stage-detector. `clinical/staging/fgrStage.js` is de nieuwe versie. Beslissen welke gebruikt blijft.
+### Known issues / TODO (uit 0.2.0, deels nog open)
+- `src/pages/Patients.jsx`, `src/pages/Reports.jsx`, `src/pages/PatientDetails.jsx` bestaan maar zijn niet aan router gekoppeld.
+- `src/clinical/processVisit.js` orchestreert flags+staging+recommendations, nog niet gewired.
+- `src/clinical/detectStage.js` (legacy) en `clinical/staging/fgrStage.js` (nieuw) — beslissen welke blijft.
 
 ---
 
