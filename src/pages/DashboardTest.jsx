@@ -273,7 +273,7 @@ export default function Dashboard() {
                   <div>
                     <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.biometry")}</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {["AC", "BPD", "HC", "FL"].map((field) => (
+                      {["BPD", "HC", "AC", "FL"].map((field) => (
                         <MeasurementCard
                           key={field}
                           title={field}
@@ -319,7 +319,7 @@ export default function Dashboard() {
                 {/* Growth Curve param tabs + chart */}
                 <div className="bg-white rounded-2xl shadow-sm p-3">
                   <div className="flex gap-2 flex-wrap">
-                    {["AC", "BPD", "HC", "FL", "EFW"].map((p) => {
+                    {["BPD", "HC", "AC", "FL", "EFW"].map((p) => {
                       const active = chartParam === p;
                       return (
                         <button
@@ -361,9 +361,9 @@ export default function Dashboard() {
                               </span>
                             </div>
                             <div className="grid grid-cols-4 gap-2 text-xs text-slate-600 mt-2">
-                              <span>AC: <strong>{v.rawData?.ac ?? "-"}</strong></span>
                               <span>BPD: <strong>{v.rawData?.bpd ?? "-"}</strong></span>
                               <span>HC: <strong>{v.rawData?.hc ?? "-"}</strong></span>
+                              <span>AC: <strong>{v.rawData?.ac ?? "-"}</strong></span>
                               <span>FL: <strong>{v.rawData?.fl ?? "-"}</strong></span>
                               <span>UA-PI: <strong>{v.rawData?.uaPi ?? "-"}</strong></span>
                               <span>MCA-PI: <strong>{v.rawData?.mcaPi ?? "-"}</strong></span>

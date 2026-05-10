@@ -12,6 +12,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Dashboard toont biometry + growth curve nu pas **na klik op een patient** — default state is een patient-select prompt. Geen lege biometry-velden meer zichtbaar zonder context.
 - Patient-clicks blijven op **dezelfde pagina** (`/`) — selected patient is een state, geen route. Biometry, AC growth curve en clinical summary worden conditional gerenderd.
 - Biometry-velden zijn compacter (4 op één rij ipv 2x2, kleinere padding).
+- **Veldvolgorde nu BPD → HC → AC → FL** (was AC → BPD → HC → FL) in zowel biometry-form, chart-tabs als visit-history grid. EFW blijft achteraan in chart-tabs.
 - Doppler-sectie is nu standaard zichtbaar onder Biometry (was eerst gated achter Save & Analyze + lelijk inline-styled).
 - `MeasurementCard` en `DopplerInput` herschreven met Tailwind-only, geen inline styles meer.
 - `GuidelineModal` herschreven met Tailwind, klikbaar overlay, OK-knop in app-stijl.
