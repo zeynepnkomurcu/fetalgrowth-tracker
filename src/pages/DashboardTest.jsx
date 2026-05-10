@@ -157,6 +157,11 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-4">
 
+        {/* Top bar — language switch only, top right */}
+        <div className="flex justify-end">
+          <LanguageSwitch />
+        </div>
+
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between gap-4">
           <div>
@@ -167,15 +172,12 @@ export default function Dashboard() {
               {t("app.subtitle")}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <LanguageSwitch />
-            <button
-              onClick={() => navigate("/new-patient")}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
-            >
-              {t("common.addPatient")}
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/new-patient")}
+            className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
+          >
+            {t("common.addPatient")}
+          </button>
         </div>
 
         {/* Main Grid */}
@@ -274,6 +276,27 @@ export default function Dashboard() {
                     </div>
                   </div>
 
+                  {/* Inline EFW between Biometry and Doppler */}
+                  <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-xl px-4 py-3 text-white flex items-center justify-between gap-3 shadow-sm">
+                    <div className="flex items-baseline gap-3 min-w-0">
+                      <span className="text-[11px] uppercase tracking-wide opacity-80 font-semibold">
+                        {t("dash.efw")}
+                      </span>
+                      <span className="text-2xl font-bold tabular-nums leading-none">
+                        {liveEfw ? liveEfw : "—"}
+                        {liveEfw && <span className="text-sm font-medium opacity-80 ml-1">g</span>}
+                      </span>
+                      {liveEfwBadge && (
+                        <span className="bg-white/25 backdrop-blur px-2 py-0.5 rounded-md font-bold text-xs tabular-nums">
+                          {liveEfwBadge.label}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-cyan-50 opacity-80 hidden sm:inline">
+                      {t("dash.efwHint")}
+                    </span>
+                  </div>
+
                   <div>
                     <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.doppler")}</h2>
                     <DopplerInput values={doppler} onChange={handleDopplerChange} />
@@ -367,23 +390,8 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Right: EFW + Summary */}
+              {/* Right: Summary */}
               <div className="space-y-4">
-                <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-5 text-white shadow-lg">
-                  <p className="text-xs opacity-80 uppercase tracking-wide">{t("dash.efw")}</p>
-                  <div className="flex items-baseline justify-between gap-2 mt-2">
-                    <h2 className="text-4xl font-bold tabular-nums">
-                      {liveEfw ? `${liveEfw}` : "-"}
-                      {liveEfw && <span className="text-lg font-medium opacity-80 ml-1">g</span>}
-                    </h2>
-                    {liveEfwBadge && (
-                      <span className="bg-white/25 backdrop-blur px-3 py-1.5 rounded-lg font-bold text-sm tabular-nums">
-                        {liveEfwBadge.label}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 text-cyan-100 text-xs">{t("dash.efwHint")}</p>
-                </div>
                 <div className="bg-white rounded-2xl p-5 shadow-sm">
                   <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.summary")}</h2>
                   <div className="space-y-2">

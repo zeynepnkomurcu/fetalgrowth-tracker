@@ -133,35 +133,22 @@ export default function NewPatient() {
 
   return (
 
-    <div className="
-      min-h-screen
-      bg-slate-100
-      flex
-      items-center
-      justify-center
-      p-6
-    ">
+    <div className="min-h-screen bg-slate-100 p-6 relative">
 
-      <div className="
-        w-full
-        max-w-xl
-        bg-white
-        rounded-3xl
-        shadow-xl
-        p-8
-        space-y-5
-      ">
+      <div className="absolute top-6 right-6">
+        <LanguageSwitch />
+      </div>
 
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">
-              {t("newPatient.title")}
-            </h1>
-            <p className="text-slate-500 mt-2">
-              {t("newPatient.subtitle")}
-            </p>
-          </div>
-          <LanguageSwitch />
+      <div className="flex items-center justify-center min-h-[calc(100vh-3rem)]">
+        <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl p-8 space-y-5">
+
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800">
+            {t("newPatient.title")}
+          </h1>
+          <p className="text-slate-500 mt-2">
+            {t("newPatient.subtitle")}
+          </p>
         </div>
 
         <div className="
@@ -321,6 +308,7 @@ export default function NewPatient() {
           {t("common.savePatient")}
         </button>
 
+        </div>
       </div>
 
     </div>
