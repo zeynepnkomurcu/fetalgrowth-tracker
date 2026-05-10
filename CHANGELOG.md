@@ -20,6 +20,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Save & Analyze slaat de visit nu **echt op** (in `localStorage` onder `patient.visits`) en de nieuwe meting verschijnt direct als zwarte dot op de AC growth curve.
 - EFW wordt nu berekend met **Hadlock IV** (echte formule, was simpel gemiddelde van AC/BPD/HC/FL — klopte clinisch niet).
 - Modal triggerde foutief bij waarde `"0"` (string-truthiness bug). Nu pas trigger boven 0.
+- Biometry- en Doppler-inputvelden accepteren nu **alleen numerieke input** — `e`, `E`, `+`, `-` toetsen worden geblokkeerd, scroll-wiel verandert geen getal meer per ongeluk, `inputMode="decimal"` voor mobile keyboards.
 
 ### Added
 - Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
@@ -28,6 +29,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ### Removed
 - Route `/patient/:id` uit `App.jsx` (was vervangen door same-page state). `src/pages/PatientDetails.jsx` bestaat nog als file maar is niet meer gewired — kandidaat voor verwijdering volgende cleanup.
+- "Guideline: ISUOG" rij uit Clinical Summary kaart — was puur decoratief, geen functionele info.
 
 ---
 

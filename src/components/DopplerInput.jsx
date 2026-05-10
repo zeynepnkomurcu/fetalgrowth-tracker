@@ -23,9 +23,15 @@ export default function DopplerInput({ values, onChange }) {
             <label className={labelClass}>{f.label}</label>
             <input
               type="number"
+              inputMode="decimal"
               step={f.step}
+              min="0"
               value={values[f.key] ?? ""}
               onChange={(e) => onChange(f.key, e.target.value)}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+              }}
+              onWheel={(e) => e.currentTarget.blur()}
               placeholder="0.00"
               className={inputClass}
             />

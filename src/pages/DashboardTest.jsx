@@ -376,10 +376,6 @@ export default function Dashboard() {
                           : "-"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">Guideline</span>
-                      <span className="font-bold text-cyan-600 text-sm">ISUOG</span>
-                    </div>
                   </div>
                 </div>
               </div>

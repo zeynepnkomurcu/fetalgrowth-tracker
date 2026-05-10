@@ -13,8 +13,15 @@ export default function MeasurementCard({ title, value, onChange, percentile, pl
       </div>
       <input
         type="number"
+        inputMode="decimal"
+        step="0.01"
+        min="0"
         value={value}
         onChange={onChange}
+        onKeyDown={(e) => {
+          if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+        }}
+        onWheel={(e) => e.currentTarget.blur()}
         placeholder={placeholder ?? "0"}
         className="w-full border-0 px-0 py-0 text-base text-slate-900 focus:outline-none focus:ring-0 bg-transparent"
       />
