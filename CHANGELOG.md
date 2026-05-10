@@ -13,6 +13,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Patient-clicks blijven op **dezelfde pagina** (`/`) — selected patient is een state, geen route. Biometry, AC growth curve en clinical summary worden conditional gerenderd.
 - Biometry-velden zijn compacter (4 op één rij ipv 2x2, kleinere padding).
 - **Veldvolgorde nu BPD → HC → AC → FL** (was AC → BPD → HC → FL) in zowel biometry-form, chart-tabs als visit-history grid. EFW blijft achteraan in chart-tabs.
+- **Live percentielen op alle biometry-velden + EFW** — terwijl je typt verschijnt rechtsboven het veld een chip met `Pxx`, kleurgecodeerd: groen P25–P75, geel P10–P25/P75–P90, oranje P3–P10/P90–P97, rood <P3/>P97. EFW kaart toont live Hadlock-IV waarde + matching percentiel-chip in plaats van pas-na-save te updaten. Berekening via z-score uit INTERGROWTH-21 mean+SD (Abramowitz-Stegun normCDF).
+- **Nieuwe `src/clinical/ig21.js` shared module** — IG-21 referentietabellen, Hadlock-1991 EFW reference + Hadlock-IV formule + percentile/badge helpers. `IntergrowthChart` gebruikt nu dezelfde data (was eerder gedupliceerd).
+- MeasurementCard krijgt unit-suffix (mm) en chip-style percentiel-badge ipv kleine tekst.
 - Doppler-sectie is nu standaard zichtbaar onder Biometry (was eerst gated achter Save & Analyze + lelijk inline-styled).
 - `MeasurementCard` en `DopplerInput` herschreven met Tailwind-only, geen inline styles meer.
 - `GuidelineModal` herschreven met Tailwind, klikbaar overlay, OK-knop in app-stijl.

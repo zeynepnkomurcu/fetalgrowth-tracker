@@ -7,13 +7,11 @@ import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
 import LanguageSwitch from "../components/LanguageSwitch";
-
-const percentileTable = {
-  AC:  { 28: [80, 90, 100, 110, 120],  29: [85, 95, 105, 115, 125] },
-  BPD: { 28: [60, 70, 80, 90, 100],     29: [65, 75, 85, 95, 105] },
-  HC:  { 28: [240, 250, 260, 270, 280], 29: [245, 255, 265, 275, 285] },
-  FL:  { 28: [50, 55, 60, 65, 70],      29: [52, 57, 62, 67, 72] },
-};
+import {
+  getPercentile,
+  percentileBadge,
+  calcEfwHadlock,
+} from "../clinical/ig21";
 
 const emptyMeasurements = { AC: "", BPD: "", HC: "", FL: "", EFW: "" };
 const emptyDoppler = { uaPi: "", mcaPi: "", dvPiv: "", edfState: null };
@@ -29,22 +27,6 @@ function calcGaFromLmp(lmp) {
     weeks: Math.floor(diffDays / 7),
     days: diffDays % 7,
   };
-}
-
-function calcEfwHadlock({ ac, bpd, hc, fl }) {
-  if (!ac || !bpd || !hc || !fl) return null;
-  // Hadlock IV: input in cm (UI inputs zijn in mm → /10)
-  const acCm = ac / 10;
-  const bpdCm = bpd / 10;
-  const hcCm = hc / 10;
-  const flCm = fl / 10;
-  const log10Efw =
-    1.326
-    - 0.00326 * acCm * flCm
-    + 0.0107  * hcCm
-    + 0.0438  * acCm
-    + 0.158   * flCm;
-  return Math.round(Math.pow(10, log10Efw));
 }
 
 export default function Dashboard() {
@@ -85,17 +67,15 @@ export default function Dashboard() {
     setDoppler((prev) => ({ ...prev, [key]: value }));
   };
 
-  const calculatePercentile = (type, value, w) => {
-    const weekTable = percentileTable[type]?.[w];
-    if (!weekTable) return null;
-    const [p3, p10, p50, p90, p97] = weekTable;
-    if (value < p3)   return { label: "<3p", color: "text-red-500" };
-    if (value < p10)  return { label: "10p", color: "text-red-500" };
-    if (value < p50)  return { label: "25p", color: "text-yellow-500" };
-    if (value <= p90) return { label: "50p", color: "text-green-500" };
-    if (value <= p97) return { label: "90p", color: "text-orange-500" };
-    return { label: ">97p", color: "text-orange-500" };
-  };
+  // Live-derived EFW (Hadlock IV) and EFW percentile, updated as user types.
+  const liveEfw = calcEfwHadlock({
+    ac:  Number(measurements.AC)  || null,
+    bpd: Number(measurements.BPD) || null,
+    hc:  Number(measurements.HC)  || null,
+    fl:  Number(measurements.FL)  || null,
+  });
+  const liveEfwPct = liveEfw ? getPercentile("EFW", ga.weeks, liveEfw) : null;
+  const liveEfwBadge = percentileBadge(liveEfwPct);
 
   const handleSave = () => {
     if (selectedPatientId === null) return;
@@ -286,7 +266,7 @@ export default function Dashboard() {
                           }
                           percentile={
                             measurements[field]
-                              ? calculatePercentile(field, Number(measurements[field]), ga.weeks)
+                              ? percentileBadge(getPercentile(field, ga.weeks, measurements[field]))
                               : null
                           }
                         />
@@ -391,9 +371,17 @@ export default function Dashboard() {
               <div className="space-y-4">
                 <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-5 text-white shadow-lg">
                   <p className="text-xs opacity-80 uppercase tracking-wide">{t("dash.efw")}</p>
-                  <h2 className="text-4xl font-bold mt-2">
-                    {measurements.EFW ? `${measurements.EFW} g` : "-"}
-                  </h2>
+                  <div className="flex items-baseline justify-between gap-2 mt-2">
+                    <h2 className="text-4xl font-bold tabular-nums">
+                      {liveEfw ? `${liveEfw}` : "-"}
+                      {liveEfw && <span className="text-lg font-medium opacity-80 ml-1">g</span>}
+                    </h2>
+                    {liveEfwBadge && (
+                      <span className="bg-white/25 backdrop-blur px-3 py-1.5 rounded-lg font-bold text-sm tabular-nums">
+                        {liveEfwBadge.label}
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-2 text-cyan-100 text-xs">{t("dash.efwHint")}</p>
                 </div>
                 <div className="bg-white rounded-2xl p-5 shadow-sm">
