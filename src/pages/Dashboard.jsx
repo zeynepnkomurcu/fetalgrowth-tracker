@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { supabase } from "../lib/supabase";
+import { LogOut, User }
+  from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -41,11 +45,33 @@ function calcGaFromLmp(lmp) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+useEffect(() => {
+
+  const fetchPatients = async () => {
+
+    const { data, error } =
+      await supabase
+        .from("patients")
+        .select("*")
+        .order("created_at", {
+          ascending: false,
+        });
+
+    if (!error && data) {
+      setPatients(data);
+    }
+  };
+
+  fetchPatients();
+
+}, []);
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+};
+
   const { t, i18n } = useTranslation();
 
-  const [patients, setPatients] = useState(
-    () => JSON.parse(localStorage.getItem("patients")) || []
-  );
+const [patients, setPatients] = useState([]);
 
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [measurements, setMeasurements] = useState(emptyMeasurements);
@@ -79,7 +105,6 @@ export default function Dashboard() {
     };
     const updated = [...patients, newPatient];
     setPatients(updated);
-    localStorage.setItem("patients", JSON.stringify(updated));
     setSelectedPatientId(updated.length - 1);
     setMeasurements(emptyMeasurements);
     setDoppler(emptyDoppler);
@@ -169,7 +194,6 @@ export default function Dashboard() {
     updatedPatients[selectedPatientId] = patient;
 
     setPatients(updatedPatients);
-    localStorage.setItem("patients", JSON.stringify(updatedPatients));
 
     setMeasurements({ ...emptyMeasurements, EFW: efw || "" });
     setDoppler(emptyDoppler);
@@ -192,7 +216,6 @@ export default function Dashboard() {
     patient.visits = (patient.visits || []).filter((v) => v.id !== visitId);
     updatedPatients[selectedPatientId] = patient;
     setPatients(updatedPatients);
-    localStorage.setItem("patients", JSON.stringify(updatedPatients));
   };
 
   // ── shared classNames ─────────────────────────────────────────────
@@ -231,6 +254,51 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+
+  <div className="
+    hidden sm:flex
+    items-center
+    gap-2
+    px-3
+    h-10
+    rounded-lg
+    border
+    border-slate-200
+    bg-white
+    text-slate-600
+    text-sm
+  ">
+    <User className="w-4 h-4" />
+    Account
+  </div>
+
+  <button
+    onClick={handleLogout}
+    className="
+      inline-flex
+      items-center
+      justify-center
+      gap-2
+      h-10
+      px-4
+      rounded-lg
+      border
+      border-slate-200
+      bg-white
+      text-slate-700
+      hover:bg-slate-50
+      transition-colors
+      text-sm
+      font-medium
+    "
+  >
+    <LogOut className="w-4 h-4" />
+    Logout
+  </button>
+
+</div>
+
             <button onClick={() => setDummyOpen(true)} className={btnSecondary}>
               <FlaskConical className="w-4 h-4" />
               {t("common.addDummy")}

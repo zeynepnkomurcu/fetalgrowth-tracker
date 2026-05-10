@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 
+import { supabase } from "../lib/supabase";
+
 import LanguageSwitch from "../components/LanguageSwitch";
 
 export default function NewPatient() {
@@ -29,7 +31,7 @@ export default function NewPatient() {
     return `FGR-${String(nextNumber).padStart(4, "0")}`;
   };
 
-  const handleSave = () => {
+const handleSave = async () => {
     if (!form.name || !form.surname || !form.tc || !form.lmp) {
       alert(t("newPatient.fillAll"));
       return;
@@ -51,9 +53,35 @@ export default function NewPatient() {
       createdAt: new Date().toISOString(),
       visits: [],
     };
-    patients.push(newPatient);
-    localStorage.setItem("patients", JSON.stringify(patients));
-    navigate("/");
+const { error } = await supabase
+  .from("patients")
+  .insert([
+    {
+      id: newPatient.id,
+      name: newPatient.name,
+      surname: newPatient.surname,
+      tc: newPatient.tc,
+      lmp: newPatient.lmp,
+      protocol_number: newPatient.protocolNumber,
+      research_id: newPatient.researchId,
+      visits: [],
+    },
+  ]);
+
+if (error) {
+  console.error("SUPABASE ERROR:", error);
+  alert(error.message);
+  return;
+}
+
+patients.push(newPatient);
+
+localStorage.setItem(
+  "patients",
+  JSON.stringify(patients)
+);
+
+navigate("/");
   };
 
   const inputClass =
