@@ -78,7 +78,8 @@ function useIsMobile() {
 
 function CustomTooltip({ active, payload, label, unit, t }) {
   if (!active || !payload || !payload.length) return null;
-  const order = { actual: 0, p50: 1, p10: 2, p90: 3, p3: 4, p97: 5 };
+  // Mirror the chart's vertical order: P97 top → P3 bottom, patient last.
+  const order = { p97: 0, p90: 1, p50: 2, p10: 3, p3: 4, actual: 5 };
   const sorted = [...payload]
     .filter((e) => e.dataKey !== "band" && e.value != null)
     .sort((a, b) => (order[a.dataKey] ?? 99) - (order[b.dataKey] ?? 99));
