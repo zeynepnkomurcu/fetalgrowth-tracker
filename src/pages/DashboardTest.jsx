@@ -262,7 +262,7 @@ export default function Dashboard() {
                   src="/empty-state-fetus.png"
                   alt=""
                   aria-hidden="true"
-                  className="w-full max-w-sm h-auto mb-4 select-none pointer-events-none"
+                  className="w-full max-w-lg h-auto mb-6 select-none pointer-events-none"
                 />
                 <h2 className="text-xl font-bold text-slate-800 mb-1">
                   {t("dash.selectPatient")}
