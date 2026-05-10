@@ -54,24 +54,22 @@ export default function NewPatient() {
     "w-full h-11 px-3 rounded-lg border border-[--color-border-strong] bg-[--color-surface] text-[--color-text] placeholder:text-[--color-text-subtle] focus:outline-none focus:ring-2 focus:ring-[--color-text] focus:border-transparent transition-all";
 
   return (
-    <div className="min-h-screen bg-[--color-bg] text-[--color-text] p-4 md:p-6">
+    <div className="min-h-screen bg-[--color-bg] text-[--color-text] p-4 md:p-6 relative">
 
-      <div className="max-w-xl mx-auto">
+      {/* Floating top-right controls */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10 flex items-center gap-2">
+        <ThemeSwitch />
+        <LanguageSwitch />
+      </div>
 
-        {/* Top toolbar: back + theme/lang */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => navigate("/")}
-            className="inline-flex items-center gap-1.5 text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t("common.back")}
-          </button>
-          <div className="flex items-center gap-2">
-            <ThemeSwitch />
-            <LanguageSwitch />
-          </div>
-        </div>
+      <div className="max-w-xl mx-auto pt-12">
+        <button
+          onClick={() => navigate("/")}
+          className="inline-flex items-center gap-1.5 text-sm text-[--color-text-muted] hover:text-[--color-text] transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {t("common.back")}
+        </button>
 
         <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-8 space-y-5">
           <div>
