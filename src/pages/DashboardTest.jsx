@@ -205,12 +205,20 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6 relative">
 
-      {/* Floating language switch — top-right corner of the page on all sizes */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+      {/* Floating language switch — visible on desktop always, on mobile only on the empty state */}
+      <div
+        className={`absolute top-4 right-4 md:top-6 md:right-6 z-20 ${
+          selectedPatient ? "hidden md:block" : ""
+        }`}
+      >
         <LanguageSwitch />
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-4 pt-12 md:pt-0">
+      <div
+        className={`max-w-7xl mx-auto space-y-4 md:pt-0 ${
+          selectedPatient ? "pt-0" : "pt-12"
+        }`}
+      >
 
         {/* Header */}
         <div className={`${card} px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 flex-wrap`}>
