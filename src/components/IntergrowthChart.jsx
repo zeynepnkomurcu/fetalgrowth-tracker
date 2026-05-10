@@ -75,51 +75,63 @@ export default function IntergrowthChart({ visits, parameter = "AC" }) {
   const mergedData = [...referenceData, ...visitPoints].sort((a, b) => a.ga - b.ga);
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-base font-bold text-slate-800">
+        <h3 className="text-sm font-semibold text-slate-800">
           {t("chart.title", { param: parameter })}
-        </h2>
-        <span className="text-xs text-slate-500">{t(`chart.${parameter}`)} ({meta.unit})</span>
+        </h3>
+        <span className="text-xs text-slate-400">{t(`chart.${parameter}`)} ({meta.unit})</span>
       </div>
 
       <div className="h-[420px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={mergedData}>
-            <CartesianGrid strokeDasharray="3 3" />
+          <LineChart data={mergedData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
+            <CartesianGrid stroke="#f1f5f9" strokeDasharray="0" vertical={false} />
             <XAxis
               dataKey="ga"
               type="number"
               domain={[20, 40]}
               ticks={[20, 24, 28, 32, 36, 40]}
               tickFormatter={(v) => `${Math.round(v)}w`}
+              stroke="#94a3b8"
+              tick={{ fontSize: 11, fill: "#94a3b8" }}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis
               domain={meta.domain}
-              label={{
-                value: `${parameter} (${meta.unit})`,
-                angle: -90,
-                position: "insideLeft",
-              }}
+              stroke="#94a3b8"
+              tick={{ fontSize: 11, fill: "#94a3b8" }}
+              axisLine={false}
+              tickLine={false}
+              width={48}
             />
             <Tooltip
+              contentStyle={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "8px",
+                fontSize: "12px",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+              }}
               itemSorter={(item) => {
                 const order = { p3: 5, p10: 4, p50: 3, p90: 2, p97: 1, actual: 0 };
                 return order[item.dataKey];
               }}
             />
-            <Line type="monotone" dataKey="p97" stroke="#ec4899" dot={false} />
-            <Line type="monotone" dataKey="p90" stroke="#8b5cf6" dot={false} />
-            <Line type="monotone" dataKey="p50" stroke="#06b6d4" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="p10" stroke="#f59e0b" dot={false} />
-            <Line type="monotone" dataKey="p3"  stroke="#ef4444" dot={false} />
+            <Line type="monotone" dataKey="p97" stroke="#ef4444" strokeWidth={1} strokeDasharray="3 3" dot={false} />
+            <Line type="monotone" dataKey="p90" stroke="#f59e0b" strokeWidth={1} dot={false} />
+            <Line type="monotone" dataKey="p50" stroke="#134e4a" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="p10" stroke="#f59e0b" strokeWidth={1} dot={false} />
+            <Line type="monotone" dataKey="p3"  stroke="#ef4444" strokeWidth={1} strokeDasharray="3 3" dot={false} />
             <Line
               type="monotone"
               dataKey="actual"
-              stroke="#111827"
-              strokeWidth={3}
+              stroke="#0f172a"
+              strokeWidth={2.5}
               connectNulls
-              dot={{ r: 6, strokeWidth: 2, fill: "#111827" }}
+              dot={{ r: 5, strokeWidth: 2, fill: "#0f172a", stroke: "#ffffff" }}
+              activeDot={{ r: 7, strokeWidth: 2, stroke: "#ffffff" }}
             />
           </LineChart>
         </ResponsiveContainer>
