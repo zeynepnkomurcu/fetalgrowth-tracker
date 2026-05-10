@@ -12,12 +12,13 @@ export default function DopplerInput({ values, onChange }) {
   const fields = [
     { key: "uaPi",  label: "UA PI",  step: "0.01" },
     { key: "mcaPi", label: "MCA PI", step: "0.01" },
+    { key: "sd",    label: "S/D",    step: "0.01" },
     { key: "dvPiv", label: "DV PIV", step: "0.01" },
   ];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {fields.map((f) => (
           <div
             key={f.key}

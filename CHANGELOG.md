@@ -34,6 +34,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Browser-spinner pijltjes (▲▼) op number-inputs zijn globaal weggestyled in `index.css` — overbodig, namen visueel ruimte in en gaven nooit een goede UX voor decimale waarden.
 
 ### Added
+- **S/D ratio veld in Doppler** tussen MCA PI en DV PIV — Systolic/Diastolic ratio, klinisch standaard. Doppler-grid groeit van 3 naar 4 kolommen. Veld wordt mee opgeslagen in `visit.rawData.sd` en getoond in visit history.
+
+### Added
 - Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
 - "✓ Visit saved" toast verschijnt 2.5s na succesvolle save zodat duidelijk is dat het werkt.
 - GA wordt automatisch berekend uit LMP als `week`/`days` niet expliciet op patient zit.

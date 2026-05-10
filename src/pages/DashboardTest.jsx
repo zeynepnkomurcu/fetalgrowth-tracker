@@ -14,7 +14,7 @@ import {
 } from "../clinical/ig21";
 
 const emptyMeasurements = { AC: "", BPD: "", HC: "", FL: "", EFW: "" };
-const emptyDoppler = { uaPi: "", mcaPi: "", dvPiv: "", edfState: null };
+const emptyDoppler = { uaPi: "", mcaPi: "", sd: "", dvPiv: "", edfState: null };
 
 function calcGaFromLmp(lmp) {
   if (!lmp) return null;
@@ -113,6 +113,7 @@ export default function Dashboard() {
         fl:    fl    || undefined,
         uaPi:  Number(doppler.uaPi)  || undefined,
         mcaPi: Number(doppler.mcaPi) || undefined,
+        sd:    Number(doppler.sd)    || undefined,
         dvPiv: Number(doppler.dvPiv) || undefined,
         edfState: doppler.edfState || undefined,
       },
@@ -371,6 +372,7 @@ export default function Dashboard() {
                               <span>FL: <strong>{v.rawData?.fl ?? "-"}</strong></span>
                               <span>UA-PI: <strong>{v.rawData?.uaPi ?? "-"}</strong></span>
                               <span>MCA-PI: <strong>{v.rawData?.mcaPi ?? "-"}</strong></span>
+                              <span>S/D: <strong>{v.rawData?.sd ?? "-"}</strong></span>
                               <span>EDF: <strong>{v.rawData?.edfState ?? "-"}</strong></span>
                               <span className="font-semibold text-slate-800">
                                 EFW: <strong>{v.calculations?.efw ? `${v.calculations.efw} g` : "-"}</strong>
