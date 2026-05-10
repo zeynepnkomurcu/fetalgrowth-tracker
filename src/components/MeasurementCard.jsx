@@ -7,14 +7,14 @@ export default function MeasurementCard({
   unit = "mm",
 }) {
   return (
-    <div className="border border-slate-200 rounded-xl px-3 py-2.5 bg-white hover:border-slate-300 transition-colors">
+    <div className="border border-[--color-border] rounded-xl px-3 py-2.5 bg-[--color-surface] hover:border-[--color-border-strong] focus-within:border-[--color-text] focus-within:ring-1 focus-within:ring-[--color-text] transition-colors">
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+        <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[--color-text-subtle]">
           {title}
         </h3>
         {percentile && (
           <span
-            className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${percentile.color}`}
+            className={`px-1.5 py-0.5 rounded font-bold text-[10px] tabular ${percentile.color}`}
           >
             {percentile.label}
           </span>
@@ -33,9 +33,9 @@ export default function MeasurementCard({
           }}
           onWheel={(e) => e.currentTarget.blur()}
           placeholder={placeholder ?? "0"}
-          className="w-full border-0 px-0 py-0 text-base font-semibold text-slate-900 focus:outline-none focus:ring-0 bg-transparent tabular-nums"
+          className="w-full border-0 px-0 py-0 text-base font-semibold text-[--color-text] focus:outline-none focus:ring-0 bg-transparent tabular placeholder:text-[--color-text-subtle]"
         />
-        <span className="text-xs text-slate-400 select-none">{unit}</span>
+        <span className="text-[10px] text-[--color-text-subtle] select-none">{unit}</span>
       </div>
     </div>
   );

@@ -1,12 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {
+  Plus,
+  FlaskConical,
+  Baby,
+  X,
+  Check,
+  CalendarDays,
+} from "lucide-react";
 
 import MeasurementCard from "../components/MeasurementCard";
 import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
 import LanguageSwitch from "../components/LanguageSwitch";
+import ThemeSwitch from "../components/ThemeSwitch";
 import {
   getPercentile,
   percentileBadge,
@@ -97,7 +106,6 @@ export default function Dashboard() {
     setDoppler((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Live-derived EFW (Hadlock IV) and EFW percentile, updated as user types.
   const liveEfw = calcEfwHadlock({
     ac:  Number(measurements.AC)  || null,
     bpd: Number(measurements.BPD) || null,
@@ -124,7 +132,7 @@ export default function Dashboard() {
     const efw = calcEfwHadlock({ ac, bpd, hc, fl });
 
     const nowIso = new Date().toISOString();
-    const todayKey = nowIso.slice(0, 10); // YYYY-MM-DD
+    const todayKey = nowIso.slice(0, 10);
 
     const updatedPatients = [...patients];
     const patient = { ...updatedPatients[selectedPatientId] };
@@ -185,50 +193,55 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-6 relative">
+    <div className="min-h-screen bg-[--color-bg] text-[--color-text] p-4 md:p-6 relative">
 
-      {/* Floating language switch — top-right corner of the page */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
+      {/* Floating top-right controls */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10 flex items-center gap-2">
+        <ThemeSwitch />
         <LanguageSwitch />
       </div>
 
       <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between gap-4">
+        <header className="bg-[--color-surface] border border-[--color-border] rounded-2xl px-6 py-5 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">
+            <h1 className="text-2xl font-semibold tracking-tight">
               {t("app.title")}
             </h1>
-            <p className="mt-1 text-slate-500 text-sm">
+            <p className="mt-1 text-sm text-[--color-text-muted]">
               {t("app.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setDummyOpen(true)}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-sm transition-all"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-[--color-border] bg-[--color-surface] text-[--color-text-muted] hover:text-[--color-text] hover:bg-[--color-surface-muted] text-sm font-medium transition-colors"
             >
+              <FlaskConical className="w-4 h-4" />
               {t("common.addDummy")}
             </button>
             <button
               onClick={() => navigate("/new-patient")}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[--color-text] text-[--color-surface] hover:opacity-90 text-sm font-semibold transition-opacity"
             >
+              <Plus className="w-4 h-4" />
               {t("common.addPatient")}
             </button>
           </div>
-        </div>
+        </header>
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
           {/* Patients sidebar */}
-          <div className="bg-white rounded-2xl shadow-sm p-4 h-fit">
-            <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.patients")}</h2>
-            <div className="space-y-2">
+          <aside className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-4 h-fit">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle] mb-3 px-1">
+              {t("dash.patients")}
+            </h2>
+            <div className="space-y-1">
               {patients.length === 0 && (
-                <p className="text-slate-500 text-sm">{t("dash.noPatients")}</p>
+                <p className="text-sm text-[--color-text-subtle] px-1">{t("dash.noPatients")}</p>
               )}
               {patients.map((patient, index) => {
                 const isSelected = selectedPatientId === index;
@@ -236,35 +249,35 @@ export default function Dashboard() {
                   <button
                     key={index}
                     onClick={() => handleSelectPatient(index)}
-                    className={`w-full text-left p-3 rounded-xl transition-all ${
+                    className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
                       isSelected
-                        ? "bg-cyan-500 text-white shadow"
-                        : "border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50 text-slate-800"
+                        ? "bg-[--color-text] text-[--color-surface]"
+                        : "hover:bg-[--color-surface-muted] text-[--color-text]"
                     }`}
                   >
-                    <p className="font-semibold text-sm">
+                    <p className="font-medium text-sm">
                       {patient.name} {patient.surname}
                     </p>
-                    <p className={`text-xs mt-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
+                    <p className={`text-xs mt-0.5 tabular ${isSelected ? "opacity-70" : "text-[--color-text-subtle]"}`}>
                       {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
                     </p>
                   </button>
                 );
               })}
             </div>
-          </div>
+          </aside>
 
           {/* Conditional content */}
           {selectedPatient === null ? (
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center text-center min-h-[400px]">
-                <div className="w-14 h-14 bg-cyan-100 rounded-full flex items-center justify-center mb-3">
-                  <span className="text-2xl">👶</span>
+              <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[400px]">
+                <div className="w-12 h-12 rounded-full bg-[--color-surface-muted] flex items-center justify-center mb-4">
+                  <Baby className="w-6 h-6 text-[--color-text-muted]" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">
+                <h2 className="text-lg font-semibold mb-1">
                   {t("dash.selectPatient")}
                 </h2>
-                <p className="text-slate-500 max-w-md text-sm">
+                <p className="text-sm text-[--color-text-muted] max-w-md">
                   {patients.length === 0
                     ? t("dash.selectPatientHintEmpty")
                     : t("dash.selectPatientHint")}
@@ -274,26 +287,34 @@ export default function Dashboard() {
           ) : (
             <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-3 gap-4">
 
-              {/* Left: Biometry + Doppler + Curve + Visits */}
+              {/* Left column: Biometry + Doppler + Curve + Visits */}
               <div className="xl:col-span-2 space-y-4">
 
                 {/* Patient header */}
-                <div className="bg-white rounded-2xl shadow-sm p-4">
-                  <h2 className="text-xl font-bold text-slate-800">
+                <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl px-5 py-4">
+                  <h2 className="text-xl font-semibold tracking-tight">
                     {selectedPatient.name} {selectedPatient.surname || ""}
                   </h2>
-                  <p className="text-slate-500 text-sm mt-0.5">
-                    {t("dash.ga")}: {ga.weeks}w {ga.days}d
+                  <p className="text-sm text-[--color-text-muted] mt-1 flex items-center gap-2 flex-wrap">
+                    <span className="tabular">{t("dash.ga")}: {ga.weeks}w {ga.days}d</span>
                     {selectedPatient.lmp && (
-                      <span className="text-slate-400"> · {t("dash.lmp")}: {formatLongDate(selectedPatient.lmp, i18n.language)}</span>
+                      <>
+                        <span className="text-[--color-text-subtle]">·</span>
+                        <span className="inline-flex items-center gap-1 text-[--color-text-subtle]">
+                          <CalendarDays className="w-3.5 h-3.5" />
+                          {t("dash.lmp")} {formatLongDate(selectedPatient.lmp, i18n.language)}
+                        </span>
+                      </>
                     )}
                   </p>
                 </div>
 
-                {/* Biometry + Doppler */}
-                <div className="bg-white rounded-2xl shadow-sm p-5 space-y-5">
+                {/* Biometry + Doppler card */}
+                <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-5 space-y-5">
                   <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.biometry")}</h2>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle] mb-3">
+                      {t("dash.biometry")}
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {["BPD", "HC", "AC", "FL"].map((field) => (
                         <MeasurementCard
@@ -317,61 +338,54 @@ export default function Dashboard() {
                   </div>
 
                   {/* Inline EFW between Biometry and Doppler */}
-                  <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-xl px-4 py-3 text-white flex items-center justify-between gap-3 shadow-sm">
+                  <div className="rounded-xl px-4 py-3 flex items-center justify-between gap-3 bg-brand-500 text-white">
                     <div className="flex items-baseline gap-3 min-w-0">
-                      <span className="text-[11px] uppercase tracking-wide opacity-80 font-semibold">
+                      <span className="text-[10px] uppercase tracking-wider opacity-75 font-semibold">
                         {t("dash.efw")}
                       </span>
-                      <span className="text-2xl font-bold tabular-nums leading-none">
+                      <span className="text-2xl font-semibold tabular leading-none">
                         {liveEfw ? liveEfw : "—"}
-                        {liveEfw && <span className="text-sm font-medium opacity-80 ml-1">g</span>}
+                        {liveEfw && <span className="text-sm font-normal opacity-75 ml-1">g</span>}
                       </span>
                       {liveEfwBadge && (
-                        <span className="bg-white/25 backdrop-blur px-2 py-0.5 rounded-md font-bold text-xs tabular-nums">
+                        <span className="bg-white/20 backdrop-blur px-2 py-0.5 rounded font-semibold text-xs tabular">
                           {liveEfwBadge.label}
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-cyan-50 opacity-80 hidden sm:inline">
+                    <span className="text-[10px] opacity-75 hidden sm:inline tracking-wide">
                       {t("dash.efwHint")}
                     </span>
                   </div>
 
                   <div>
-                    <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.doppler")}</h2>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle] mb-3">
+                      {t("dash.doppler")}
+                    </h3>
                     <DopplerInput values={doppler} onChange={handleDopplerChange} />
                   </div>
 
-                  <div className="relative">
-                    <button
-                      onClick={handleSave}
-                      className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all shadow"
-                    >
-                      {t("dash.saveAnalyze")}
-                    </button>
-                    {savedToast && (
-                      <div className="absolute -top-12 left-0 right-0 bg-green-500 text-white text-sm font-semibold py-2 px-4 rounded-xl text-center shadow-lg animate-pulse">
-                        {savedToast === "updated"
-                          ? t("dash.visitUpdated")
-                          : t("dash.visitSaved")}
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    onClick={handleSave}
+                    className="w-full h-11 rounded-xl bg-[--color-text] text-[--color-surface] font-semibold text-sm hover:opacity-90 transition-opacity"
+                  >
+                    {t("dash.saveAnalyze")}
+                  </button>
                 </div>
 
-                {/* Growth Curve param tabs + chart */}
-                <div className="bg-white rounded-2xl shadow-sm p-3">
-                  <div className="flex gap-2 flex-wrap">
+                {/* Growth Curve param tabs */}
+                <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-2">
+                  <div className="flex gap-1">
                     {["BPD", "HC", "AC", "FL", "EFW"].map((p) => {
                       const active = chartParam === p;
                       return (
                         <button
                           key={p}
                           onClick={() => setChartParam(p)}
-                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                          className={`flex-1 h-9 rounded-lg text-sm font-semibold transition-colors ${
                             active
-                              ? "bg-cyan-500 text-white shadow"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                              ? "bg-[--color-text] text-[--color-surface]"
+                              : "text-[--color-text-muted] hover:bg-[--color-surface-muted]"
                           }`}
                         >
                           {p}
@@ -380,49 +394,50 @@ export default function Dashboard() {
                     })}
                   </div>
                 </div>
+
                 <IntergrowthChart visits={visits} parameter={chartParam} />
 
                 {/* Visit history */}
                 {visits.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-sm p-5">
-                    <h2 className="text-base font-bold text-slate-800 mb-3">
-                      {t("dash.visitHistory")} ({visits.length})
-                    </h2>
+                  <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-5">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle] mb-3">
+                      {t("dash.visitHistory")} · {visits.length}
+                    </h3>
                     <div className="space-y-2">
                       {[...visits].reverse().map((v) => (
                         <div
                           key={v.id}
-                          className="border border-slate-200 rounded-xl p-3 flex items-start justify-between"
+                          className="border border-[--color-border] rounded-xl px-4 py-3 flex items-start justify-between hover:bg-[--color-surface-muted] transition-colors"
                         >
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-3">
-                              <span className="font-bold text-slate-800 text-sm">
+                              <span className="font-semibold text-sm tabular">
                                 {v.gaWeeks}w {v.gaDays}d
                               </span>
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-[--color-text-subtle]">
                                 {formatLongDate(v.date, i18n.language)}
                               </span>
                             </div>
-                            <div className="grid grid-cols-4 gap-2 text-xs text-slate-600 mt-2">
-                              <span>BPD: <strong>{v.rawData?.bpd ?? "-"}</strong></span>
-                              <span>HC: <strong>{v.rawData?.hc ?? "-"}</strong></span>
-                              <span>AC: <strong>{v.rawData?.ac ?? "-"}</strong></span>
-                              <span>FL: <strong>{v.rawData?.fl ?? "-"}</strong></span>
-                              <span>UA-PI: <strong>{v.rawData?.uaPi ?? "-"}</strong></span>
-                              <span>MCA-PI: <strong>{v.rawData?.mcaPi ?? "-"}</strong></span>
-                              <span>UA S/D: <strong>{v.rawData?.sd ?? "-"}</strong></span>
-                              <span>EDF: <strong>{v.rawData?.edfState ?? "-"}</strong></span>
-                              <span className="font-semibold text-slate-800">
-                                EFW: <strong>{v.calculations?.efw ? `${v.calculations.efw} g` : "-"}</strong>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-[--color-text-muted] mt-2 tabular">
+                              <span>BPD <strong className="text-[--color-text]">{v.rawData?.bpd ?? "—"}</strong></span>
+                              <span>HC <strong className="text-[--color-text]">{v.rawData?.hc ?? "—"}</strong></span>
+                              <span>AC <strong className="text-[--color-text]">{v.rawData?.ac ?? "—"}</strong></span>
+                              <span>FL <strong className="text-[--color-text]">{v.rawData?.fl ?? "—"}</strong></span>
+                              <span>UA-PI <strong className="text-[--color-text]">{v.rawData?.uaPi ?? "—"}</strong></span>
+                              <span>MCA-PI <strong className="text-[--color-text]">{v.rawData?.mcaPi ?? "—"}</strong></span>
+                              <span>UA S/D <strong className="text-[--color-text]">{v.rawData?.sd ?? "—"}</strong></span>
+                              <span>EDF <strong className="text-[--color-text]">{v.rawData?.edfState ?? "—"}</strong></span>
+                              <span className="col-span-2 sm:col-span-4">
+                                EFW <strong className="text-[--color-text]">{v.calculations?.efw ? `${v.calculations.efw} g` : "—"}</strong>
                               </span>
                             </div>
                           </div>
                           <button
                             onClick={() => handleDeleteVisit(v.id)}
-                            className="ml-2 text-slate-400 hover:text-red-500 text-lg leading-none"
+                            className="ml-2 p-1.5 rounded-md text-[--color-text-subtle] hover:text-[--color-pct-warn] hover:bg-[--color-surface] transition-colors"
                             title={t("dash.deleteVisit")}
                           >
-                            ×
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
@@ -431,26 +446,28 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Right: Summary */}
-              <div className="space-y-4">
-                <div className="bg-white rounded-2xl p-5 shadow-sm">
-                  <h2 className="text-base font-bold text-slate-800 mb-3">{t("dash.summary")}</h2>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">{t("dash.visits")}</span>
-                      <span className="font-bold text-slate-800 text-sm">{visits.length}</span>
+              {/* Right column: Summary */}
+              <aside className="space-y-4">
+                <div className="bg-[--color-surface] border border-[--color-border] rounded-2xl p-5">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle] mb-3">
+                    {t("dash.summary")}
+                  </h3>
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center py-2 border-b border-[--color-border]">
+                      <span className="text-sm text-[--color-text-muted]">{t("dash.visits")}</span>
+                      <span className="font-semibold text-sm tabular">{visits.length}</span>
                     </div>
-                    <div className="flex justify-between items-center bg-slate-100 rounded-xl p-3">
-                      <span className="text-slate-600 text-sm">{t("dash.lastGa")}</span>
-                      <span className="font-bold text-slate-800 text-sm">
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-[--color-text-muted]">{t("dash.lastGa")}</span>
+                      <span className="font-semibold text-sm tabular">
                         {visits.length > 0
                           ? `${visits[visits.length - 1].gaWeeks}w ${visits[visits.length - 1].gaDays}d`
-                          : "-"}
+                          : "—"}
                       </span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </aside>
             </div>
           )}
         </div>
@@ -461,22 +478,33 @@ export default function Dashboard() {
           onClose={() => setModalVisible(false)}
         />
 
+        {/* Save toast — bottom-right floating */}
+        {savedToast && (
+          <div className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 bg-[--color-text] text-[--color-surface] px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium toast-in">
+            <Check className="w-4 h-4 text-brand-400" />
+            {savedToast === "updated"
+              ? t("dash.visitUpdated")
+              : t("dash.visitSaved")}
+          </div>
+        )}
+
+        {/* Dummy patient modal */}
         {dummyOpen && (
           <div
             onClick={() => setDummyOpen(false)}
-            className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4"
+              className="bg-[--color-surface] border border-[--color-border] rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4"
             >
               <div>
-                <h3 className="text-lg font-bold text-slate-800">{t("dummy.title")}</h3>
-                <p className="text-slate-500 text-sm mt-1">{t("dummy.subtitle")}</p>
+                <h3 className="text-lg font-semibold tracking-tight">{t("dummy.title")}</h3>
+                <p className="text-sm text-[--color-text-muted] mt-1">{t("dummy.subtitle")}</p>
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-semibold text-slate-700">
+                <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-[--color-text-subtle]">
                   {t("newPatient.lmpLabel")}
                 </label>
                 <input
@@ -484,21 +512,21 @@ export default function Dashboard() {
                   autoFocus
                   value={dummyLmp}
                   onChange={(e) => setDummyLmp(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full h-11 px-3 rounded-lg border border-[--color-border-strong] bg-[--color-surface] text-[--color-text] focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-2">
                 <button
                   onClick={() => setDummyOpen(false)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl transition-all"
+                  className="flex-1 h-10 rounded-lg border border-[--color-border] text-[--color-text-muted] hover:bg-[--color-surface-muted] font-medium text-sm transition-colors"
                 >
                   {t("common.cancel")}
                 </button>
                 <button
                   onClick={handleCreateDummy}
                   disabled={!dummyLmp}
-                  className="flex-1 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl transition-all"
+                  className="flex-1 h-10 rounded-lg bg-[--color-text] text-[--color-surface] disabled:bg-[--color-border-strong] disabled:cursor-not-allowed font-semibold text-sm hover:opacity-90 transition-opacity"
                 >
                   {t("dummy.create")}
                 </button>

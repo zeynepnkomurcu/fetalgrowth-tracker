@@ -86,13 +86,19 @@ export function getPercentile(param, gaWeeks, value) {
 }
 
 // Returns Tailwind classes for a percentile band — used as a coloured chip.
+// Tuned for both light and dark mode.
 export function percentileBadge(p) {
   if (p == null) return null;
   let color;
-  if (p < 3 || p > 97)        color = "bg-red-100 text-red-700 ring-1 ring-red-200";
-  else if (p < 10 || p > 90)  color = "bg-amber-100 text-amber-700 ring-1 ring-amber-200";
-  else if (p < 25 || p > 75)  color = "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200";
-  else                        color = "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200";
+  if (p < 3 || p > 97) {
+    color = "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 ring-1 ring-red-200/60 dark:ring-red-900/60";
+  } else if (p < 10 || p > 90) {
+    color = "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 ring-1 ring-amber-200/60 dark:ring-amber-900/60";
+  } else if (p < 25 || p > 75) {
+    color = "bg-yellow-50 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-300 ring-1 ring-yellow-200/60 dark:ring-yellow-900/60";
+  } else {
+    color = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 ring-1 ring-emerald-200/60 dark:ring-emerald-900/60";
+  }
   return { color, label: `P${p}` };
 }
 
