@@ -7,7 +7,6 @@ import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
 import LanguageSwitch from "../components/LanguageSwitch";
-import MedicalScanIcon from "../components/MedicalScanIcon";
 import {
   getPercentile,
   percentileBadge,
@@ -259,7 +258,12 @@ export default function Dashboard() {
           {selectedPatient === null ? (
             <div className="lg:col-span-3">
               <div className="bg-white rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center text-center min-h-[400px]">
-                <MedicalScanIcon className="w-24 h-auto text-[#134e4a] mb-4" />
+                <img
+                  src="/empty-state-fetus.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full max-w-sm h-auto mb-4 select-none pointer-events-none"
+                />
                 <h2 className="text-xl font-bold text-slate-800 mb-1">
                   {t("dash.selectPatient")}
                 </h2>
