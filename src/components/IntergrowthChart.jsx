@@ -108,13 +108,13 @@ export default function IntergrowthChart({ visits, parameter = "AC" }) {
                 return order[item.dataKey];
               }}
             />
-            <Line type="monotone" dataKey="p97" stroke="#ec4899" dot={false} />
-            <Line type="monotone" dataKey="p90" stroke="#8b5cf6" dot={false} />
-            <Line type="monotone" dataKey="p50" stroke="#06b6d4" dot={false} />
-            <Line type="linear"   dataKey="p10" stroke="#f59e0b" dot={false} />
-            <Line type="linear"   dataKey="p3"  stroke="#ef4444" dot={false} />
+            <Line type="linear" dataKey="p97" stroke="#ec4899" dot={false} />
+            <Line type="linear" dataKey="p90" stroke="#8b5cf6" dot={false} />
+            <Line type="linear" dataKey="p50" stroke="#06b6d4" strokeWidth={2} dot={false} />
+            <Line type="linear" dataKey="p10" stroke="#f59e0b" dot={false} />
+            <Line type="linear" dataKey="p3"  stroke="#ef4444" dot={false} />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="actual"
               stroke="#111827"
               strokeWidth={3}

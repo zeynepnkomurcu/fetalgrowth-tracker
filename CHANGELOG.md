@@ -36,6 +36,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 ### Added
 - **S/D ratio veld in Doppler** tussen MCA PI en DV PIV — Systolic/Diastolic ratio, klinisch standaard. Doppler-grid groeit van 3 naar 4 kolommen. Veld wordt mee opgeslagen in `visit.rawData.sd` en getoond in visit history.
 
+### Changed
+- Growth-curve percentile-lijnen gebruiken nu **linear interpolatie** ipv `monotone` cubic spline. De afwisselende +2/+3 mm sprongen tussen weken in de IG-21 tabel veroorzaakten zichtbare golfjes in de smooth-spline; rechte segmenten tussen week-ankers zijn klinisch correcter en visueel rustiger. P50-lijn iets dikker (strokeWidth 2) voor extra leesbaarheid.
+
 ### Added
 - Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
 - "✓ Visit saved" toast verschijnt 2.5s na succesvolle save zodat duidelijk is dat het werkt.
