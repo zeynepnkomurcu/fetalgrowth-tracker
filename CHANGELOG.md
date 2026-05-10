@@ -15,6 +15,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 - Doppler-sectie is nu standaard zichtbaar onder Biometry (was eerst gated achter Save & Analyze + lelijk inline-styled).
 - `MeasurementCard` en `DopplerInput` herschreven met Tailwind-only, geen inline styles meer.
 - `GuidelineModal` herschreven met Tailwind, klikbaar overlay, OK-knop in app-stijl.
+- **Max 1 visit per patient per dag** — een tweede save op dezelfde dag overschrijft de bestaande visit van die dag (zelfde visit-id, nieuwe waarden). Toast meldt "updated" ipv "saved" zodat duidelijk is dat een overwrite is gebeurd.
 
 ### Fixed
 - Save & Analyze slaat de visit nu **echt op** (in `localStorage` onder `patient.visits`) en de nieuwe meting verschijnt direct als zwarte dot op de AC growth curve.

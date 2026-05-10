@@ -110,9 +110,17 @@ export default function Dashboard() {
 
     const efw = calcEfwHadlock({ ac, bpd, hc, fl });
 
+    const nowIso = new Date().toISOString();
+    const todayKey = nowIso.slice(0, 10); // YYYY-MM-DD
+
+    const updatedPatients = [...patients];
+    const patient = { ...updatedPatients[selectedPatientId] };
+    const existingVisits = patient.visits || [];
+    const existingToday = existingVisits.find((v) => (v.date || "").slice(0, 10) === todayKey);
+
     const visit = {
-      id: crypto.randomUUID(),
-      date: new Date().toISOString(),
+      id: existingToday?.id || crypto.randomUUID(),
+      date: nowIso,
       gaWeeks: ga.weeks,
       gaDays: ga.days,
       rawData: {
@@ -130,9 +138,9 @@ export default function Dashboard() {
       },
     };
 
-    const updatedPatients = [...patients];
-    const patient = { ...updatedPatients[selectedPatientId] };
-    patient.visits = [...(patient.visits || []), visit];
+    patient.visits = existingToday
+      ? existingVisits.map((v) => (v.id === existingToday.id ? visit : v))
+      : [...existingVisits, visit];
     updatedPatients[selectedPatientId] = patient;
 
     setPatients(updatedPatients);
@@ -141,7 +149,7 @@ export default function Dashboard() {
     setMeasurements({ ...emptyMeasurements, EFW: efw || "" });
     setDoppler(emptyDoppler);
 
-    setSavedToast(true);
+    setSavedToast(existingToday ? "updated" : "saved");
     setTimeout(() => setSavedToast(false), 2500);
 
     const AC_10th = 125;
@@ -296,7 +304,9 @@ export default function Dashboard() {
                     </button>
                     {savedToast && (
                       <div className="absolute -top-12 left-0 right-0 bg-green-500 text-white text-sm font-semibold py-2 px-4 rounded-xl text-center shadow-lg animate-pulse">
-                        ✓ Visit saved — added to growth curve
+                        {savedToast === "updated"
+                          ? "✓ Today's visit updated — same-day overwrite"
+                          : "✓ Visit saved — added to growth curve"}
                       </div>
                     )}
                   </div>
