@@ -4,48 +4,52 @@
 // serial ultrasound measurements: the Fetal Growth Longitudinal Study of the
 // INTERGROWTH-21st Project. Lancet 2014;384:869-79.
 //
-// Eerdere tabel was Snijders-Nicolaides 1994 standaard (gaf AC@21w P50 = 158 mm).
-// Vervangen door INTERGROWTH-21 waarden (AC@21w P50 = 150 mm) — aansluitend bij
-// ISUOG Practice Guideline (ISUOG 2019) en moderne klinische praktijk.
+// Waarden hier komen uit een quadratische fit door drie INTERGROWTH-21 ankers
+// (20w, 30w, 40w) per parameter, op 1 decimaal afgerond. Reden: ronde-mm waarden
+// gaven afwisselende +2/+3 sprongen tussen weken, zichtbaar als hoeken in de
+// curve. Quadratische fit geeft vloeiend afnemende slopes per week.
 //
-// Sanity-check: AC=150 mm @ 21+0w → z = (150-150)/11 = 0 → P50.
+// Anker-ankers (P50, mm) per parameter:
+//   BPD: 47.0 / 74.0 / 91.0    →  fit:  -37.000 + 5.200·w - 0.0500·w²
+//   HC : 175.0 / 278.0 / 338.0 →  fit: -160.000 + 21.050·w - 0.2150·w²
+//   AC : 140.0 / 238.0 / 322.0 →  fit:  -98.000 + 13.300·w - 0.0700·w²
+//   FL : 32.0 / 57.0 / 73.0    →  fit:  -45.000 + 4.750·w - 0.0450·w²
 //
-// SD's afgeleid uit gepubliceerde Z-score equations (CV ≈ 4-5% voor BPD/HC/FL,
-// 6-7% voor AC). Waarden in deze tabel zijn op hele mm afgerond — voor
-// publicatie/clinical-grade gebruik raadpleeg de officiële INTERGROWTH-21
-// equations of de TOOLS-app van het INTERGROWTH-consortium.
+// SD's lineair tussen 20w en 40w ankers (CV ≈ 4-5% voor BPD/HC/FL, 6-7% voor AC).
+//
+// Sanity-check: AC=150 mm @ 21+0w → m=150.4, sd=11.6 → z=-0.034 → P49 ≈ P50.
 export const IG21 = {
   BPD: {
-    20:{m:47,sd:2.5},  21:{m:50,sd:2.6},  22:{m:52,sd:2.7},  23:{m:55,sd:2.8},
-    24:{m:58,sd:2.9},  25:{m:61,sd:3.0},  26:{m:64,sd:3.1},  27:{m:66,sd:3.2},
-    28:{m:69,sd:3.3},  29:{m:71,sd:3.4},  30:{m:74,sd:3.5},  31:{m:76,sd:3.6},
-    32:{m:78,sd:3.7},  33:{m:80,sd:3.8},  34:{m:82,sd:3.9},  35:{m:84,sd:4.0},
-    36:{m:86,sd:4.1},  37:{m:87,sd:4.2},  38:{m:89,sd:4.3},  39:{m:90,sd:4.4},
-    40:{m:91,sd:4.5},
+    20:{m:47.0,sd:2.5},  21:{m:50.2,sd:2.6},  22:{m:53.2,sd:2.7},  23:{m:56.2,sd:2.8},
+    24:{m:59.0,sd:2.9},  25:{m:61.8,sd:3.0},  26:{m:64.4,sd:3.1},  27:{m:67.0,sd:3.2},
+    28:{m:69.4,sd:3.3},  29:{m:71.8,sd:3.4},  30:{m:74.0,sd:3.5},  31:{m:76.2,sd:3.6},
+    32:{m:78.2,sd:3.7},  33:{m:80.2,sd:3.8},  34:{m:82.0,sd:3.9},  35:{m:83.8,sd:4.0},
+    36:{m:85.4,sd:4.1},  37:{m:87.0,sd:4.2},  38:{m:88.4,sd:4.3},  39:{m:89.8,sd:4.4},
+    40:{m:91.0,sd:4.5},
   },
   HC: {
-    20:{m:175,sd:8},   21:{m:187,sd:9},   22:{m:198,sd:9},   23:{m:209,sd:10},
-    24:{m:220,sd:10},  25:{m:230,sd:11},  26:{m:240,sd:11},  27:{m:250,sd:12},
-    28:{m:260,sd:12},  29:{m:269,sd:13},  30:{m:278,sd:13},  31:{m:286,sd:14},
-    32:{m:294,sd:14},  33:{m:301,sd:15},  34:{m:308,sd:15},  35:{m:314,sd:16},
-    36:{m:320,sd:16},  37:{m:325,sd:17},  38:{m:330,sd:17},  39:{m:334,sd:18},
-    40:{m:338,sd:18},
+    20:{m:175.0,sd:8.0}, 21:{m:187.2,sd:8.5}, 22:{m:199.0,sd:9.0}, 23:{m:210.4,sd:9.5},
+    24:{m:221.4,sd:10.0},25:{m:231.9,sd:10.5},26:{m:242.0,sd:11.0},27:{m:251.6,sd:11.5},
+    28:{m:260.8,sd:12.0},29:{m:269.6,sd:12.5},30:{m:278.0,sd:13.0},31:{m:285.9,sd:13.5},
+    32:{m:293.4,sd:14.0},33:{m:300.5,sd:14.5},34:{m:307.2,sd:15.0},35:{m:313.4,sd:15.5},
+    36:{m:319.2,sd:16.0},37:{m:324.5,sd:16.5},38:{m:329.4,sd:17.0},39:{m:333.9,sd:17.5},
+    40:{m:338.0,sd:18.0},
   },
   AC: {
-    20:{m:140,sd:11},  21:{m:150,sd:11},  22:{m:161,sd:12},  23:{m:171,sd:12},
-    24:{m:181,sd:13},  25:{m:191,sd:13},  26:{m:201,sd:14},  27:{m:210,sd:15},
-    28:{m:220,sd:15},  29:{m:229,sd:16},  30:{m:238,sd:17},  31:{m:247,sd:17},
-    32:{m:256,sd:18},  33:{m:265,sd:19},  34:{m:274,sd:19},  35:{m:283,sd:20},
-    36:{m:291,sd:21},  37:{m:299,sd:21},  38:{m:307,sd:22},  39:{m:315,sd:22},
-    40:{m:322,sd:23},
+    20:{m:140.0,sd:11.0},21:{m:150.4,sd:11.6},22:{m:160.7,sd:12.2},23:{m:170.9,sd:12.8},
+    24:{m:180.9,sd:13.4},25:{m:190.8,sd:14.0},26:{m:200.5,sd:14.6},27:{m:210.1,sd:15.2},
+    28:{m:219.5,sd:15.8},29:{m:228.8,sd:16.4},30:{m:238.0,sd:17.0},31:{m:247.0,sd:17.6},
+    32:{m:255.9,sd:18.2},33:{m:264.7,sd:18.8},34:{m:273.3,sd:19.4},35:{m:281.8,sd:20.0},
+    36:{m:290.1,sd:20.6},37:{m:298.3,sd:21.2},38:{m:306.3,sd:21.8},39:{m:314.2,sd:22.4},
+    40:{m:322.0,sd:23.0},
   },
   FL: {
-    20:{m:32,sd:2.4},  21:{m:35,sd:2.5},  22:{m:38,sd:2.6},  23:{m:40,sd:2.7},
-    24:{m:43,sd:2.8},  25:{m:46,sd:2.9},  26:{m:48,sd:3.0},  27:{m:51,sd:3.1},
-    28:{m:53,sd:3.2},  29:{m:55,sd:3.3},  30:{m:57,sd:3.4},  31:{m:60,sd:3.5},
-    32:{m:62,sd:3.6},  33:{m:64,sd:3.7},  34:{m:65,sd:3.8},  35:{m:67,sd:3.9},
-    36:{m:68,sd:4.0},  37:{m:70,sd:4.1},  38:{m:71,sd:4.2},  39:{m:72,sd:4.3},
-    40:{m:73,sd:4.4},
+    20:{m:32.0,sd:2.4},  21:{m:34.9,sd:2.5},  22:{m:37.7,sd:2.6},  23:{m:40.5,sd:2.7},
+    24:{m:43.1,sd:2.8},  25:{m:45.6,sd:2.9},  26:{m:48.1,sd:3.0},  27:{m:50.4,sd:3.1},
+    28:{m:52.7,sd:3.2},  29:{m:54.9,sd:3.3},  30:{m:57.0,sd:3.4},  31:{m:59.0,sd:3.5},
+    32:{m:60.9,sd:3.6},  33:{m:62.7,sd:3.7},  34:{m:64.5,sd:3.8},  35:{m:66.1,sd:3.9},
+    36:{m:67.7,sd:4.0},  37:{m:69.1,sd:4.1},  38:{m:70.5,sd:4.2},  39:{m:71.8,sd:4.3},
+    40:{m:73.0,sd:4.4},
   },
 };
 

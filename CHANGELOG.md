@@ -38,6 +38,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ### Changed
 - Growth-curve percentile-lijnen gebruiken nu **linear interpolatie** ipv `monotone` cubic spline. De afwisselende +2/+3 mm sprongen tussen weken in de IG-21 tabel veroorzaakten zichtbare golfjes in de smooth-spline; rechte segmenten tussen week-ankers zijn klinisch correcter en visueel rustiger. P50-lijn iets dikker (strokeWidth 2) voor extra leesbaarheid.
+- **IG-21 tabel naar 1 decimaal precisie via quadratische fit** — eerdere ronde-mm waarden (BPD 47, 50, 52...) hadden afwisselende +2/+3 sprongen die zichtbare hoeken gaven in de curve. Nu vloeiend afnemende slopes per week. Coefficiënten gefit door 3 INTERGROWTH-21 ankers (20w/30w/40w). Curves teruggeschakeld naar `monotone` cubic spline — met smoothe data geen overshoot meer. Sanity-check (AC=150 @ 21w → P49) blijft kloppen.
 
 ### Added
 - Visit history onder de growth curve — toont alle saved visits met AC/BPD/HC/FL/Doppler/EFW + delete-knop per visit.
