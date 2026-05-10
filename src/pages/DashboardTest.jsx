@@ -47,6 +47,35 @@ export default function Dashboard() {
   const [modalMessage, setModalMessage] = useState("");
   const [savedToast, setSavedToast] = useState(false);
 
+  const [dummyOpen, setDummyOpen] = useState(false);
+  const [dummyLmp, setDummyLmp] = useState("");
+
+  const handleCreateDummy = () => {
+    if (!dummyLmp) return;
+    const dummyCount = patients.filter((p) =>
+      p.protocolNumber?.startsWith("DUMMY")
+    ).length;
+    const next = dummyCount + 1;
+    const newPatient = {
+      id: crypto.randomUUID(),
+      name: "Dummy",
+      surname: `#${next}`,
+      protocolNumber: `DUMMY-${String(next).padStart(4, "0")}`,
+      lmp: dummyLmp,
+      tc: "",
+      createdAt: new Date().toISOString(),
+      visits: [],
+    };
+    const updated = [...patients, newPatient];
+    setPatients(updated);
+    localStorage.setItem("patients", JSON.stringify(updated));
+    setSelectedPatientId(updated.length - 1);
+    setMeasurements(emptyMeasurements);
+    setDoppler(emptyDoppler);
+    setDummyOpen(false);
+    setDummyLmp("");
+  };
+
   const selectedPatient =
     selectedPatientId !== null ? patients[selectedPatientId] : null;
 
@@ -175,12 +204,20 @@ export default function Dashboard() {
               {t("app.subtitle")}
             </p>
           </div>
-          <button
-            onClick={() => navigate("/new-patient")}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
-          >
-            {t("common.addPatient")}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDummyOpen(true)}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-sm transition-all"
+            >
+              {t("common.addDummy")}
+            </button>
+            <button
+              onClick={() => navigate("/new-patient")}
+              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all"
+            >
+              {t("common.addPatient")}
+            </button>
+          </div>
         </div>
 
         {/* Main Grid */}
@@ -423,6 +460,52 @@ export default function Dashboard() {
           message={modalMessage}
           onClose={() => setModalVisible(false)}
         />
+
+        {dummyOpen && (
+          <div
+            onClick={() => setDummyOpen(false)}
+            className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4"
+            >
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">{t("dummy.title")}</h3>
+                <p className="text-slate-500 text-sm mt-1">{t("dummy.subtitle")}</p>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-semibold text-slate-700">
+                  {t("newPatient.lmpLabel")}
+                </label>
+                <input
+                  type="date"
+                  autoFocus
+                  value={dummyLmp}
+                  onChange={(e) => setDummyLmp(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDummyOpen(false)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl transition-all"
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  onClick={handleCreateDummy}
+                  disabled={!dummyLmp}
+                  className="flex-1 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl transition-all"
+                >
+                  {t("dummy.create")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

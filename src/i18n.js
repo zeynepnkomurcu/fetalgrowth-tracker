@@ -8,6 +8,7 @@ const en = {
 
   // Common
   "common.addPatient": "+ Add Patient",
+  "common.addDummy": "+ Dummy",
   "common.savePatient": "Save Patient",
   "common.save": "Save",
   "common.cancel": "Cancel",
@@ -65,6 +66,11 @@ const en = {
   "newPatient.lmpLabel": "Last Menstrual Period (LMP)",
   "newPatient.fillAll": "Please fill all required fields",
   "newPatient.tcLength": "Turkish ID number must be 11 digits",
+
+  // Dummy patient
+  "dummy.title": "New dummy patient",
+  "dummy.subtitle": "Quick test entry — only LMP required",
+  "dummy.create": "Create dummy",
 };
 
 const tr = {
@@ -74,6 +80,7 @@ const tr = {
 
   // Common
   "common.addPatient": "+ Hasta Ekle",
+  "common.addDummy": "+ Dummy",
   "common.savePatient": "Hastayı Kaydet",
   "common.save": "Kaydet",
   "common.cancel": "İptal",
@@ -131,6 +138,11 @@ const tr = {
   "newPatient.lmpLabel": "Son Adet Tarihi (SAT)",
   "newPatient.fillAll": "Lütfen tüm zorunlu alanları doldurun",
   "newPatient.tcLength": "T.C. Kimlik numarası 11 haneli olmalıdır",
+
+  // Dummy patient
+  "dummy.title": "Yeni dummy hasta",
+  "dummy.subtitle": "Hızlı test kaydı — yalnızca SAT gerekir",
+  "dummy.create": "Dummy oluştur",
 };
 
 const savedLng =

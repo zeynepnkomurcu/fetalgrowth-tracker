@@ -36,6 +36,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 ### Added
 - **S/D ratio veld in Doppler** tussen MCA PI en DV PIV — Systolic/Diastolic ratio, klinisch standaard. Doppler-grid groeit van 3 naar 4 kolommen. Veld wordt mee opgeslagen in `visit.rawData.sd` en getoond in visit history.
 - **Datum-format "4 February 2026"** (dag-maandnaam-jaar) overal waar datums getoond worden — patient header LMP en visit history dates. Lokale aware: in Turkse mode toont het "4 Şubat 2026". Helper in `src/utils/formatDate.js`.
+- **"+ Dummy" knop naast "+ Add Patient"** — opent een kleine modal die enkel om LMP vraagt en direct een test-patient aanmaakt (`Dummy #1`, `Dummy #2`, ...) met `protocolNumber DUMMY-XXXX`. Voor snelle UI-tests zonder de volle name/surname/TC-validation door te lopen. Patient wordt meteen geselecteerd zodat je biometry kunt invullen.
 
 ### Changed
 - Growth-curve percentile-lijnen gebruiken nu **linear interpolatie** ipv `monotone` cubic spline. De afwisselende +2/+3 mm sprongen tussen weken in de IG-21 tabel veroorzaakten zichtbare golfjes in de smooth-spline; rechte segmenten tussen week-ankers zijn klinisch correcter en visueel rustiger. P50-lijn iets dikker (strokeWidth 2) voor extra leesbaarheid.
