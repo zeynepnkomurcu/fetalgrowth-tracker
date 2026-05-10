@@ -55,6 +55,7 @@ export default function Dashboard() {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [measurements, setMeasurements] = useState(emptyMeasurements);
   const [doppler, setDoppler] = useState(emptyDoppler);
+  const [chartParam, setChartParam] = useState("AC");
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -301,8 +302,28 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Growth Curve */}
-                <IntergrowthChart visits={visits} />
+                {/* Growth Curve param tabs + chart */}
+                <div className="bg-white rounded-2xl shadow-sm p-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {["AC", "BPD", "HC", "FL", "EFW"].map((p) => {
+                      const active = chartParam === p;
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => setChartParam(p)}
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                            active
+                              ? "bg-cyan-500 text-white shadow"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <IntergrowthChart visits={visits} parameter={chartParam} />
 
                 {/* Visit history */}
                 {visits.length > 0 && (
