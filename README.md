@@ -8,8 +8,10 @@ Klinische web-app voor opvolging van foetale groei volgens **INTERGROWTH-21** st
 
 ## 🔗 Live
 
-- **Productie:** https://fetalgrowth-tracker2.vercel.app
+- **Productie:** https://fetalgrowth-tracker.vercel.app
 - **GitHub:** https://github.com/zeynepnkomurcu/fetalgrowth-tracker2
+
+> _De v2-code draait op de v1-URL (Vercel-project hernoemd 2026-05-10). Het oude v1-project leeft nog onder `fetalgrowth-tracker-v1-archive.vercel.app` als archief._
 
 ---
 
