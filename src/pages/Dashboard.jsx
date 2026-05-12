@@ -1,8 +1,4 @@
-import { useEffect } from "react";
-import { supabase } from "../lib/supabase";
-import { LogOut, User }
-  from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,11 +11,12 @@ import {
   Search,
 } from "lucide-react";
 
+import { supabase } from "../lib/supabase";
 import MeasurementCard from "../components/MeasurementCard";
 import IntergrowthChart from "../components/IntergrowthChart";
 import DopplerInput from "../components/DopplerInput";
 import GuidelineModal from "../components/GuidelineModal";
-import LanguageSwitch from "../components/LanguageSwitch";
+import AppHeader from "../components/AppHeader";
 import {
   getPercentile,
   percentileBadge,
@@ -45,65 +42,50 @@ function calcGaFromLmp(lmp) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-useEffect(() => {
-
-  const fetchPatients = async () => {
-
-    const { data, error } =
-      await supabase
-        .from("patients")
-        .select("*")
-        .order("created_at", {
-          ascending: false,
-        });
-
-if (!error && data) {
-  console.log(data);
-if (!error && data) {
-
-  const formattedPatients = [];
-
-  for (const p of data) {
-
-    const { data: visitsData } = await supabase
-      .from("visits")
-      .select("*")
-      .eq("patient_id", p.id)
-      .order("created_at", { ascending: true });
-
-    formattedPatients.push({
-      ...p,
-      protocolNumber: p.protocol_number,
-      researchId: p.research_id,
-      createdAt: p.created_at,
-      visits: (visitsData || []).map((v) => ({
-        id: v.id,
-        date: v.created_at,
-        gaWeeks: v.ga_weeks,
-        gaDays: v.ga_days,
-        rawData: v.raw_data,
-        calculations: v.calculations,
-      })),
-    });
-  }
-
-  setPatients(formattedPatients);
-}
-}
-  };
-
-  fetchPatients();
-
-}, []);
-  const handleLogout = async () => {
-  await supabase.auth.signOut();
-};
-
   const { t, i18n } = useTranslation();
 
-const [patients, setPatients] = useState([]);
-
+  const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error || !data) return;
+
+      const formattedPatients = [];
+      for (const p of data) {
+        const { data: visitsData } = await supabase
+          .from("visits")
+          .select("*")
+          .eq("patient_id", p.id)
+          .order("created_at", { ascending: true });
+
+        formattedPatients.push({
+          ...p,
+          protocolNumber: p.protocol_number,
+          researchId: p.research_id,
+          createdAt: p.created_at,
+          visits: (visitsData || []).map((v) => ({
+            id: v.id,
+            date: v.created_at,
+            gaWeeks: v.ga_weeks,
+            gaDays: v.ga_days,
+            rawData: v.raw_data,
+            calculations: v.calculations,
+          })),
+        });
+      }
+
+      setPatients(formattedPatients);
+    };
+
+    fetchPatients();
+  }, []);
+
   const [measurements, setMeasurements] = useState(emptyMeasurements);
   const [doppler, setDoppler] = useState(emptyDoppler);
   const [chartParam, setChartParam] = useState("AC");
@@ -275,79 +257,23 @@ if (error) {
     "inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg border border-[#134e4a] text-[#134e4a] bg-white text-sm font-semibold hover:bg-[#f0fdfa] transition-colors";
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6 relative">
+    <div className="min-h-screen bg-slate-50 text-slate-800">
 
-      {/* Floating language switch — visible on desktop always, on mobile only on the empty state */}
-      <div
-        className={`absolute top-4 right-4 md:top-6 md:right-6 z-20 ${
-          selectedPatient ? "hidden md:block" : ""
-        }`}
-      >
-        <LanguageSwitch />
-      </div>
+      <AppHeader />
 
-      <div
-        className={`max-w-7xl mx-auto space-y-4 md:pt-0 ${
-          selectedPatient ? "pt-0" : "pt-12"
-        }`}
-      >
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4">
 
-        {/* Header */}
-        <div className={`${card} px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3 flex-wrap`}>
+        {/* Page header */}
+        <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight">
-              {t("app.title")}
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800 tracking-tight">
+              {t("dash.patients")}
             </h1>
             <p className="mt-1 text-slate-500 text-xs sm:text-sm">
               {t("app.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-2">
-
-  <div className="
-    hidden sm:flex
-    items-center
-    gap-2
-    px-3
-    h-10
-    rounded-lg
-    border
-    border-slate-200
-    bg-white
-    text-slate-600
-    text-sm
-  ">
-    <User className="w-4 h-4" />
-    Account
-  </div>
-
-  <button
-    onClick={handleLogout}
-    className="
-      inline-flex
-      items-center
-      justify-center
-      gap-2
-      h-10
-      px-4
-      rounded-lg
-      border
-      border-slate-200
-      bg-white
-      text-slate-700
-      hover:bg-slate-50
-      transition-colors
-      text-sm
-      font-medium
-    "
-  >
-    <LogOut className="w-4 h-4" />
-    Logout
-  </button>
-
-</div>
-
             <button onClick={() => setDummyOpen(true)} className={btnSecondary}>
               <FlaskConical className="w-4 h-4" />
               {t("common.addDummy")}
@@ -708,7 +634,7 @@ if (error) {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

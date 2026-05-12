@@ -16,6 +16,7 @@ const en = {
   "common.delete": "Delete",
   "common.ok": "OK",
   "common.back": "Back",
+  "common.logout": "Logout",
 
   // Dashboard
   "dash.patients": "Patients",
@@ -89,6 +90,7 @@ const tr = {
   "common.delete": "Sil",
   "common.ok": "Tamam",
   "common.back": "Geri",
+  "common.logout": "Çıkış",
 
   // Dashboard
   "dash.patients": "Hastalar",

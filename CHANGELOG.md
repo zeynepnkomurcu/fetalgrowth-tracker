@@ -8,9 +8,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
+### Changed
+- **App shell met top app bar** — nieuwe `AppHeader` component met sticky top bar (brand links, taal-switch + email + logout-icon rechts) op alle pagina's. Vervangt de zwevende absolute `LanguageSwitch` en de inline "Account chip + Logout knop" die met Dummy/Add Patient om plek vochten in de rechterbovenhoek.
+- **Dashboard kreeg een eigen page header** met grote titel "Patients" + subtitle, en de primary actions (Dummy + Add Patient) onder de top app bar in plaats van vermengd met de app-branding.
+- **NewPatient gebruikt dezelfde AppHeader** — consistente chrome over de hele app.
+
 ### Fixed
 - **NewPatient save flow hersteld** — `generateProtocolNumber` verwees naar een ongedefinieerde `patients` variabele (overblijfsel van de localStorage-versie), en `generateResearchId` gebruikte een ongedefinieerde `initials`. Beide gooiden een `ReferenceError` bij elke save. Logica nu inline in `handleSave`: protocolnummer = `XX-NNNN` op basis van Supabase-rij-count, research ID = `RID-` + laatste 6 cijfers van timestamp.
 - **Save-knop kreeg disabled state** tijdens insert om dubbel-submit te voorkomen.
+- **Dashboard `useEffect` opgeruimd** — verwijderde dubbele geneste `if (!error && data)` en de losse `console.log(data)`.
+
+### Removed
+- **Inline Account chip + Logout knop** uit Dashboard header — vervangen door logout-icon in de nieuwe `AppHeader`.
 
 ---
 

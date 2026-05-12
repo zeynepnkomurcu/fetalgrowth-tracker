@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
-
-import LanguageSwitch from "../components/LanguageSwitch";
+import AppHeader from "../components/AppHeader";
 
 export default function NewPatient() {
   const navigate = useNavigate();
@@ -73,14 +72,11 @@ export default function NewPatient() {
     "w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#134e4a] focus:border-transparent transition-all";
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-6 relative">
+    <div className="min-h-screen bg-slate-50 text-slate-800">
 
-      {/* Floating language switch — top-right corner of the page on all sizes */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
-        <LanguageSwitch />
-      </div>
+      <AppHeader />
 
-      <div className="max-w-xl mx-auto pt-12 md:pt-0">
+      <main className="max-w-xl mx-auto px-4 md:px-6 py-4 md:py-6">
 
         <button
           onClick={() => navigate("/")}
@@ -149,7 +145,7 @@ export default function NewPatient() {
             {saving ? "…" : t("common.savePatient")}
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
