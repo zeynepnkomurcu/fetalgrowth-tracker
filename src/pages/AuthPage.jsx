@@ -69,7 +69,7 @@ return (
     </div>
 
     {/* RIGHT PANEL */}
-    <div<div className="flex-1 flex items-center justify-center px-6 py-10">
+    <div className="flex-1 flex items-center justify-center p-6">
       
       <div className="w-full max-w-md">
         
@@ -102,7 +102,7 @@ return (
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none focus:ring-2 focus:ring-slate-500"
                 placeholder="name@example.com"
               />
             </div>
@@ -116,7 +116,7 @@ return (
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none focus:ring-2 focus:ring-slate-500"
                 placeholder="••••••••"
               />
             </div>
