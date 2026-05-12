@@ -8,7 +8,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
-(Geen openstaande wijzigingen — volgende sessie.)
+### Fixed
+- **NewPatient save flow hersteld** — `generateProtocolNumber` verwees naar een ongedefinieerde `patients` variabele (overblijfsel van de localStorage-versie), en `generateResearchId` gebruikte een ongedefinieerde `initials`. Beide gooiden een `ReferenceError` bij elke save. Logica nu inline in `handleSave`: protocolnummer = `XX-NNNN` op basis van Supabase-rij-count, research ID = `RID-` + laatste 6 cijfers van timestamp.
+- **Save-knop kreeg disabled state** tijdens insert om dubbel-submit te voorkomen.
 
 ---
 

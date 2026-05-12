@@ -17,20 +17,9 @@ export default function NewPatient() {
     tc: "",
     lmp: "",
   });
+  const [saving, setSaving] = useState(false);
 
-  const generateProtocolNumber = (name, surname) => {
-    const nextNumber = patients.length + 1;
-    const initials = `${name[0] || ""}${surname[0] || ""}`.toUpperCase();
-    return `${initials}-${String(nextNumber).padStart(4, "0")}`;
-  };
-
-  const generateResearchId = () => {
-const nextNumber = Date.now().toString().slice(-4);
-
-return `${initials}-${nextNumber}`;
-  };
-
-const handleSave = async () => {
+  const handleSave = async () => {
     if (!form.name || !form.surname || !form.tc || !form.lmp) {
       alert(t("newPatient.fillAll"));
       return;
@@ -40,40 +29,44 @@ const handleSave = async () => {
       return;
     }
 
-    const patients = JSON.parse(localStorage.getItem("patients")) || [];
-    const newPatient = {
-      id: crypto.randomUUID(),
-      protocolNumber: generateProtocolNumber(form.name, form.surname),
-      researchId: generateResearchId(),
-      name: form.name,
-      surname: form.surname,
-      tc: form.tc,
-      lmp: form.lmp,
-      createdAt: new Date().toISOString(),
-      visits: [],
-    };
-const { error } = await supabase
-  .from("patients")
-  .insert([
-    {
-      id: newPatient.id,
-      name: newPatient.name,
-      surname: newPatient.surname,
-      tc: newPatient.tc,
-      lmp: newPatient.lmp,
-      protocol_number: newPatient.protocolNumber,
-      research_id: newPatient.researchId,
-      visits: [],
-    },
-  ]);
+    setSaving(true);
 
-if (error) {
-  console.error("SUPABASE ERROR:", error);
-  alert(error.message);
-  return;
-}
+    const { count: existingCount, error: countError } = await supabase
+      .from("patients")
+      .select("*", { count: "exact", head: true });
 
-navigate("/");
+    if (countError) {
+      console.error("SUPABASE COUNT ERROR:", countError);
+      alert(countError.message);
+      setSaving(false);
+      return;
+    }
+
+    const nextSeq = (existingCount || 0) + 1;
+    const initials = `${form.name[0] || ""}${form.surname[0] || ""}`.toUpperCase();
+    const protocolNumber = `${initials}-${String(nextSeq).padStart(4, "0")}`;
+    const researchId = `RID-${Date.now().toString().slice(-6)}`;
+
+    const { error } = await supabase.from("patients").insert([
+      {
+        id: crypto.randomUUID(),
+        name: form.name,
+        surname: form.surname,
+        tc: form.tc,
+        lmp: form.lmp,
+        protocol_number: protocolNumber,
+        research_id: researchId,
+      },
+    ]);
+
+    if (error) {
+      console.error("SUPABASE ERROR:", error);
+      alert(error.message);
+      setSaving(false);
+      return;
+    }
+
+    navigate("/");
   };
 
   const inputClass =
@@ -150,9 +143,10 @@ navigate("/");
 
           <button
             onClick={handleSave}
-            className="w-full h-11 rounded-lg bg-[#134e4a] text-white text-sm font-semibold hover:bg-[#0f766e] transition-colors mt-2"
+            disabled={saving}
+            className="w-full h-11 rounded-lg bg-[#134e4a] text-white text-sm font-semibold hover:bg-[#0f766e] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors mt-2"
           >
-            {t("common.savePatient")}
+            {saving ? "…" : t("common.savePatient")}
           </button>
         </div>
       </div>
