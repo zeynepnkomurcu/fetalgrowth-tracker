@@ -31,36 +31,113 @@ export default function AuthPage() {
     }
   }
 
-  return (
-    <div style={{ padding: 40 }}>
-      <h1>FGR Tracker Login</h1>
+return (
+  <div className="min-h-screen bg-zinc-100 flex">
+    
+    {/* LEFT PANEL */}
+    <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-slate-900 to-slate-700 text-white p-16 flex-col justify-between">
+      
+      <div>
+        <h1 className="text-4xl font-bold tracking-tight">
+          Fetal Growth Tracker
+        </h1>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <p className="mt-4 text-slate-300 text-lg max-w-md">
+          Longitudinal fetal surveillance and fetal growth restriction assessment platform.
+        </p>
+      </div>
 
-      <br />
-      <br />
+      <div className="space-y-6">
+        
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <p className="text-sm text-slate-300 mb-2">
+            Clinical Features
+          </p>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <ul className="space-y-2 text-sm">
+            <li>• Intergrowth-21st Percentiles</li>
+            <li>• Doppler Surveillance</li>
+            <li>• FGR Stage Detection</li>
+            <li>• Longitudinal Growth Tracking</li>
+          </ul>
+        </div>
 
-      <br />
-      <br />
-
-      <button onClick={signUp}>
-        Sign Up
-      </button>
-
-      <button onClick={signIn}>
-        Login
-      </button>
+        <div className="text-xs text-slate-400">
+          Research & Clinical Workflow Platform
+        </div>
+      </div>
     </div>
-  );
+
+    {/* RIGHT PANEL */}
+    <div<div className="flex-1 flex items-center justify-center px-6 py-10">
+      
+      <div className="w-full max-w-md">
+        
+        <div className="bg-white rounded-3xl shadow-xl border border-zinc-200 p-8">
+          
+          <div className="mb-8">
+            <h2 className="text-3xl font-semibold text-zinc-900">
+              Sign In
+            </h2>
+
+            <p className="text-zinc-500 mt-2">
+              Access your clinical workspace
+            </p>
+          </div>
+
+<form
+  onSubmit={(e) => {
+    e.preventDefault();
+    signIn();
+  }}
+  className="space-y-5"
+>
+
+            <div>
+              <label className="text-sm font-medium text-zinc-700">
+                Email
+              </label>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+                placeholder="name@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-zinc-700">
+                Password
+              </label>
+
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
+                placeholder="••••••••"
+              />
+            </div>
+<button
+  type="button"
+  onClick={signUp}
+  className="w-full rounded-xl border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-700 py-3 font-medium transition"
+>
+  Create Account
+</button>
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white py-3 font-medium transition"
+            >
+              Sign In
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+);
 }
