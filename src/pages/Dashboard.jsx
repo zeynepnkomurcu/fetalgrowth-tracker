@@ -49,16 +49,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchPatients = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
+      // RLS filters to patients linked to current user via user_patients,
+      // so a plain select is enough here.
       const { data, error } = await supabase
         .from("patients")
         .select("*")
-        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error || !data) return;
@@ -202,17 +197,12 @@ id: crypto.randomUUID(),
       },
     };
 
-const {
-  data: { user: visitUser },
-} = await supabase.auth.getUser();
-
 const { error: visitError } = await supabase
   .from("visits")
   .insert([
     {
       id: visit.id,
       patient_id: patient.id,
-      user_id: visitUser?.id ?? patient.user_id,
       ga_weeks: visit.gaWeeks,
       ga_days: visit.gaDays,
       raw_data: visit.rawData,

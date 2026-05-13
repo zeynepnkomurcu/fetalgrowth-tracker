@@ -40,10 +40,10 @@ export default function NewPatient() {
       return;
     }
 
+    // Protocol numbering: count current user's own linked patients
     const { count: existingCount, error: countError } = await supabase
-      .from("patients")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
+      .from("user_patients")
+      .select("*", { count: "exact", head: true });
 
     if (countError) {
       console.error("SUPABASE COUNT ERROR:", countError);
@@ -57,18 +57,17 @@ export default function NewPatient() {
     const protocolNumber = `${initials}-${String(nextSeq).padStart(4, "0")}`;
     const researchId = `RID-${Date.now().toString().slice(-6)}`;
 
-    const { error } = await supabase.from("patients").insert([
-      {
-        id: crypto.randomUUID(),
-        user_id: user.id,
-        name: form.name,
-        surname: form.surname,
-        tc: form.tc,
-        lmp: form.lmp,
-        protocol_number: protocolNumber,
-        research_id: researchId,
-      },
-    ]);
+    // Atomic: find by TC and link, or create + link. Returns patient_id.
+    // If the TC already exists under another user, this just links — typed
+    // name/LMP are ignored and the existing record's profile is kept.
+    const { error } = await supabase.rpc("link_or_create_patient", {
+      p_name: form.name,
+      p_surname: form.surname,
+      p_tc: form.tc,
+      p_lmp: form.lmp,
+      p_protocol_number: protocolNumber,
+      p_research_id: researchId,
+    });
 
     if (error) {
       console.error("SUPABASE ERROR:", error);

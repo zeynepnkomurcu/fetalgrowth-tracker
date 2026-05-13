@@ -8,12 +8,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
-### Security
-- **Per-user data isolation** — patients en visits zijn nu gescoped aan de ingelogde Supabase auth user. Voorheen zag iedere ingelogde gebruiker alle patiënten van iedereen.
-  - SQL-migratie `db/migrations/2026-05-13_per_user_data.sql`: voegt `user_id uuid` kolom toe aan `patients` + `visits` (default = `auth.uid()`, FK → `auth.users`, on delete cascade), maakt indexen, enabled RLS, en zet "self-owned" policies (`auth.uid() = user_id`) op beide tabellen.
-  - `NewPatient` haalt de huidige user op, telt protocolnummers per-user (`patients_user_id_idx` filter), en zet `user_id` expliciet in de insert.
-  - `Dashboard` filtert de patient-fetch op `user_id` (defense-in-depth bovenop RLS) en geeft `user_id` ook mee bij visit-inserts.
-  - **Vereist handmatige stap**: SQL Editor in Supabase openen en het migratie-script runnen, daarna optioneel bestaande rijen backfillen of opruimen (zie comments in het .sql bestand).
+### Security / Data model
+- **Gedeelde patiënten via TC + user_patients junction** — vervangt het strikt per-user model. Iedere arts heeft zijn eigen patiëntenlijst, maar als twee artsen dezelfde TC invoeren, delen ze één patient-record en alle bijbehorende visits (bidirectioneel: nieuwe visits door arts B zijn ook zichtbaar voor arts A).
+  - SQL-migratie `db/migrations/2026-05-13b_shared_patients_by_tc.sql`:
+    - Verwijdert `user_id` uit `patients` en `visits` + de oude self-owned policies.
+    - `UNIQUE` partial index op `patients.tc` (alleen wanneer ingevuld — dummies met lege TC mogen meerdere keren).
+    - Nieuwe `user_patients` junction tabel met RLS op eigen rijen.
+    - Nieuwe policies op `patients` en `visits`: zichtbaar/bewerkbaar als je gelinkt bent via `user_patients`.
+    - Nieuwe RPC `link_or_create_patient(...)` (`SECURITY DEFINER`): zoekt bestaande patient op TC, link huidige user, return id. Of: insert + link. Atomair zodat RLS niet de TC-lookup blokkeert.
+  - `NewPatient` roept de RPC aan ipv directe `patients.insert`. Profile-merge regel: **eerste invoer wint** — als de TC al bestaat, worden de getypte name/LMP genegeerd en zie je het profiel zoals de eerste arts het invoerde.
+  - `Dashboard` patient-fetch is weer een plain `select *` (RLS filtert automatisch via `user_patients`).
+  - Visit insert geeft geen `user_id` meer mee (RLS check loopt via patient-link).
+  - **Vereist**: SQL-editor in Supabase openen en `2026-05-13b_shared_patients_by_tc.sql` runnen vóór de nieuwe code gebruikt wordt.
 
 ### Changed
 - **App shell met top app bar** — nieuwe `AppHeader` component met sticky top bar (brand links, taal-switch + email + logout-icon rechts) op alle pagina's. Vervangt de zwevende absolute `LanguageSwitch` en de inline "Account chip + Logout knop" die met Dummy/Add Patient om plek vochten in de rechterbovenhoek.
