@@ -8,6 +8,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
+### Added
+- **Account approval workflow** — open signup met email-verificatie en handmatige admin-goedkeuring voor klinische toegang.
+  - SQL-migratie `db/migrations/2026-05-13c_user_profiles_and_approval.sql`:
+    - `profiles` tabel met `approved`, `is_admin`, `full_name`, `approved_at`, `approved_by`.
+    - Trigger `on_auth_user_created` op `auth.users` die automatisch een profile-rij aanmaakt bij signup.
+    - Backfill van bestaande users.
+    - `is_approved()` helper function (SECURITY DEFINER).
+    - Alle RLS policies op `patients`/`visits`/`user_patients` uitgebreid met `is_approved()` check.
+    - RPC `link_or_create_patient` throwt nu als de user niet approved is (defense-in-depth bovenop RLS).
+    - Bootstrap-statement: keurt `ozcanfahrettinn@gmail.com` + `emrekomurcu@outlook.be` automatisch goed als admin.
+  - **Vereist** in Supabase Dashboard: **Authentication → Providers → Email → "Confirm email" aanzetten** zodat nieuwe users hun mail moeten verifiëren.
+- **AuthPage rewrite** — twee tabs (Sign in / Create account), full-name veld bij signup, inline rode error-boxes ipv `alert()`, "Check your email" tussenscherm na signup, medical-teal gradient panel links, password autocomplete hints. Geen meer popups.
+- **PendingApproval pagina** — getoond zodra je ingelogd bent maar `profile.approved = false`. Toont je email, uitleg over wat te doen, en sign-out knop.
+- **App.jsx routing-update** — fetcht na auth de `profile` rij en routeert: geen session → AuthPage, session zonder approval → PendingApproval, approved → Dashboard. Tussenstates tonen een centrale spinner.
+
 ### Security / Data model
 - **Gedeelde patiënten via TC + user_patients junction** — vervangt het strikt per-user model. Iedere arts heeft zijn eigen patiëntenlijst, maar als twee artsen dezelfde TC invoeren, delen ze één patient-record en alle bijbehorende visits (bidirectioneel: nieuwe visits door arts B zijn ook zichtbaar voor arts A).
   - SQL-migratie `db/migrations/2026-05-13b_shared_patients_by_tc.sql`:
