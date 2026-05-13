@@ -217,20 +217,23 @@ $$;
 grant execute on function public.link_or_create_patient(text, text, text, date, text, text) to authenticated;
 
 -- =====================================================
--- 7. Bootstrap: keur de eerste admin(s) goed.
---    ⚠️  Pas de email-lijst hieronder aan naar jouw + Zeynep's adressen.
+-- 7. Bootstrap: Zeynep is de enige admin. Emre is approved (gebruiker)
+--    maar geen admin. Approvals worden door Zeynep gedaan.
 -- =====================================================
 
+-- Zeynep: approved + admin
 update public.profiles
 set approved    = true,
     is_admin    = true,
     approved_at = now()
-where email in (
-  'ozcanfahrettinn@gmail.com',
-  'emrekomurcu@outlook.be'
-  -- voeg hier Zeynep's email toe als ze al een account heeft, anders later approven:
-  --   update public.profiles set approved=true, is_admin=true, approved_at=now() where email='zeynep@...';
-);
+where email = 'zeynepnkomurcu@gmail.com';
+
+-- Emre: approved (mag de app gebruiken) maar GEEN admin-rechten
+update public.profiles
+set approved    = true,
+    is_admin    = false,
+    approved_at = now()
+where email = 'emrekomurcu@outlook.be';
 
 -- =====================================================
 -- HOE EEN NIEUWE USER GOEDKEUREN (in de toekomst):
