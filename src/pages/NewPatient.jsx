@@ -30,9 +30,20 @@ export default function NewPatient() {
 
     setSaving(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Not signed in");
+      setSaving(false);
+      return;
+    }
+
     const { count: existingCount, error: countError } = await supabase
       .from("patients")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
 
     if (countError) {
       console.error("SUPABASE COUNT ERROR:", countError);
@@ -49,6 +60,7 @@ export default function NewPatient() {
     const { error } = await supabase.from("patients").insert([
       {
         id: crypto.randomUUID(),
+        user_id: user.id,
         name: form.name,
         surname: form.surname,
         tc: form.tc,

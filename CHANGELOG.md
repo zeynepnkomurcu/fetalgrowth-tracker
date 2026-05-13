@@ -8,6 +8,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 
 ## [Unreleased]
 
+### Security
+- **Per-user data isolation** — patients en visits zijn nu gescoped aan de ingelogde Supabase auth user. Voorheen zag iedere ingelogde gebruiker alle patiënten van iedereen.
+  - SQL-migratie `db/migrations/2026-05-13_per_user_data.sql`: voegt `user_id uuid` kolom toe aan `patients` + `visits` (default = `auth.uid()`, FK → `auth.users`, on delete cascade), maakt indexen, enabled RLS, en zet "self-owned" policies (`auth.uid() = user_id`) op beide tabellen.
+  - `NewPatient` haalt de huidige user op, telt protocolnummers per-user (`patients_user_id_idx` filter), en zet `user_id` expliciet in de insert.
+  - `Dashboard` filtert de patient-fetch op `user_id` (defense-in-depth bovenop RLS) en geeft `user_id` ook mee bij visit-inserts.
+  - **Vereist handmatige stap**: SQL Editor in Supabase openen en het migratie-script runnen, daarna optioneel bestaande rijen backfillen of opruimen (zie comments in het .sql bestand).
+
 ### Changed
 - **App shell met top app bar** — nieuwe `AppHeader` component met sticky top bar (brand links, taal-switch + email + logout-icon rechts) op alle pagina's. Vervangt de zwevende absolute `LanguageSwitch` en de inline "Account chip + Logout knop" die met Dummy/Add Patient om plek vochten in de rechterbovenhoek.
 - **Dashboard kreeg een eigen page header** met grote titel "Patients" + subtitle, en de primary actions (Dummy + Add Patient) onder de top app bar in plaats van vermengd met de app-branding.
