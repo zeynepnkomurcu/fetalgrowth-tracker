@@ -6,6 +6,7 @@ import {
   Clock,
   ShieldCheck,
   UserX,
+  Trash2,
   Mail,
   Calendar,
 } from "lucide-react";
@@ -67,6 +68,25 @@ export default function AdminPage() {
       .from("profiles")
       .update({ approved: false, approved_at: null, approved_by: null })
       .eq("user_id", userId);
+    setActingOn(null);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    fetchAll();
+  };
+
+  const handleDelete = async (userId, email) => {
+    if (
+      !confirm(
+        `Delete user ${email}?\n\nThis permanently removes their account. They can sign up again with the same email.`
+      )
+    )
+      return;
+    setActingOn(userId);
+    const { error } = await supabase.rpc("delete_user", {
+      target_user_id: userId,
+    });
     setActingOn(null);
     if (error) {
       alert(error.message);
@@ -139,14 +159,25 @@ export default function AdminPage() {
                     Signed up {formatLongDate(u.created_at, "en")}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleApprove(u.user_id)}
-                  disabled={actingOn === u.user_id}
-                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[#134e4a] text-white text-sm font-semibold hover:bg-[#0f766e] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Check className="w-4 h-4" />
-                  Approve
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleApprove(u.user_id)}
+                    disabled={actingOn === u.user_id}
+                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[#134e4a] text-white text-sm font-semibold hover:bg-[#0f766e] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Check className="w-4 h-4" />
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u.user_id, u.email)}
+                    disabled={actingOn === u.user_id}
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 text-slate-500 text-sm font-semibold hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Delete user permanently"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Delete</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
