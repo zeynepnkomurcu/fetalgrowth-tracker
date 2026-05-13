@@ -9,6 +9,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — datums in `
 ## [Unreleased]
 
 ### Added
+- **In-app admin approval pagina** — admins (users met `profile.is_admin = true`) krijgen een **"Admin"** knop in de AppHeader. Klik opent `/admin` met twee secties: Pending users (1-klik **Approve** knop per kaart) en Approved users (met **Revoke** voor non-admins). Geen SQL meer nodig om nieuwe artsen toe te laten.
+  - SQL-migratie `db/migrations/2026-05-13d_admin_policies.sql`: `is_admin()` SECURITY DEFINER helper + 2 extra policies (`profiles admin read all`, `profiles admin update all`) zodat admins andere profiles kunnen zien en goedkeuren.
+  - `src/pages/AdminPage.jsx`: pending + approved lijsten, real-time refetch na approve/revoke.
+  - `src/components/AppHeader.jsx`: fetcht `is_admin` van eigen profile, toont Admin-link alleen voor admins.
+  - `src/App.jsx`: nieuwe `/admin` route (alleen gemount als profile.is_admin).
 - **Account approval workflow** — open signup met email-verificatie en handmatige admin-goedkeuring voor klinische toegang.
   - SQL-migratie `db/migrations/2026-05-13c_user_profiles_and_approval.sql`:
     - `profiles` tabel met `approved`, `is_admin`, `full_name`, `approved_at`, `approved_by`.

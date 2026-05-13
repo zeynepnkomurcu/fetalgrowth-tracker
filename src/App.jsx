@@ -7,6 +7,7 @@ import AuthPage from "./pages/AuthPage";
 import PendingApproval from "./pages/PendingApproval";
 import Dashboard from "./pages/Dashboard";
 import NewPatient from "./pages/NewPatient";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   const [session, setSession] = useState(null);
@@ -67,6 +68,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/new-patient" element={<NewPatient />} />
+        {profile.is_admin && (
+          <Route path="/admin" element={<AdminPage />} />
+        )}
       </Routes>
     </BrowserRouter>
   );
