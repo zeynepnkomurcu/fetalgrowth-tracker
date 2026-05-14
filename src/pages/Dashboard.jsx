@@ -1,29 +1,30 @@
-import PatientsSidebar from "../components/PatientsSidebar";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import {
-  Plus,
-  Pencil,
-  FlaskConical,
-  X,
   Check,
-  CalendarDays,
-  Trash2, 
+  FlaskConical,
+  Plus
 } from "lucide-react";
-
-import { supabase } from "../lib/supabase";
-import MeasurementCard from "../components/MeasurementCard";
-import IntergrowthChart from "../components/IntergrowthChart";
-import DopplerInput from "../components/DopplerInput";
-import GuidelineModal from "../components/GuidelineModal";
-import AppHeader from "../components/AppHeader";
+import DeletePatientModal from "../components/dashboard/DeletePatientModal";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import BiometrySection from "../components/dashboard/BiometrySection";
+import PatientHeader from "../components/dashboard/PatientHeader";
+import PatientsSidebar from "../components/dashboard/PatientsSidebar";
+import VisitHistory from "../components/dashboard/VisitHistory";
 import {
+  deletePatientCompletely,
+  deleteVisitById,
+  fetchPatientsWithVisits,
+  saveVisit,
+} from "../services/DashboardService";
+
+import {
+  calcEfwHadlock,
   getPercentile,
   percentileBadge,
-  calcEfwHadlock,
 } from "../clinical/ig21";
-import { formatLongDate } from "../utils/formatDate";
+import AppHeader from "../components/AppHeader";
+import GuidelineModal from "../components/GuidelineModal";
 
 const emptyMeasurements = { AC: "", BPD: "", HC: "", FL: "", EFW: "" };
 const emptyDoppler = { uaPi: "", mcaPi: "", sd: "", dvPiv: "", edfState: null };
@@ -50,42 +51,14 @@ export default function Dashboard() {
 const [patientToDelete, setPatientToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      // RLS filters to patients linked to current user via user_patients,
-      // so a plain select is enough here.
-      const { data, error } = await supabase
-        .from("patients")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error || !data) return;
-
-      const formattedPatients = [];
-      for (const p of data) {
-        const { data: visitsData } = await supabase
-          .from("visits")
-          .select("*")
-          .eq("patient_id", p.id)
-          .order("created_at", { ascending: true });
-
-        formattedPatients.push({
-          ...p,
-          protocolNumber: p.protocol_number,
-          researchId: p.research_id,
-          createdAt: p.created_at,
-          visits: (visitsData || []).map((v) => ({
-            id: v.id,
-            date: v.created_at,
-            gaWeeks: v.ga_weeks,
-            gaDays: v.ga_days,
-            rawData: v.raw_data,
-            calculations: v.calculations,
-          })),
-        });
-      }
-
-      setPatients(formattedPatients);
-    };
+const fetchPatients = async () => {
+  try {
+    const patientsData = await fetchPatientsWithVisits();
+    setPatients(patientsData);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
     fetchPatients();
   }, []);
@@ -121,15 +94,15 @@ const [patientToDelete, setPatientToDelete] = useState(null);
     };
     const updated = [...patients, newPatient];
     setPatients(updated);
-    setSelectedPatientId(updated.length - 1);
+setSelectedPatientId(newPatient.id);
     setMeasurements(emptyMeasurements);
     setDoppler(emptyDoppler);
     setDummyOpen(false);
     setDummyLmp("");
   };
 
-  const selectedPatient =
-    selectedPatientId !== null ? patients[selectedPatientId] : null;
+ const selectedPatient =
+  patients.find((p) => p.id === selectedPatientId) || null;
 
   const visits = selectedPatient?.visits || [];
 
@@ -139,8 +112,8 @@ const [patientToDelete, setPatientToDelete] = useState(null);
       : calcGaFromLmp(selectedPatient.lmp) || { weeks: 28, days: 0 }
     : { weeks: 28, days: 0 };
 
-  const handleSelectPatient = (index) => {
-    setSelectedPatientId(index);
+const handleSelectPatient = (patientId) => {
+  setSelectedPatientId(patientId);
     setMeasurements(emptyMeasurements);
     setDoppler(emptyDoppler);
   };
@@ -150,52 +123,19 @@ const handleDeleteClick = (patient) => {
 const confirmDelete = async () => {
   if (!patientToDelete) return;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    await deletePatientCompletely(patientToDelete.id);
 
-  if (!user) return;
+    setPatients((prev) =>
+      prev.filter((p) => p.id !== patientToDelete.id)
+    );
 
-  // 1. delete visits first
-  const { error: visitsError } = await supabase
-    .from("visits")
-    .delete()
-    .eq("patient_id", patientToDelete.id);
+    setPatientToDelete(null);
+    setSelectedPatientId(null);
 
-  if (visitsError) {
-    console.error(visitsError);
-    return;
+  } catch (error) {
+    console.error(error);
   }
-
-  // 2. delete relation
-  const { error: relationError } = await supabase
-    .from("user_patients")
-    .delete()
-    .eq("user_id", user.id)
-    .eq("patient_id", patientToDelete.id);
-
-  if (relationError) {
-    console.error(relationError);
-    return;
-  }
-
-  // 3. delete patient
-  const { error: patientError } = await supabase
-    .from("patients")
-    .delete()
-    .eq("id", patientToDelete.id);
-
-  if (patientError) {
-    console.error(patientError);
-    return;
-  }
-
-  setPatients((prev) =>
-    prev.filter((p) => p.id !== patientToDelete.id)
-  );
-
-  setPatientToDelete(null);
-  setSelectedPatientId(null);
 };
   const handleDopplerChange = (key, value) => {
     setDoppler((prev) => ({ ...prev, [key]: value }));
@@ -229,7 +169,11 @@ const handleSave = async () => {
 
     const nowIso = new Date().toISOString();
   const updatedPatients = [...patients];
-const patient = { ...updatedPatients[selectedPatientId] };
+const patientIndex = patients.findIndex(
+  (p) => p.id === selectedPatientId
+);
+
+const patient = { ...updatedPatients[patientIndex] };
     const visit = {
 id: crypto.randomUUID(),
       date: nowIso,
@@ -251,26 +195,15 @@ id: crypto.randomUUID(),
       },
     };
 
-const { error: visitError } = await supabase
-  .from("visits")
-  .insert([
-    {
-      id: visit.id,
-      patient_id: patient.id,
-      ga_weeks: visit.gaWeeks,
-      ga_days: visit.gaDays,
-      raw_data: visit.rawData,
-      calculations: visit.calculations,
-    },
-  ]);
-
-if (visitError) {
-  console.error(visitError);
+try {
+  await saveVisit(patient.id, visit);
+} catch (error) {
+  console.error(error);
   return;
 }
 patient.visits = [...(patient.visits || []), visit];
 
-updatedPatients[selectedPatientId] = patient;
+updatedPatients[patientIndex] = patient;
 
 setPatients(updatedPatients);
 
@@ -291,16 +224,21 @@ setSavedToast("saved");
 const handleDeleteVisit = async (visitId) => {
     if (selectedPatientId === null) return;
     const updatedPatients = [...patients];
-    const patient = { ...updatedPatients[selectedPatientId] };
-    patient.visits = (patient.visits || []).filter((v) => v.id !== visitId);
-    updatedPatients[selectedPatientId] = patient;
-    setPatients(updatedPatients);
-const { error } = await supabase
-  .from("visits")
-  .delete()
-  .eq("id", visitId);
+const patientIndex = patients.findIndex(
+  (p) => p.id === selectedPatientId
+);
 
-if (error) {
+const patient = { ...updatedPatients[patientIndex] };
+
+patient.visits = (patient.visits || []).filter(
+  (v) => v.id !== visitId
+);
+
+updatedPatients[patientIndex] = patient;
+    setPatients(updatedPatients);
+try {
+  await deleteVisitById(visitId);
+} catch (error) {
   console.error(error);
 }
   };
@@ -374,196 +312,53 @@ if (error) {
                 </p>
               </div>
             </div>
-          ) : (
-            <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-3 gap-4">
-{patientToDelete && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl">
+         ) : (
+  <>
+    <DeletePatientModal
+      visible={!!patientToDelete}
+      onClose={() => setPatientToDelete(null)}
+      onConfirm={confirmDelete}
+    />
 
-      <h2 className="text-xl font-semibold mb-2">
-        Delete Patient?
-      </h2>
+    <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-3 gap-4">
 
-      <p className="text-sm text-slate-600 mb-6">
-        Are you sure you want to delete this patient?
-      </p>
 
-      <div className="flex justify-end gap-3">
-
-        <button
-          onClick={() => setPatientToDelete(null)}
-          className="px-4 py-2 rounded-xl border"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={confirmDelete}
-          className="px-4 py-2 rounded-xl bg-red-500 text-white"
-        >
-          Delete
-        </button>
-
-      </div>
-
-    </div>
-  </div>
-)}
               {/* Left: Biometry + Doppler + Curve + Visits */}
               <div className="xl:col-span-2 space-y-4">
 
-                {/* Patient header */}
-                <div className={`${card} px-6 py-5`}>
-                  <h2 className="text-xl font-semibold text-slate-800 tracking-tight">
-                    {selectedPatient.name} {selectedPatient.surname || ""}
-                  </h2>
-                  <p className="text-slate-500 text-sm mt-1 flex items-center gap-2 flex-wrap">
-                    <span className="tabular">{t("dash.ga")}: {ga.weeks}w {ga.days}d</span>
-                    {selectedPatient.lmp && (
-                      <>
-                        <span className="text-slate-300">·</span>
-                        <span className="inline-flex items-center gap-1 text-slate-400">
-                          <CalendarDays className="w-3.5 h-3.5" />
-                          {t("dash.lmp")} {formatLongDate(selectedPatient.lmp, i18n.language)}
-                        </span>
-                      </>
-                    )}
-                  </p>
-                </div>
+   
+   <PatientHeader
+  patient={selectedPatient}
+  ga={ga}
+  t={t}
+  i18n={i18n}
+  card={card}
+/>
+           
 
-                {/* Biometry + Doppler */}
-                <div className={`${card} p-6 space-y-6`}>
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-800 mb-3">{t("dash.biometry")}</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {["BPD", "HC", "AC", "FL"].map((field) => (
-                        <MeasurementCard
-                          key={field}
-                          title={field}
-                          value={measurements[field]}
-                          onChange={(e) =>
-                            setMeasurements((prev) => ({
-                              ...prev,
-                              [field]: e.target.value,
-                            }))
-                          }
-                          percentile={
-                            measurements[field]
-                              ? percentileBadge(getPercentile(field, ga.weeks, measurements[field]))
-                              : null
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
+<BiometrySection
+  t={t}
+  card={card}
+  measurements={measurements}
+  setMeasurements={setMeasurements}
+  ga={ga}
+  getPercentile={getPercentile}
+  percentileBadge={percentileBadge}
+  liveEfw={liveEfw}
+  liveEfwBadge={liveEfwBadge}
+  doppler={doppler}
+  handleDopplerChange={handleDopplerChange}
+  handleSave={handleSave}
+/>
 
-                  {/* Inline EFW */}
-                  <div className="rounded-lg px-4 py-3 flex items-center justify-between gap-3 bg-[#134e4a] text-white">
-                    <div className="flex items-baseline gap-3 min-w-0">
-                      <span className="text-[10px] uppercase tracking-wider opacity-80 font-semibold">
-                        {t("dash.efw")}
-                      </span>
-                      <span className="text-2xl font-semibold tabular leading-none">
-                        {liveEfw ? liveEfw : "—"}
-                        {liveEfw && <span className="text-sm font-normal opacity-80 ml-1">g</span>}
-                      </span>
-                      {liveEfwBadge && (
-                        <span className="bg-white/15 backdrop-blur px-2 py-0.5 rounded font-semibold text-xs tabular">
-                          {liveEfwBadge.label}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] opacity-75 hidden sm:inline tracking-wide">
-                      {t("dash.efwHint")}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-800 mb-3">{t("dash.doppler")}</h3>
-                    <DopplerInput values={doppler} onChange={handleDopplerChange} />
-                  </div>
-
-                  <button
-                    onClick={handleSave}
-                    className="w-full h-11 rounded-lg bg-[#134e4a] text-white text-sm font-semibold hover:bg-[#0f766e] transition-colors"
-                  >
-                    {t("dash.saveAnalyze")}
-                  </button>
-                </div>
-
-                {/* Growth Curve param tabs */}
-                <div className={`${card} p-2`}>
-                  <div className="flex gap-1">
-                    {["BPD", "HC", "AC", "FL", "EFW"].map((p) => {
-                      const active = chartParam === p;
-                      return (
-                        <button
-                          key={p}
-                          onClick={() => setChartParam(p)}
-                          className={`flex-1 h-9 rounded-md text-sm font-semibold transition-colors ${
-                            active
-                              ? "bg-[#134e4a] text-white"
-                              : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <IntergrowthChart visits={visits} parameter={chartParam} />
-
-                {/* Visit history */}
-                {visits.length > 0 && (
-                  <div className={`${card} p-6`}>
-                    <h3 className="text-sm font-semibold text-slate-800 mb-3">
-                      {t("dash.visitHistory")} · {visits.length}
-                    </h3>
-                    <div className="space-y-2">
-                      {[...visits].reverse().map((v) => (
-                        <div
-                          key={v.id}
-                          className="border border-slate-200 rounded-lg px-4 py-3 flex items-start justify-between hover:border-[#134e4a]/30 hover:bg-slate-50 transition-colors"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-baseline gap-3">
-                              <span className="font-semibold text-sm text-slate-800 tabular">
-                                {v.gaWeeks}w {v.gaDays}d
-                              </span>
-                              <span className="text-xs text-slate-400">
-                                {formatLongDate(v.date, i18n.language)}
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-slate-500 mt-2 tabular">
-                              <span>BPD <strong className="text-slate-800">{v.rawData?.bpd ?? "—"}</strong></span>
-                              <span>HC <strong className="text-slate-800">{v.rawData?.hc ?? "—"}</strong></span>
-                              <span>AC <strong className="text-slate-800">{v.rawData?.ac ?? "—"}</strong></span>
-                              <span>FL <strong className="text-slate-800">{v.rawData?.fl ?? "—"}</strong></span>
-                              <span>UA-PI <strong className="text-slate-800">{v.rawData?.uaPi ?? "—"}</strong></span>
-                              <span>MCA-PI <strong className="text-slate-800">{v.rawData?.mcaPi ?? "—"}</strong></span>
-                              <span>UA S/D <strong className="text-slate-800">{v.rawData?.sd ?? "—"}</strong></span>
-                              <span>EDF <strong className="text-slate-800">{v.rawData?.edfState ?? "—"}</strong></span>
-                              <span className="col-span-2 sm:col-span-4">
-                                EFW <strong className="text-slate-800">{v.calculations?.efw ? `${v.calculations.efw} g` : "—"}</strong>
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleDeleteVisit(v.id)}
-                            className="ml-2 p-1.5 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                            title={t("dash.deleteVisit")}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
+<VisitHistory
+  visits={visits}
+  onDeleteVisit={handleDeleteVisit}
+  t={t}
+  i18n={i18n}
+  card={card}
+/>
+</div>
               {/* Right: Summary */}
               <div className="space-y-4">
                 <div className={`${card} p-6`}>
@@ -587,6 +382,7 @@ if (error) {
                 </div>
               </div>
             </div>
+          </>
           )}
         </div>
 

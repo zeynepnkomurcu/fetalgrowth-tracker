@@ -72,12 +72,12 @@ export default function PatientsSidebar({
             );
           }
 
-          return filtered.map(({ patient, index }) => {
-            const isSelected = selectedPatientId === index;
+return filtered.map(({ patient }) => {
+  const isSelected = selectedPatientId === patient.id;
 
             return (
               <div
-                key={index}
+key={patient.id}
                 className={`w-full px-3 py-2.5 rounded-lg transition-colors ${
                   isSelected
                     ? "bg-[#134e4a] text-white"
@@ -87,7 +87,7 @@ export default function PatientsSidebar({
                 <div className="flex items-start justify-between gap-2">
 
                   <button
-                    onClick={() => handleSelectPatient(index)}
+onClick={() => handleSelectPatient(patient.id)}
                     className="flex-1 text-left"
                   >
                     <p className="font-semibold text-sm">
@@ -108,16 +108,20 @@ export default function PatientsSidebar({
                     </p>
                   </button>
 
-                  <button
-                    onClick={() => handleDeleteClick(patient)}
-                    className={`p-1 rounded hover:bg-black/10 ${
-                      isSelected
-                        ? "text-white"
-                        : "text-slate-500"
-                    }`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    handleDeleteClick(patient);
+  }}
+  className={`p-1 rounded hover:bg-black/10 ${
+    isSelected
+      ? "text-white"
+      : "text-slate-500"
+  }`}
+>
+  <Trash2 size={16} />
+</button>
 
                 </div>
               </div>
