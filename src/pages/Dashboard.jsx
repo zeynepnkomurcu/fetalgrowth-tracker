@@ -156,6 +156,7 @@ const confirmDelete = async () => {
 
   if (!user) return;
 
+  // relation delete
   const { error } = await supabase
     .from("user_patients")
     .delete()
@@ -164,6 +165,17 @@ const confirmDelete = async () => {
 
   if (error) {
     console.error(error);
+    return;
+  }
+
+  // actual patient delete
+  const { error: patientError } = await supabase
+    .from("patients")
+    .delete()
+    .eq("id", patientToDelete.id);
+
+  if (patientError) {
+    console.error(patientError);
     return;
   }
 
