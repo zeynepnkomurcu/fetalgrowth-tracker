@@ -156,19 +156,30 @@ const confirmDelete = async () => {
 
   if (!user) return;
 
-  // relation delete
-  const { error } = await supabase
+  // 1. delete visits first
+  const { error: visitsError } = await supabase
+    .from("visits")
+    .delete()
+    .eq("patient_id", patientToDelete.id);
+
+  if (visitsError) {
+    console.error(visitsError);
+    return;
+  }
+
+  // 2. delete relation
+  const { error: relationError } = await supabase
     .from("user_patients")
     .delete()
     .eq("user_id", user.id)
     .eq("patient_id", patientToDelete.id);
 
-  if (error) {
-    console.error(error);
+  if (relationError) {
+    console.error(relationError);
     return;
   }
 
-  // actual patient delete
+  // 3. delete patient
   const { error: patientError } = await supabase
     .from("patients")
     .delete()
