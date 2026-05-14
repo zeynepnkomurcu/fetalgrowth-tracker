@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Plus,
+  Pencil,
+Trash2,
   FlaskConical,
   X,
   Check,
@@ -46,6 +48,7 @@ export default function Dashboard() {
 
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
+const [patientToDelete, setPatientToDelete] = useState(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -142,7 +145,29 @@ export default function Dashboard() {
     setMeasurements(emptyMeasurements);
     setDoppler(emptyDoppler);
   };
+const handleDeleteClick = (patient) => {
+  setPatientToDelete(patient);
+};
+const confirmDelete = async () => {
+  if (!patientToDelete) return;
 
+  const { error } = await supabase
+    .from("patients")
+    .delete()
+    .eq("id", patientToDelete.id);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  setPatients((prev) =>
+    prev.filter((p) => p.id !== patientToDelete.id)
+  );
+
+  setPatientToDelete(null);
+  setSelectedPatientId(null);
+};
   const handleDopplerChange = (key, value) => {
     setDoppler((prev) => ({ ...prev, [key]: value }));
   };
@@ -347,24 +372,49 @@ if (error) {
 
                 return filtered.map(({ patient, index }) => {
                   const isSelected = selectedPatientId === index;
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleSelectPatient(index)}
-                      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
-                        isSelected
-                          ? "bg-[#134e4a] text-white"
-                          : "border border-slate-200 hover:border-[#134e4a]/40 hover:bg-[#f0fdfa] text-slate-800"
-                      }`}
-                    >
-                      <p className="font-semibold text-sm">
-                        {patient.name} {patient.surname}
-                      </p>
-                      <p className={`text-xs mt-0.5 tabular ${isSelected ? "text-white/80" : "text-slate-500"}`}>
-                        {patient.protocolNumber || (patient.week != null ? `${patient.week}w ${patient.days}d` : "")}
-                      </p>
-                    </button>
-                  );
+return (
+  <div
+    key={index}
+    className={`w-full px-3 py-2.5 rounded-lg transition-colors ${
+      isSelected
+        ? "bg-[#134e4a] text-white"
+        : "border border-slate-200 hover:border-[#134e4a]/40 hover:bg-[#f0fdfa] text-slate-800"
+    }`}
+  >
+    <div className="flex items-start justify-between gap-2">
+
+      <button
+        onClick={() => handleSelectPatient(index)}
+        className="flex-1 text-left"
+      >
+        <p className="font-semibold text-sm">
+          {patient.name} {patient.surname}
+        </p>
+
+        <p
+          className={`text-xs mt-0.5 tabular ${
+            isSelected ? "text-white/80" : "text-slate-500"
+          }`}
+        >
+          {patient.protocolNumber ||
+            (patient.week != null
+              ? `${patient.week}w ${patient.days}d`
+              : "")}
+        </p>
+      </button>
+
+      <button
+        onClick={() => handleDeleteClick(patient)}
+        className={`p-1 rounded hover:bg-black/10 ${
+          isSelected ? "text-white" : "text-slate-500"
+        }`}
+      >
+        <Trash2 size={16} />
+      </button>
+
+    </div>
+  </div>
+);
                 });
               })()}
             </div>
@@ -392,7 +442,39 @@ if (error) {
             </div>
           ) : (
             <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-3 gap-4">
+{patientToDelete && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-2xl w-[400px] shadow-xl">
 
+      <h2 className="text-xl font-semibold mb-2">
+        Delete Patient?
+      </h2>
+
+      <p className="text-sm text-slate-600 mb-6">
+        Are you sure you want to delete this patient?
+      </p>
+
+      <div className="flex justify-end gap-3">
+
+        <button
+          onClick={() => setPatientToDelete(null)}
+          className="px-4 py-2 rounded-xl border"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 rounded-xl bg-red-500 text-white"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+)}
               {/* Left: Biometry + Doppler + Curve + Visits */}
               <div className="xl:col-span-2 space-y-4">
 
