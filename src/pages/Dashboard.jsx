@@ -3,8 +3,10 @@ import {
   FlaskConical,
   Plus
 } from "lucide-react";
+import { useVisits } from "../hooks/useVisits";
+import { usePatients } from "../hooks/usePatients";
 import DeletePatientModal from "../components/dashboard/DeletePatientModal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import BiometrySection from "../components/dashboard/BiometrySection";
@@ -45,24 +47,20 @@ function calcGaFromLmp(lmp) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-
-  const [patients, setPatients] = useState([]);
-  const [selectedPatientId, setSelectedPatientId] = useState(null);
-const [patientToDelete, setPatientToDelete] = useState(null);
-
-  useEffect(() => {
-const fetchPatients = async () => {
-  try {
-    const patientsData = await fetchPatientsWithVisits();
-    setPatients(patientsData);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-    fetchPatients();
-  }, []);
-
+  const {
+  patients,
+  setPatients,
+  selectedPatientId,
+  setSelectedPatientId,
+  loading,
+  removePatient,
+} = usePatients();
+  const { addVisit, removeVisit } = useVisits({
+  patients,
+  setPatients,
+  selectedPatientId,
+});
+  const [patientToDelete, setPatientToDelete] = useState(null);
   const [measurements, setMeasurements] = useState(emptyMeasurements);
   const [doppler, setDoppler] = useState(emptyDoppler);
   const [chartParam, setChartParam] = useState("AC");
@@ -124,7 +122,7 @@ const confirmDelete = async () => {
   if (!patientToDelete) return;
 
   try {
-    await deletePatientCompletely(patientToDelete.id);
+await removePatient(patientToDelete.id);
 
     setPatients((prev) =>
       prev.filter((p) => p.id !== patientToDelete.id)
@@ -196,16 +194,10 @@ id: crypto.randomUUID(),
     };
 
 try {
-  await saveVisit(patient.id, visit);
+  await addVisit(visit);
 } catch (error) {
-  console.error(error);
   return;
 }
-patient.visits = [...(patient.visits || []), visit];
-
-updatedPatients[patientIndex] = patient;
-
-setPatients(updatedPatients);
 
     setMeasurements({ ...emptyMeasurements, EFW: efw || "" });
     setDoppler(emptyDoppler);
@@ -222,26 +214,12 @@ setSavedToast("saved");
   };
 
 const handleDeleteVisit = async (visitId) => {
-    if (selectedPatientId === null) return;
-    const updatedPatients = [...patients];
-const patientIndex = patients.findIndex(
-  (p) => p.id === selectedPatientId
-);
-
-const patient = { ...updatedPatients[patientIndex] };
-
-patient.visits = (patient.visits || []).filter(
-  (v) => v.id !== visitId
-);
-
-updatedPatients[patientIndex] = patient;
-    setPatients(updatedPatients);
-try {
-  await deleteVisitById(visitId);
-} catch (error) {
-  console.error(error);
-}
-  };
+  try {
+    await removeVisit(visitId);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   // ── shared classNames ─────────────────────────────────────────────
   const card = "bg-white border border-slate-200 rounded-xl shadow-sm";
